@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@appository/books/feature": ["libs/books/feature/src/index.ts"],
       "@appository/load-remote-module": [
         "libs/load-remote-module/src/index.ts"
       ],

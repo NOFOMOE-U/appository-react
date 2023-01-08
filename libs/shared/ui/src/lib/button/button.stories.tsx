@@ -8,7 +8,6 @@ import { Button } from './button';
 import * as ButtonArgTypes from './buttonArgTypes';
 
 
-
 export default {
   title: 'Components/Button',
   component: Button,
