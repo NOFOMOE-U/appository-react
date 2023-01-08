@@ -10,11 +10,16 @@
     "affected:libs": "nx affected:libs",
     "affected:components": "nx affected:components",
     "affected:build": "nx affected:build",
-    "shared-storybook": "nx run shared-ui:storybook",
-    "build-storybook": "nx run shared-ui:build-storybook",
+    "shared-storyui": "nx run shared-ui:storybook",
+    "build-storyui": "nx run shared-ui:build-storybook",
     "story": "NODE_OPTIONS='--openssl-legacy-provider' start-storybook -p 6006",
     "build-story": "NODE_OPTIONS='--openssl-legacy-provider'  build-storybook",
-    "serve-all": "nx run-many --parallel --target=serve --projects=host,dashboard,login,admin,bookstore --maxParallel=100"
+    "serve-all": "nx run-many --parallel --target=serve --projects=host,dashboard,login,admin,bookstore --maxParallel=100",
+
+    "graph":"nx dep-graph",
+    "affected:graph": "nx affected:graph",
+    "affected:graph:build": "nx affected:graph:build",
+    "affected:graph:test": "nx affected:graph:test"
   },
   "private": true,
   "devDependencies": {
