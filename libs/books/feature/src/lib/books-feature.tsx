@@ -10,7 +10,7 @@ const StyledBooksFeature = styled.div`
 export function BooksFeature(props: BooksFeatureProps) {
   return (
     <StyledBooksFeature>
-      <h1>Welcome to BooksFeature!</h1>
+      <h1>Welcome to Featured Books Section!</h1>
     </StyledBooksFeature>
   );
 }

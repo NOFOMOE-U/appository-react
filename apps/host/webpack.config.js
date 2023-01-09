@@ -1,7 +1,7 @@
 const withModuleFederation = require('@nrwl/react/module-federation');
 const moduleFederationConfig = require('./module-federation.config');
 
-const output = require('output')
+// const output = require('output')
 // /**
 //  * @type {import('@nrwl/devkit').ModuleFederationConfig}
 //  **/
@@ -24,7 +24,7 @@ module.exports = withModuleFederation({
       };
     }
 
-    output.hashFunction = 'xxhash64'
+    // output.hashFunction = 'xxhash64'
 
     // Returning false means the library is not shared.
     return false;

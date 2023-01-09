@@ -33,7 +33,7 @@ export function App() {
       </ul>
       <Routes>
         <Route path="/" element={<NxWelcome title="host" />} />
-        <Route path="/bookstore" element={<Bookstore />} />
+        <Route path="/bookstore/*" element={<Bookstore />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<Admin />} />
