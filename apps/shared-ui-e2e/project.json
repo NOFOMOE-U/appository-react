@@ -8,12 +8,12 @@
       "executor": "@nrwl/cypress:cypress",
       "options": {
         "cypressConfig": "apps/shared-ui-e2e/cypress.config.ts",
-        "devServerTarget": "shared-ui:storybook",
+        "devServerTarget": "ui-shared:storybook",
         "testingType": "e2e"
       },
       "configurations": {
         "ci": {
-          "devServerTarget": "shared-ui:storybook:ci"
+          "devServerTarget": "ui-shared:storybook:ci"
         }
       }
     },
@@ -26,5 +26,5 @@
     }
   },
   "tags": [],
-  "implicitDependencies": ["shared-ui"]
+  "implicitDependencies": ["ui-shared"]
 }
