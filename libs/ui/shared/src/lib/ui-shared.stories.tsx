@@ -1,5 +1,5 @@
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
-import { SharedUi } from './shared-ui';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { SharedUi } from './ui-shared';
 
 const Story: ComponentMeta<typeof SharedUi> = {
   component: SharedUi,

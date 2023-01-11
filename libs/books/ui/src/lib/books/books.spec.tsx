@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 
-import SharedUi from './shared-ui';
+import Books from './books';
 
-describe('SharedUi', () => {
+describe('Books', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<SharedUi />);
+    const { baseElement } = render(<Books />);
     expect(baseElement).toBeTruthy();
   });
 });

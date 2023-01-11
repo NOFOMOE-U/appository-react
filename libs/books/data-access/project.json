@@ -1,24 +1,24 @@
 {
-  "name": "books-feature",
+  "name": "books-data-access",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/books/feature/src",
+  "sourceRoot": "libs/books/data-access/src",
   "projectType": "library",
-  "tags": ["type:feature", "scope:books"],
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/books/feature/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["libs/books/data-access/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/books/feature/jest.config.ts",
+        "jestConfig": "libs/books/data-access/jest.config.ts",
         "passWithNoTests": true
       }
     }
-  }
+  },
+  "tags": ["type:data-access", "scope:books"]
 }

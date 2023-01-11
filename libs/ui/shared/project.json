@@ -60,7 +60,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "uiFramework": "@storybook/react",
-        "outputPath": "dist/storybook/shared-ui",
+        "outputPath": "dist/storybook/ui-shared",
         "config": {
           "configFolder": "libs/ui/shared/.storybook"
         }
