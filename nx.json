@@ -19,7 +19,7 @@
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+      "inputs": ["production", "^production", "!{projectRoot}/**/*.spec.ts"]
     },
     "e2e": {
       "inputs": ["default", "^production"]

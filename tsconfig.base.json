@@ -21,7 +21,7 @@
       "@appository/load-remote-module": [
         "libs/load-remote-module/src/index.ts"
       ],
-      "@appository/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
