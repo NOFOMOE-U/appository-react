@@ -1,4 +1,4 @@
-describe('ui-shared: Header component', () => {
+describe('shared-ui: Header component', () => {
   beforeEach(() => cy.visit('/iframe.html?id=header--primary'));
     
     it('should render the component', () => {

@@ -1,4 +1,4 @@
-describe('ui-shared: argTypes component', () => {
+describe('shared-ui: argTypes component', () => {
   beforeEach(() => cy.visit('/iframe.html?id=argtypes--primary'));
     
     it('should render the component', () => {

@@ -21,8 +21,9 @@ export function BooksFeature(props: BooksFeatureProps) {
   return (
     <>
       
-    <h2>Books</h2>
-    <Books books={books} />
+      <h2>Books</h2>
+      {/* 3a. pass callback for book and add an elert  */}
+    <Books books={books} onAdd={book => alert(`Added ${book.title} to cart`)} />
     </>
   );
 }

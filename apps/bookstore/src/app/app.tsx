@@ -9,7 +9,7 @@ import {
   Main,
   NavigationItem,
   NavigationList
-} from '@appository/ui/shared';
+} from '@appository/shared/ui';
 
 const StyledApp = styled.div`
   // Your style here
@@ -33,8 +33,11 @@ export const App = () => {
       <Main>
         <Routes>
           {/* <Route path="/" element={<BookStoreComponent />} /> */}
-          <Route path="/books" element={<BooksFeature/>} />
-          <Route path="/bookstore" element={<Navigate replace to="/bookstore/books" />} />
+          <Route path="/books" element={<BooksFeature />} />
+          <Route
+            path="/bookstore"
+            element={<Navigate replace to="/bookstore/books" />}
+          />
         </Routes>
       </Main>
     </>

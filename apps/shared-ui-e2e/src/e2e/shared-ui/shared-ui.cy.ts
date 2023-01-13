@@ -1,4 +1,4 @@
-describe('ui-shared: SharedUi component', () => {
+describe('shared-ui: SharedUi component', () => {
   beforeEach(() => cy.visit('/iframe.html?id=sharedui--primary'));
     
     it('should render the component', () => {

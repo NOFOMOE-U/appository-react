@@ -1,11 +1,11 @@
 // import { ReactNode } from 'react';
 
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 // /* eslint-disable-next-line */
-
-import React, { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes } from 'react';
 // import styled from 'styled-components';
+
 const StyledButton = styled.button`
   font-size: 0.8rem;
   padding: 0.5rem;
@@ -24,6 +24,7 @@ export const Button = ({
   return <StyledButton {...rest}>{children}</StyledButton>;
 };
 export default Button;
+
 
 // interface ButtonProps {
 //   // Add the value prop here

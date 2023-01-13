@@ -5,7 +5,7 @@ export * from './lib/header/header';
 export * from './lib/main/main';
 export * from './lib/navigation-item/navigation-item';
 export * from './lib/navigation-list/navigation-list';
-export * from './lib/ui-shared';
+export * from './lib/shared-ui';
 //storybook styles
 export * from './styles/breakpoints/breakpoints';
 export * from './styles/cssreset/cssreset';

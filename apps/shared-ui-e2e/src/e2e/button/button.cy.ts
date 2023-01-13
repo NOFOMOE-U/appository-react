@@ -1,4 +1,4 @@
-describe('ui-shared: Button component', () => {
+describe('shared-ui: Button component', () => {
   beforeEach(() => cy.visit('/iframe.html?id=button--primary'));
     
     it('should render the component', () => {
