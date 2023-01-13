@@ -16,10 +16,7 @@
         "main": "apps/bookstore/src/main.ts",
         "polyfills": "apps/bookstore/src/polyfills.ts",
         "tsConfig": "apps/bookstore/tsconfig.app.json",
-        "assets": [
-          "apps/bookstore/src/favicon.ico",
-          "apps/bookstore/src/assets"
-        ],
+        "assets": ["apps/bookstore/src/favicon.ico", "apps/bookstore/src/assets"],
         "styles": [],
         "scripts": [],
         "webpackConfig": "apps/bookstore/webpack.config.js"

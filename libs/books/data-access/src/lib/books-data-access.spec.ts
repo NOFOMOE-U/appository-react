@@ -1,7 +1,7 @@
-import { booksDataAccess } from './books-data-access';
+import { booksDataAccess } from './books-data-access'
 
 describe('booksDataAccess', () => {
   it('should work', () => {
-    expect(booksDataAccess()).toEqual('books-data-access');
-  });
-});
+    expect(booksDataAccess()).toEqual('books-data-access')
+  })
+})

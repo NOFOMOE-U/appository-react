@@ -1,6 +1,6 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes } from 'react'
 
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 const StyledHeader = styled.header`
   padding: 1rem;
@@ -20,11 +20,9 @@ const StyledHeader = styled.header`
     padding-right: 1rem;
     border-right: 1px solid white;
   }
-`;
-export const Header = (props: HTMLAttributes<HTMLElement>) => (
-  <StyledHeader>{props.children}</StyledHeader>
-);
-export default Header;
+`
+export const Header = (props: HTMLAttributes<HTMLElement>) => <StyledHeader>{props.children}</StyledHeader>
+export default Header
 
 // import styled from 'styled-components';
 

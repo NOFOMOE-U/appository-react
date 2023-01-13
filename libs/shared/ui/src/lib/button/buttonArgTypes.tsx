@@ -12,4 +12,4 @@ export const argTypes = {
       control: { type: 'radio' },
     },
   },
-};
+}

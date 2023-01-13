@@ -6,6 +6,6 @@
 const moduleFederationConfig = {
   name: 'host',
   remotes: [],
-};
+}
 
-module.exports = moduleFederationConfig;
+module.exports = moduleFederationConfig

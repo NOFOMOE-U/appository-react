@@ -6,7 +6,6 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    
     "affected:apps": "nx affected:apps",
     "affected:libs": "nx affected:libs",
     "affected:components": "nx affected:components",
@@ -16,7 +15,6 @@
     "story": "NODE_OPTIONS='--openssl-legacy-provider' start-storybook -p 6006",
     "build-story": "NODE_OPTIONS='--openssl-legacy-provider'  build-storybook",
     "serveall": "nx run-many --parallel --target=serve --projects=host,dashboard,login,admin,bookstore --maxParallel=100",
-    
     "graph": "nx dep-graph",
     "affected:graph:build": "nx affected:graph:build",
     "affected:graph:test": "nx affected:graph:test",
@@ -31,6 +29,7 @@
     "@nrwl/eslint-plugin-nx": "15.4.4",
     "@nrwl/jest": "15.4.4",
     "@nrwl/linter": "15.4.4",
+    "@nrwl/nest": "^15.5.0",
     "@nrwl/nx-cloud": "^15.0.2",
     "@nrwl/react": "15.4.4",
     "@nrwl/storybook": "15.4.4",

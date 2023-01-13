@@ -1,11 +1,11 @@
-import { DecoratorFn } from '@storybook/react';
-import { ThemeProvider } from 'styled-components';
-import { GlobalStyle } from '../../ui/src/styles/global-styles/global-styles';
+import { DecoratorFn } from '@storybook/react'
+import { ThemeProvider } from 'styled-components'
+import { GlobalStyle } from '../../ui/src/styles/global-styles/global-styles'
 
-import { lightTheme } from '../../ui/src/styles/theme/theme';
+import { lightTheme } from '../../ui/src/styles/theme/theme'
 export const withMaxWidth: DecoratorFn = (StoryFn, context) => {
   //use dev toos to see the object context properties
-  console.log({ context });
+  console.log({ context })
   return (
     <div
       style={{
@@ -16,17 +16,17 @@ export const withMaxWidth: DecoratorFn = (StoryFn, context) => {
     >
       <StoryFn />
     </div>
-  );
-};
+  )
+}
 
 export const withTheme: DecoratorFn = (StoryFn, context) => (
   <ThemeProvider theme={lightTheme}>
     <GlobalStyle />
     <StoryFn />
   </ThemeProvider>
-);
+)
 
-export const globalDecorators = [withMaxWidth, withTheme];
+export const globalDecorators = [withMaxWidth, withTheme]
 
 // order of decorators
 // Global decorators, in the order they are defined.

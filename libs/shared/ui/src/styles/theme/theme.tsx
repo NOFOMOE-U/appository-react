@@ -1,16 +1,16 @@
-import { DefaultTheme } from 'styled-components';
+import { DefaultTheme } from 'styled-components'
 
 declare module 'styled-components' {
   export interface DefaultTheme {
-    name: 'light' | 'dark';
+    name: 'light' | 'dark'
     fonts: {
-      family: string;
-    };
-    spacing: typeof spacing;
-    color: typeof color;
-    borderRadius: typeof borderRadius;
-    boxShadow: typeof boxShadow;
-    typography: typeof typography;
+      family: string
+    }
+    spacing: typeof spacing
+    color: typeof color
+    borderRadius: typeof borderRadius
+    boxShadow: typeof boxShadow
+    typography: typeof typography
   }
 }
 
@@ -59,9 +59,9 @@ const baseColors = {
     dark4: '#6A8589',
     dark5: '#596f72',
   },
-};
+}
 
-const spaceUnit = 1;
+const spaceUnit = 1
 
 const borderRadius = {
   xs: '4px',
@@ -71,7 +71,7 @@ const borderRadius = {
   xl: '32px',
   xxl: '40px',
   round: '50%',
-};
+}
 
 const spacing = {
   xxs: `${0.25 * spaceUnit}em`,
@@ -81,13 +81,13 @@ const spacing = {
   l: `${2 * spaceUnit}em`,
   xl: `${3.25 * spaceUnit}em`,
   xxl: `${5.25 * spaceUnit}em`,
-};
+}
 
 const boxShadow = {
   card: '0px 14px 26px 0px rgba(0, 0, 0, 0.08)',
   inner: 'inset 0 3px 0 0 rgba(0, 0, 0, 0.05)',
   outerBorder: `0 0 0 1px ${baseColors.blue.dark2}, 0 0 0 4px ${baseColors.blue.light5}`,
-};
+}
 
 const typography = {
   fontSize: {
@@ -106,7 +106,7 @@ const typography = {
     medium: '500',
     regular: '400',
   },
-};
+}
 
 const color = {
   accentText: baseColors.black,
@@ -152,7 +152,7 @@ const color = {
   newRestaurantTag: baseColors.green.base,
   white: baseColors.white,
   black: baseColors.black,
-};
+}
 
 export const lightTheme: DefaultTheme = {
   borderRadius,
@@ -164,7 +164,7 @@ export const lightTheme: DefaultTheme = {
   name: 'light',
   spacing,
   typography,
-};
+}
 
 export const darkTheme: DefaultTheme = {
   ...lightTheme,
@@ -212,4 +212,4 @@ export const darkTheme: DefaultTheme = {
     topBannerBackground: baseColors.grey.dark5,
   },
   name: 'dark',
-};
+}

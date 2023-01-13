@@ -18,9 +18,7 @@
       "@appository/books/data-access": ["libs/books/data-access/src/index.ts"],
       "@appository/books/feature": ["libs/books/feature/src/index.ts"],
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
-      "@appository/load-remote-module": [
-        "libs/load-remote-module/src/index.ts"
-      ],
+      "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
       "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
     }
   },

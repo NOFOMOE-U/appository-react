@@ -1,9 +1,9 @@
 // import { ReactNode } from 'react';
 
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 // /* eslint-disable-next-line */
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes } from 'react'
 // import styled from 'styled-components';
 
 const StyledButton = styled.button`
@@ -16,15 +16,11 @@ const StyledButton = styled.button`
     background-color: #80a8e2;
     border-color: #0e2147;
   }
-`;
-export const Button = ({
-  children,
-  ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement>) => {
-  return <StyledButton {...rest}>{children}</StyledButton>;
-};
-export default Button;
-
+`
+export const Button = ({ children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => {
+  return <StyledButton {...rest}>{children}</StyledButton>
+}
+export default Button
 
 // interface ButtonProps {
 //   // Add the value prop here

@@ -1,4 +1,4 @@
-import { css } from 'styled-components';
+import { css } from 'styled-components'
 
 export const resetCSS = css`
   *,
@@ -61,4 +61,4 @@ export const resetCSS = css`
   [hidden] {
     display: none !important; /* make sure this is not overridden by utilities */
   }
-`;
+`

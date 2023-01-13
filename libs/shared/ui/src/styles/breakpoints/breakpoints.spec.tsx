@@ -1,10 +1,10 @@
-import { render } from '@testing-library/react';
+import { render } from '@testing-library/react'
 
-import Breakpoints from './breakpoints';
+import Breakpoints from './breakpoints'
 
 describe('Breakpoints', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<Breakpoints />);
-    expect(baseElement).toBeTruthy();
-  });
-});
+    const { baseElement } = render(<Breakpoints />)
+    expect(baseElement).toBeTruthy()
+  })
+})

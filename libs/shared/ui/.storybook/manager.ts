@@ -1,6 +1,6 @@
 // .storybook/manager.ts
-import { addons } from '@storybook/addons';
-import { create } from '@storybook/theming';
+import { addons } from '@storybook/addons'
+import { create } from '@storybook/theming'
 
 const theme = create({
   base: 'light', // this will inherit the base properties of Storybooks'light theme
@@ -39,7 +39,7 @@ const theme = create({
   brandUrl: 'https://newline.co',
   brandImage:
     'https://d8dgeb1f3fxgw.cloudfront.net/static/img/logo/newline/newline-logo-longwise-solo-lightbg-gray.svg',
-});
+})
 
 addons.setConfig({
   //default use if you don't want to set up a full them.
@@ -49,5 +49,5 @@ addons.setConfig({
   theme,
   showPanel: true, // show addons panel by default
   panelPosition: 'right', // position addons panel on the right by default
-});
+})
 // #todo

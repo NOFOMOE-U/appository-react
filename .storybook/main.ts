@@ -1,4 +1,4 @@
-import type { StorybookConfig } from '@storybook/core-common';
+import type { StorybookConfig } from '@storybook/core-common'
 
 export const rootMain: StorybookConfig = {
   stories: [],
@@ -18,4 +18,4 @@ export const rootMain: StorybookConfig = {
   //   // Return the altered config
   //   return config;
   // },
-};
+}

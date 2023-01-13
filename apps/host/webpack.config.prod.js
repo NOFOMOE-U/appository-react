@@ -1,7 +1,7 @@
 // @ts-check
 
-const { withModuleFederation } = require('@nrwl/react/module-federation');
-const baseConfig = require('./module-federation.config');
+const { withModuleFederation } = require('@nrwl/react/module-federation')
+const baseConfig = require('./module-federation.config')
 
 /**
  * @type {import('@nrwl/devkit').ModuleFederationConfig}
@@ -31,6 +31,6 @@ const prodConfig = {
     ['admin', 'http://localhost:4203/'],
     ['bookstore', 'http://localhost:4204/'],
   ],
-};
+}
 
-module.exports = withModuleFederation(prodConfig);
+module.exports = withModuleFederation(prodConfig)

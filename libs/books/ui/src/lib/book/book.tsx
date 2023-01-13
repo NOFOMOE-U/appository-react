@@ -1,12 +1,12 @@
-import { Button } from '@appository/shared/ui';
-import styled from 'styled-components';
+import { Button } from '@appository/shared/ui'
+import styled from 'styled-components'
 
 /* eslint-disable-next-line */
 export interface BookProps {
-  book: any;
+  book: any
   //1a. add prop for handling adding book to cart
-  //onAdd prop section 3. 
-  onAdd: (book: any) => void;
+  //onAdd prop section 3.
+  onAdd: (book: any) => void
 }
 
 const StyledBook = styled.div`
@@ -26,25 +26,25 @@ const StyledBook = styled.div`
   .price {
     color: #478d3c;
   }
-`;
+`
 
 export function Book({ book, onAdd }: BookProps) {
   // 1b. create a handle function to add a book to the cart
-  const handleAdd = () => onAdd(book);
+  const handleAdd = () => onAdd(book)
   return (
     <StyledBook>
-      <Button/>
-      <span className='title'>
+      <Button />
+      <span className="title">
         {book.title} by {book.arthur}
       </span>
-      <span className='price'>${book.price}</span>
+      <span className="price">${book.price}</span>
       <span>
         {/* 1c. add a handle click event to the button adding to the cart.
         //section 3 adding props  */}
         <Button onClick={handleAdd}>Add to Cart</Button>
       </span>
     </StyledBook>
-  );
+  )
 }
 
-export default Book;
+export default Book

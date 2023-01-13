@@ -4,7 +4,7 @@ export const viewports = {
   M: 768,
   L: 1024,
   XL: 1440,
-};
+}
 
 export const breakpoints = {
   XS: `(min-width: ${viewports.XS}px)`,
@@ -12,7 +12,7 @@ export const breakpoints = {
   M: `(min-width: ${viewports.M}px)`,
   L: `(min-width: ${viewports.L}px)`,
   XL: `(min-width: ${viewports.XL}px)`,
-};
+}
 
 // const fallbackImage =
 //   'https://stylizedbay.com/wp-content/uploads/2018/02/unknown-avatar.jpg'

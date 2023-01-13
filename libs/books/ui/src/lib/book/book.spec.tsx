@@ -1,10 +1,10 @@
-import { render } from '@testing-library/react';
+import { render } from '@testing-library/react'
 
-import Book from './book';
+import Book from './book'
 
 describe('Book', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<Book />);
-    expect(baseElement).toBeTruthy();
-  });
-});
+    const { baseElement } = render(<Book />)
+    expect(baseElement).toBeTruthy()
+  })
+})

@@ -1,6 +1,6 @@
 {
-    "dashboard": "http://localhost:4201",
-    "login": "http://localhost:4202",
-    "admin": "http://localhost:4203",
-    "bookstore": "http://localhost:4204"
+  "dashboard": "http://localhost:4201",
+  "login": "http://localhost:4202",
+  "admin": "http://localhost:4203",
+  "bookstore": "http://localhost:4204"
 }

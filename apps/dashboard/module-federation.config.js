@@ -8,6 +8,6 @@ const moduleFederationConfig = {
   exposes: {
     './Module': './src/remote-entry.ts',
   },
-};
+}
 
-module.exports = moduleFederationConfig;
+module.exports = moduleFederationConfig

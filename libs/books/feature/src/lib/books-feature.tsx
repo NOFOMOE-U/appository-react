@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { useEffect, useState } from 'react'
+import styled from 'styled-components'
 
-import { getBooks } from '@appository/books/data-access';
-import { Books } from '@appository/books/ui';
+import { getBooks } from '@appository/books/data-access'
+import { Books } from '@appository/books/ui'
 /* eslint-disable-next-line */
 export interface BooksFeatureProps {}
 
 const StyledBooksFeature = styled.div`
   color: pink;
-`;
+`
 
 export function BooksFeature(props: BooksFeatureProps) {
   const [books, setBooks] = useState<any[]>([])
@@ -20,12 +20,11 @@ export function BooksFeature(props: BooksFeatureProps) {
   //So this is the reason we delcare it to have no dependant state.
   return (
     <>
-      
       <h2>Books</h2>
       {/* 3a. pass callback for book and add an elert  */}
-    <Books books={books} onAdd={book => alert(`Added ${book.title} to cart`)} />
+      <Books books={books} onAdd={(book) => alert(`Added ${book.title} to cart`)} />
     </>
-  );
+  )
 }
 
-export default BooksFeature;
+export default BooksFeature

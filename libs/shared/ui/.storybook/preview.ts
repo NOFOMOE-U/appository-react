@@ -1,6 +1,6 @@
-import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
+import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport'
 
-import { globalDecorators } from './decorators';
+import { globalDecorators } from './decorators'
 
 // import { viewports as breakpoints } from '@appository/shared/ui'
 
@@ -34,7 +34,7 @@ export const parameters = {
       ...INITIAL_VIEWPORTS,
     },
   },
-};
+}
 
 export const globalTypes = {
   theme: {
@@ -49,6 +49,6 @@ export const globalTypes = {
       showName: true,
     },
   },
-};
-export const decorators = globalDecorators;
+}
+export const decorators = globalDecorators
 //   #todo

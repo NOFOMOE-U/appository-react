@@ -1,15 +1,15 @@
-import { loadRemoteModule } from '@appository/load-remote-module';
-import { lazy, Suspense } from 'react';
-import { Link, Route, Routes } from 'react-router-dom';
-import NxWelcome from './nx-welcome';
+import { loadRemoteModule } from '@appository/load-remote-module'
+import { lazy, Suspense } from 'react'
+import { Link, Route, Routes } from 'react-router-dom'
+import NxWelcome from './nx-welcome'
 
-const Bookstore = lazy(() => loadRemoteModule('bookstore', './Module'));
+const Bookstore = lazy(() => loadRemoteModule('bookstore', './Module'))
 
-const Login = lazy(() => loadRemoteModule('login', './Module'));
+const Login = lazy(() => loadRemoteModule('login', './Module'))
 
-const Dashboard = lazy(() => loadRemoteModule('dashboard', './Module'));
+const Dashboard = lazy(() => loadRemoteModule('dashboard', './Module'))
 
-const Admin = lazy(() => loadRemoteModule('admin', './Module'));
+const Admin = lazy(() => loadRemoteModule('admin', './Module'))
 
 export function App() {
   return (
@@ -39,7 +39,7 @@ export function App() {
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </Suspense>
-  );
+  )
 }
 
-export default App;
+export default App

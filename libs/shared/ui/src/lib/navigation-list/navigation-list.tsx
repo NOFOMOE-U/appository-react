@@ -1,5 +1,5 @@
-import { HTMLAttributes } from 'react';
-import styled from 'styled-components';
+import { HTMLAttributes } from 'react'
+import styled from 'styled-components'
 const StyledNavigationList = styled.div`
   ul {
     display: flex;
@@ -7,12 +7,12 @@ const StyledNavigationList = styled.div`
     padding: 0;
     list-style: none;
   }
-`;
+`
 export const NavigationList = (props: HTMLAttributes<HTMLElement>) => {
   return (
     <StyledNavigationList role="navigation">
       <ul>{props.children}</ul>
     </StyledNavigationList>
-  );
-};
-export default NavigationList;
+  )
+}
+export default NavigationList

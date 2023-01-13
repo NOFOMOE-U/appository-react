@@ -1,6 +1,6 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes } from 'react'
 
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 const StyledMain = styled.main`
   padding: 0 1rem;
@@ -8,9 +8,7 @@ const StyledMain = styled.main`
   max-width: 960px;
   height: 100vh;
   background-color: orange;
-`;
-export const Main = (props: HTMLAttributes<HTMLElement>) => (
-  <StyledMain>{props.children}</StyledMain>
-);
+`
+export const Main = (props: HTMLAttributes<HTMLElement>) => <StyledMain>{props.children}</StyledMain>
 
-export default Main;
+export default Main
