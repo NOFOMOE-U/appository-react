@@ -18,7 +18,7 @@
     "forceConsistentCasingInFileNames": true,
   },
   "files": [],
-  "include": ["src"],
+  "include": ["src", "module-federation.config.js"],
   "references": [
     {
       "path": "./tsconfig.app.json"
