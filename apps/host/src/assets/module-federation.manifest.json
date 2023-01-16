@@ -1,6 +1,20 @@
 {
-  "dashboard": "http://localhost:4201",
-  "login": "http://localhost:4202",
-  "admin": "http://localhost:4203",
-  "bookstore": "http://localhost:4204"
+  "remotes": {
+    "dashboard": {
+      "version": "1.0.0",
+      "url": "http://localhost:4201/remoteEntry.js"
+    },
+    "login": {
+      "version": "1.0.0",
+      "url": "http://localhost:4202/remoteEntry.js"
+    },
+    "admin": {
+      "version": "1.0.0",
+      "url": "http://localhost:4203/remoteEntry.js"
+    },
+    "bookstore": {
+      "version": "1.0.0",
+      "url": "http://localhost:4204/remoteEntry.js"
+    }
+  } 
 }

@@ -1,0 +1,115 @@
+── README.md
+├── apps
+│   ├── admin
+│   │   ├── jest.config.ts
+│   │   ├── module-federation.config.js
+│   │   ├── project.json
+│   │   ├── src
+│   │   │   ├── app
+│   │   │   │   ├── app.spec.tsx
+│   │   │   │   ├── app.tsx
+│   │   │   │   └── nx-welcome.tsx
+│   │   │   ├── assets
+│   │   │   ├── bootstrap.tsx
+│   │   │   ├── environments
+│   │   │   │   ├── environment.prod.ts
+│   │   │   │   └── environment.ts
+│   │   │   ├── favicon.ico
+│   │   │   ├── index.html
+│   │   │   ├── main.ts
+│   │   │   ├── polyfills.ts
+│   │   │   └── remote-entry.ts
+│   │   ├── tsconfig.app.json
+│   │   ├── tsconfig.json
+│   │   └── tsconfig.spec.json
+│   ├── appindex
+│   │   ├── index.html
+│   │   ├── jest.config.ts
+│   │   ├── project.json
+│   │   ├── src
+│   │   │   ├── app
+│   │   │   │   ├── app.spec.tsx
+│   │   │   │   ├── app.tsx
+│   │   │   │   └── nx-welcome.tsx
+│   │   │   ├── assets
+│   │   │   ├── environments
+│   │   │   │   ├── environment.prod.ts
+│   │   │   │   └── environment.ts
+│   │   │   ├── favicon.ico
+│   │   │   ├── main.tsx
+│   │   │   └── polyfills.ts
+│   │   ├── tsconfig.app.json
+│   │   ├── tsconfig.json
+│   │   ├── tsconfig.spec.json
+│   │   ├── vite.config.ts
+│   │   ├── webpack.config.js
+│   │   └── webpack.config.prod.js
+│   ├── host
+│   │   ├── index.html
+│   │   ├── jest.config.ts
+│   │   ├── module-federation.config.js
+│   │   ├── project.json
+│   │   ├── src
+│   │   │   ├── app
+│   │   │   │   ├── app.spec.tsx
+│   │   │   │   ├── app.tsx
+│   │   │   │   └── nx-welcome.tsx
+│   │   │   ├── assets
+│   │   │   │   └── module-federation.manifest.json
+│   │   │   ├── bootstrap.tsx
+│   │   │   ├── environments
+│   │   │   │   ├── environment.prod.ts
+│   │   │   │   └── environment.ts
+│   │   │   ├── favicon.ico
+│   │   │   ├── main.ts
+│   │   │   ├── polyfills.ts
+│   │   │   └── remotes.d.ts
+│   │   ├── tsconfig.app.json
+│   │   ├── tsconfig.json
+│   │   ├── tsconfig.spec.json
+│   │   ├── vite.config.ts
+│   │   ├── webpack.config.js
+│   │   └── webpack.config.prod.js
+├── babel.config.json
+│   ├── libs
+│   │   ├── load-remote-module
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── index.d.ts
+│   │     ├── index.js
+│   │     ├── index.js.map
+│   │     └── lib
+│   │         ├── load-remote-module.d.ts
+│   │         ├── load-remote-module.js
+│   │              └── load-remote-module.js.map
+│   └── storybook
+│       └── shared-ui
+│           ├── favicon.ico
+│           ├── index.html
+│           ├── project.json
+├── file
+├── jest.config.ts
+├── jest.preset.js
+├── libs
+│   ├── load-remote-module
+│   │   ├── README.md
+│   │   ├── jest.config.ts
+│   │   ├── package.json
+│   │   ├── project.json
+│   │   ├── src
+│   │   │   ├── index.ts
+│   │   │   └── lib
+│   │   │       ├── load-remote-module.spec.ts
+│   │   │       └── load-remote-module.ts
+│   │   ├── tsconfig.json
+│   │   ├── tsconfig.lib.json
+│   │   └── tsconfig.spec.json
+├── nx.json
+├── package.json
+├── pnpm-lock.yaml
+├── tools
+│   ├── generators
+│   └── tsconfig.tools.json
+├── tsconfig.base.json
+└── vitest.config.ts

@@ -5,21 +5,11 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nrwl/vite:build",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "compiler": "babel",
-        "outputPath": "dist/apps/bookstore",
-        "index": "apps/bookstore/src/index.html",
-        "baseHref": "/",
-        "main": "apps/bookstore/src/main.ts",
-        "polyfills": "apps/bookstore/src/polyfills.ts",
-        "tsConfig": "apps/bookstore/tsconfig.app.json",
-        "assets": ["apps/bookstore/src/favicon.ico", "apps/bookstore/src/assets"],
-        "styles": [],
-        "scripts": [],
-        "webpackConfig": "apps/bookstore/webpack.config.js"
+        "outputPath": "dist/apps/bookstore"
       },
       "configurations": {
         "development": {
@@ -46,12 +36,11 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/react:module-federation-dev-server",
+      "executor": "@nrwl/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "bookstore:build",
-        "hmr": true,
-        "port": 4204
+        "hmr": true
       },
       "configurations": {
         "development": {
@@ -71,10 +60,9 @@
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nrwl/vite:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/bookstore/jest.config.ts",
         "passWithNoTests": true
       }
     },

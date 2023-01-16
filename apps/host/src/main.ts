@@ -1,7 +1,13 @@
-import { setRemoteDefinitions } from '@appository/load-remote-module'
-import('./bootstrap')
+import { fetchRemotes } from '@appository/shared/fetch-remotes';
+import { setRemoteUrlResolver } from '@appository/shared/load-remote-module';
+import { SharedRemotes } from '@appository/shared/remotes';
 
-fetch('/assets/module-federation.manifest.json')
-  .then((res) => res.json())
-  .then((definitions) => setRemoteDefinitions(definitions))
-  .then(() => import('./bootstrap').catch((err) => console.error(err)))
+const remotes = await fetchRemotes();
+const remoteUrlResolver = (remoteName: string) => {
+    return remotes[remoteName];
+}
+setRemoteUrlResolver(remoteUrlResolver);
+
+SharedRemotes();
+import('./bootstrap')
+  .catch((err) => console.error(err))

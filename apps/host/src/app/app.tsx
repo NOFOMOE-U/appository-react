@@ -1,4 +1,4 @@
-import { loadRemoteModule } from '@appository/load-remote-module'
+import { loadRemoteModule } from '@appository/shared/load-remote-module'
 import { lazy, Suspense } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import NxWelcome from './nx-welcome'

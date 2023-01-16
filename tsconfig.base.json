@@ -19,8 +19,11 @@
       "@appository/books/feature": ["libs/books/feature/src/index.ts"],
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
       "@appository/core": ["libs/core/src/index.ts"],
-      "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
-      "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
+      "@appository/shared/fetch-remotes": ["libs/shared/fetch-remotes/src/index.ts"],
+      "@appository/shared/load-remote-module": ["libs/shared/load-remote-module/src/index.ts"],
+      "@appository/shared/remotes": ["libs/shared/remotes/src/index.ts"],
+      "@appository/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@appository/shared/utils": ["libs/shared/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
