@@ -6,7 +6,7 @@
 const moduleFederationConfig = {
   name: 'login',
   exposes: {
-    './Module': './src/remote-entry.ts',
+    './Module': './apps/login/src/remote-entry.ts',
   },
 }
 

@@ -6,7 +6,7 @@
 const moduleFederationConfig = {
   name: 'dashboard',
   exposes: {
-    './Module': './src/remote-entry.ts',
+    './Module': './apps/dashboard/src/remote-entry.ts',
   },
 }
 

@@ -6,7 +6,7 @@
 const moduleFederationConfig = {
   name: 'bookstore',
   exposes: {
-    './Module': './src/remote-entry.ts',
+    './Module': './apps/bookstore/src/remote-entry.ts',
   },
 }
 

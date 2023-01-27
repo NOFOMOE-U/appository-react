@@ -6,7 +6,7 @@
 const moduleFederationConfig = {
   name: 'admin',
   exposes: {
-    './Module': './src/remote-entry.ts',
+    './Module': './apps/admin/src/remote-entry.ts',
   },
 }
 
