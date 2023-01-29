@@ -20,7 +20,7 @@ export function BooksFeature(props: BooksFeatureProps) {
   //So this is the reason we delcare it to have no dependant state.
   return (
     <>
-      <h2>Books</h2>
+      <h2 className='section-title'>Books</h2>
       {/* 3a. pass callback for book and add an elert  */}
       <Books books={books} onAdd={(book) => alert(`Added ${book.title} to cart`)} />
     </>
