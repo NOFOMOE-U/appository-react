@@ -15,10 +15,12 @@
     "story": "NODE_OPTIONS='--openssl-legacy-provider' start-storybook -p 6006",
     "build-story": "NODE_OPTIONS='--openssl-legacy-provider'  build-storybook",
     "serveall": "nx run-many --parallel --target=serve --projects=host,dashboard,login,admin,bookstore --maxParallel=100",
+    "api": "nx serve backend-api",
     "graph": "nx dep-graph",
     "affected:graph:build": "nx affected:graph:build",
     "affected:graph:test": "nx affected:graph:test",
-    "affected:graph": "nx affected:dep-graph"
+    "affected:graph": "nx affected:dep-graph",
+    "preinstall": "npx only-allow pnpm"
   },
   "private": true,
   "devDependencies": {
@@ -82,9 +84,12 @@
     "url-loader": "^3.0.0"
   },
   "dependencies": {
+    "@apollo/server": "^4.3.2",
+    "@nestjs/apollo": "^10.1.7",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/graphql": "^10.1.7",
     "@nestjs/platform-express": "^9.0.0",
     "@nrwl/devkit": "15.5.0",
     "@storybook/addon-links": "^6.5.15",
@@ -92,7 +97,10 @@
     "@storybook/addons": "^6.5.15",
     "@storybook/core-common": "^6.5.15",
     "@storybook/theming": "^6.5.15",
+    "apollo-server": "^3.11.1",
     "core-js": "^3.27.1",
+    "graphql": "^16.6.0",
+    "graphql-tools": "^8.3.16",
     "i": "^0.3.7",
     "joi": "^17.7.0",
     "npm": "^9.2.0",
