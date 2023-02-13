@@ -1,8 +1,10 @@
+import { useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import { getBooks } from '@appository/books/data-access'
+import { GET_BOOKS } from '@appository/books/data-query'
 import { Books } from '@appository/books/ui'
+
 /* eslint-disable-next-line */
 export interface BooksFeatureProps {}
 
@@ -11,13 +13,19 @@ const StyledBooksFeature = styled.div`
 `
 
 export function BooksFeature(props: BooksFeatureProps) {
+  const {loading, error, data} = useQuery(GET_BOOKS)
   const [books, setBooks] = useState<any[]>([])
 
   useEffect(() => {
-    getBooks().then(setBooks)
-  }, [])
+    if (data) {
+      setBooks(data.books)
+    }
+  }, [data])
   //the [] after the closing bracket indicates the effect is only run once in the initial render.
   //So this is the reason we delcare it to have no dependant state.
+
+  if(loading) return <p>Loading...</p>
+  if(error) return <p>Error.</p>
   return (
     <>
       <h2 className='section-title'>Books</h2>

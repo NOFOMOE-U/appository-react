@@ -35,7 +35,7 @@ export function Book({ book, onAdd }: BookProps) {
     <StyledBook>
       <Button />
       <span className="title">
-        {book.title} by {book.arthur}
+        {book.title} by {book.arthor}
       </span>
       <span className="price">${book.price}</span>
       <span>

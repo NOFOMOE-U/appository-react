@@ -80,5 +80,22 @@
         "unitTestRunner": "jest"
       }
     }
+  },
+  "projects": {
+    "api": {
+      "tags": []
+    },
+    "core": {
+      "tags": []
+    },
+    "data": {
+      "tags": []
+    },
+    "auth": {
+      "tags": []
+    },
+    "sdk": {
+      "tags": []
+    }
   }
 }

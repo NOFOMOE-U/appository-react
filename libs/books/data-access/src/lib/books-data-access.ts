@@ -1,3 +1,4 @@
+
 export async function getBooks() {
   // TODO: We'll wire this up to an actual API later.
   // For now we are just returning some fixtures.
@@ -37,5 +38,5 @@ export async function getBooks() {
       author: 'Jane Austen',
       price: 12.85,
     },
-  ]
+  ];
 }
