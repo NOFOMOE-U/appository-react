@@ -15,20 +15,22 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@appository/backend/auth": ["libs/backend/auth/src/index.ts"],
+      "@appository/backend/core": ["libs/backend/core/src/index.ts"],
+      "@appository/backend/data-access": ["libs/backend/src/index.ts"],
+      "@appository/backend/middleware": ["libs/backend/middleware/src/index.ts"],
+      "@appository/backend/models": ["libs/backend/models/src/index.ts"],
       "@appository/books/data-access": ["libs/books/data-access/src/index.ts"],
       "@appository/books/data-query": ["libs/books/data-query/src/index.ts"],
       "@appository/books/feature": ["libs/books/feature/src/index.ts"],
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
-      "@appository/core": ["libs/core/src/index.ts"],
       "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
-      "@appository/models": ["libs/models/src/index.ts"],
-      "@appository/modules": ["libs/modules/src/index.ts"],
-      "@appository/modules/users": ["libs/modules/users/src/index.ts"],
       "@appository/shared/module": ["libs/shared/module/src/index.ts"],
       "@appository/shared/ui": ["libs/shared/ui/src/index.ts"],
       "@appository/users/feature": ["libs/users/feature/src/index.ts"]
     },
     "jsx": "preserve"
   },
+  "files": ["src/types/graphql.d.ts"],
   "exclude": ["node_modules", "tmp"]
 }

@@ -6,6 +6,4 @@ export class AppService {
   getWelcomeMessage(): { message: string } {
     return { message: 'Welcome to api!' }
   }
-
-
 }

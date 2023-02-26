@@ -1,26 +1,27 @@
-import { CoreModule } from '@appository/core'
-import { Module } from '@nestjs/common'
-import { GraphQLModule } from '@nestjs/graphql'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { CoreModule } from '@appository/backend/core';
+import {
+  Module
+} from '@nestjs/common';
 
-import { BooksModule } from '@appository/books/data-query'
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
-import { DataSource } from 'typeorm'
+import { GraphQLModule } from '@nestjs/graphql';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { GraphQLConfigService } from './gql.config';
+import {PrismaService} from '@appository/backend/data-access'
 @Module({
   imports: [
   CoreModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      typePaths: ['./**/*.gql'],
-    }),
-    TypeOrmModule.forRoot(),
-    BooksModule
+      useClass: GraphQLConfigService,
+      imports:[PrismaService]
+    })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,GraphQLConfigService],
 })
 export class AppModule {
-  private dataSource: DataSource
+
 }

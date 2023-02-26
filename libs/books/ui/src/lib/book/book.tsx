@@ -33,7 +33,7 @@ export function Book({ book, onAdd }: BookProps) {
   const handleAdd = () => onAdd(book)
   return (
     <StyledBook>
-      <Button />
+      {/* <Button /> */}
       <span className="title">
         {book.title} by {book.arthor}
       </span>

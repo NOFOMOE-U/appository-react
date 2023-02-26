@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://graphql-codegen.com/config.schema.json",
+    "title": "GraphQL Codegen Configuration",
+    "description": "This is the schema for the GraphQL Code Generator configuration file",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "schema": {
+        "type": "string",
+        "description": "Path to GraphQL schema file"
+      },
+      "documents": {
+        "type": "string",
+        "description": "Glob pattern to match your GraphQL documents"
+      },
+      "generates": {
+        "type": "object",
+        "description": "Code generation options",
+        "additionalProperties": false,
+        "properties": {
+          "myGeneratedFile.ts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "plugins": {
+                "type": "array",
+                "description": "List of plugins to use for generating code",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "myOtherGeneratedFile.ts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "plugins": {
+                "type": "array",
+                "description": "List of plugins to use for generating code",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "config": {
+        "type": "object",
+        "description": "Custom configuration for plugins",
+        "additionalProperties": false,
+        "properties": {
+          "flutter_freezed": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "camelCasedEnums": {
+                "type": "array",
+                "description": "List of enums to generate as camelCase instead of UPPER_CASE",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  

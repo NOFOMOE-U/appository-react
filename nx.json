@@ -48,6 +48,7 @@
       "inputs": ["default", "^production", "{workspaceRoot}/.storybook/**/*", "{workspaceRoot}/.storybook/**/*"]
     }
   },
+  
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [

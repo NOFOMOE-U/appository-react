@@ -1,13 +1,11 @@
 // @ts-check
-
 const { withModuleFederation } = require('@nrwl/react/module-federation')
-const baseConfig = require('./module-federation.config')
+const moduleFederationConfig = require('./module-federation.config')
 
-/**
- * @type {import('@nrwl/devkit').ModuleFederationConfig}
- **/
+
 const defaultConfig = {
-  ...baseConfig,
+  ...moduleFederationConfig,
+
 }
 
 module.exports = withModuleFederation(defaultConfig)
