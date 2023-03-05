@@ -1,21 +1,20 @@
-import { Module } from '@nestjs/common'
-import { PrismaClient } from 'libs/backend/data-access/src/node_modules/.prisma/client'
-import { UserController } from './user.controller'
-import { UserResolver } from './user.resolver'
-import { UserService } from './user.service'
-
-const prisma = new PrismaClient()
-
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
+import { GqlModuleOptions, GraphQLModule } from '@nestjs/graphql';
+import { join } from 'path';
+import { TypesModule } from '../../types/types.module';
+import { UserResolver } from './user.resolver';
 @Module({
-  providers: [
-    UserService,
-    UserResolver,
-    {
-      provide: 'PRISMA_CLIENT',
-      useValue: prisma,
-    },
+  imports: [
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      useFactory: (): GqlModuleOptions => ({
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        sortSchema: true,
+      }),
+    }),
+    TypesModule,
   ],
-
-  controllers: [UserController],
+  providers: [UserResolver],
 })
 export class UserModule {}

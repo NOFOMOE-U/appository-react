@@ -1,19 +1,15 @@
-import { ApolloDriver } from '@nestjs/apollo';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { AbstractGraphQLDriver, GraphQLModule } from '@nestjs/graphql';
+import { GraphQLModule } from '@nestjs/graphql';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
-      imports: [
-        HttpAdapterHost,
-        ApolloDriver,
-        AbstractGraphQLDriver,
-      ],
     }),
+    HttpAdapterHost,
   ],
   exports: [GraphQLModule],
 })

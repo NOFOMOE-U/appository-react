@@ -1,33 +1,29 @@
-// types.ts
-import { extendType, objectType } from 'nexus'
+import { hash } from 'bcryptjs';
+import { enumType, extendType, objectType } from 'nexus';
+
+export const UserRoleEnum = enumType({
+  name: 'UserRoleEnum',
+  members: [
+    'ADMIN',
+    'USER',
+    'MODERATOR'
+  ],
+})
 
 export const User = objectType({
   name: 'User',
   definition(t) {
-    t.int('id')
+    t.id('id')
     t.string('name')
     t.string('email')
-    t.string('password')
-    // t.field('posts')
+    t.list.field('posts', { type: 'Post' })
     t.field('role', {
-      type: 'UserRole',
-      resolve: (root, args, ctx) => {
-        // Resolve the role field if needed
-      },
+      type: 'UserRoleEnum',
     })
     t.string('createdAt')
     t.string('updatedAt')
   },
 })
-
-// export const CreateUserInput = inputObjectType({
-//   name: 'CreateUserInput',
-//   definition(t) {
-//     t.string('name')
-//     t.string('email')
-//     t.string('password')
-//   }
-// })
 
 export const Query = extendType({
   type: 'Query',
@@ -56,14 +52,21 @@ export const Mutation = extendType({
     t.field('createUser', {
       type: 'User',
       args: {
-        name: 'String',
-        email: 'String',
+        data: 'UserInput'
       },
-      resolve: async (_parent, { name, email }, { prisma }) => {
+      resolve: async (_parent, { data }, { prisma }) => {
+        const { name, email, password, confirmPassword } = data
+
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match, please try again')
+        }
+
+        const passwordHash = await hash(password, 10)
         return prisma.user.create({
           data: {
             name,
             email,
+            passwordHash
           },
         })
       },
@@ -71,7 +74,7 @@ export const Mutation = extendType({
     t.field('updateUser', {
       type: 'User',
       args: {
-        id: 'Int',
+        id: 'id',
         name: 'String',
         email: 'String',
       },
@@ -90,7 +93,7 @@ export const Mutation = extendType({
     t.field('deleteUser', {
       type: 'User',
       args: {
-        id: 'Int',
+        id: 'id',
       },
       resolve: async (_parent, { id }, { prisma }) => {
         return prisma.user.delete({

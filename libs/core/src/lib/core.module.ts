@@ -1,11 +1,11 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { GraphQLModule } from "@nestjs/graphql";
-import { configuration } from './config/configuration';
-import { validationSchema } from './config/validation';
-import { CoreResolver } from "./core.resolver";
-
+import { PrismaService } from '@appository/backend/data-access'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { GraphQLModule } from '@nestjs/graphql'
+import { configuration } from './config/configuration'
+import { validationSchema } from './config/validation'
+import { CoreResolver } from './core.resolver'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,8 +15,11 @@ import { CoreResolver } from "./core.resolver";
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql'
-    })
+      autoSchemaFile: 'schema.gql',
+      debug: true,
+      playground:true,
+      context: ({ req }) => ({ req, prisma: new PrismaService() }),
+    }),
   ],
   controllers: [],
   providers: [CoreResolver],

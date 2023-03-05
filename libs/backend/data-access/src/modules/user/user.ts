@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-import { Prisma, User } from 'libs/backend/data-access/src/node_modules/.prisma/client'
+import { Prisma, PrismaClient, User } from 'libs/backend/data-access/src/node_modules/.prisma/client'
 
 const prisma = new PrismaClient()
 
