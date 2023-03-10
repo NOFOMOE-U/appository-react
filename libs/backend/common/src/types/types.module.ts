@@ -1,8 +1,8 @@
+//libs/backend/data-access/src/types/types.module.ts
+import { LazyTypeRegistry, UserModule } from '@appository/backend/data-access'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { GraphQLModule } from '@nestjs/graphql'
-import { LazyTypeRegistry } from '../lazytyperegistry'
-import { UserModule } from '../modules/user/user.module'
 import { TypesService } from './types.service'
 
 @Module({

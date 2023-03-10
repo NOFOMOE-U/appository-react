@@ -1,3 +1,4 @@
+//libs/backend/data-access/src/lazytyperegistry.ts
 import { Module, Type } from '@nestjs/common';
 import { GraphQLSchema } from 'graphql';
 

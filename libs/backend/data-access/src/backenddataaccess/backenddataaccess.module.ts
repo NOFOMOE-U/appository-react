@@ -1,5 +1,5 @@
+import { TypesModule } from '@appository/backend/common';
 import { Module } from '@nestjs/common';
-import { TypesModule } from '../types/types.module';
 import { BackendDataAccessService } from './backenddataaccess.service';
 @Module({
   imports: [TypesModule],

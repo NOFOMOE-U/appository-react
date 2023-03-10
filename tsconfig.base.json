@@ -15,6 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@appository/backend/common": ["libs/backend/common/src/index.ts"],
+      "@appository/backend/context": ["libs/backend/context/src/index.ts"],
       "@appository/backend/data-access": ["libs/backend/data-access/src/index.ts"],
       "@appository/backend/nexus-lazy-types": ["libs/backend/nexus-lazy-types/src/index.ts"],
       "@appository/books/data-access": ["libs/books/data-access/src/index.ts"],
@@ -22,7 +24,8 @@
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
       "@appository/core": ["libs/core/src/index.ts"],
       "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
-      "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
+      "@appository/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@backend/api/*": ["apps/backend/api/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

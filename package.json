@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "NOTE: make sure to add {appname} --prod":"when using build",
+    "NOTE: make sure to add {appname} --prod": "when using build",
     "test": "nx test",
     "affected:apps": "nx affected:apps",
     "affected:libs": "nx affected:libs",
@@ -66,6 +66,7 @@
     "@svgr/webpack": "^5.5.0",
     "@testing-library/react": "13.4.0",
     "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.17",
     "@types/jest": "28.1.1",
     "@types/node": "18.7.1",
     "@types/react": "18.0.25",
@@ -122,11 +123,14 @@
     "@storybook/core-common": "^6.5.15",
     "@storybook/theming": "^6.5.15",
     "apollo-server": "^3.11.1",
+    "apollo-server-express": "^3.12.0",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "core-js": "^3.27.1",
     "crypto-browserify": "^3.12.0",
+    "experimental-prisma-webpack-plugin": "^0.0.5",
+    "express": "^4.18.2",
     "graphql": "^16.6.0",
     "graphql-middleware": "^6.1.33",
     "graphql-scalars": "^1.20.1",
@@ -156,5 +160,9 @@
     "typeorm": "^0.3.12",
     "webpack": "^5.75.0"
   },
-  "prisma.schema": "libs/backend/data-access/src/lib/prisma/schema.prisma"
+
+  "prisma":{ 
+    "schema":
+      "libs/backend/data-access/src/lib/prisma/schema.prisma"}
 }
+

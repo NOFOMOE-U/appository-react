@@ -1,12 +1,23 @@
-// data-access/graphql/index.ts
+// data-access/src/graphql/index.ts
+import { makeSchema } from 'nexus';
+import { join } from 'path';
 
-import { queryType, stringArg } from 'nexus';
+import * as UserModule from './../modules/user/user.module';
 
-export const Query = queryType({
-  definition(t) {
-    t.string('hello', {
-      args: { name: stringArg({ }) },
-      resolve: (parent, { name }) => `Hello ${name || 'World'}!`,
-    });
+export const schema = makeSchema({
+  types: [UserModule],
+  outputs: {
+    schema: join(process.cwd(), 'schema.graphql'),
+    typegen: join(process.cwd(), 'node_modules/@types/nexus-typegen/index.d.ts'),
+  },
+  contextType: {
+    module: join(process.cwd(), '../../../common/src/context/context.ts'),
+    export: 'Context',
   },
 });
+
+
+
+
+
+
