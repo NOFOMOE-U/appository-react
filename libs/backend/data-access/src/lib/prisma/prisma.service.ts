@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common'
-import { PrismaClient } from 'libs/backend/data-access/src/node_modules/.prisma/client'
-
+import { Context } from '@appository/backend/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { PrismaClient } from 'libs/backend/data-access/src/node_modules/.prisma/client'; //--removed
 @Injectable()
-export class PrismaService extends PrismaClient {
-  constructor() {
-    super()
+export class PrismaService {
+  constructor(@Inject('PRISMA_CLIENT') private prisma: PrismaClient){}
+
+  async createContext(): Promise<Context> {
+    return 
   }
 }
 

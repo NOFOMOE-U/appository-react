@@ -1,22 +1,22 @@
 //backend/data-access/src/lib/backend-data-model.module.ts
+import { ContextModule } from '@appository/backend/common'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
-import { Module } from '@nestjs/common'
+import { Injectable, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { PrismaClient } from 'libs/backend/data-access/src/node_modules/.prisma/client'
 import { join } from 'path'
-import { ContextModule } from '../context/context.module'
 import { UserModule } from '../modules/user/user.module'
 import { PrismaModule } from './prisma/prisma.module'
 
 @Module({
-  providers: [PrismaClient],
+  providers: [ PrismaClient],
   imports: [
-ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: async () => ({
-        autoSchemaFile: join(process.cwd(), 'apps/backend/src/schema.gql'),
+        autoSchemaFile: join(process.cwd(), 'libs/backend/data-access/src/schema.gql'),
         debug: true,
         playground: true,
       }),
@@ -26,6 +26,20 @@ ConfigModule.forRoot({ isGlobal: true }),
     // PostModule,
     ContextModule, // <-- add this line
   ],
-  exports: ['PrismaClient'],
+  exports: ['PrismaClient',
+    PrismaModule
+  ],//changed based on dev/graphql, from PrismaService to PrismaClient
 })
-export class BackendDataModelModule {}
+@Injectable()
+export class BackendDataModelModule {
+  // public static prismaService: PrismaService;
+
+  // constructor(private readonly _prismaService: PrismaService) {
+  //   BackendDataModelModule.prismaService = _prismaService;
+  // }
+}
+
+
+
+
+

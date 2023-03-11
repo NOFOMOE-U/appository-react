@@ -2,3 +2,32 @@ must create the file for docker
 # https://www.youtube.com/watch?v=UuQsEoX6f0Q
 
 # around 11 min mark
+
+
+<!-- add in the main.ts file -->
+<!-- //**** const { default: graphqlUploadExpress } = await import(
+  //   'graphql-upload/graphqlUploadExpress.mjs'
+  // );
+  // app.use(graphqlUploadExpress(configService.get<IUploaderMiddlewareOptions>('uploader.middleware')));
+  // https://dev.to/tugascript/nestjs-graphql-image-upload-to-a-s3-bucket-1njg** 
+  
+  https://stackoverflow.com/questions/74424388/how-to-import-graphql-**upload**
+  -**->
+
+
+server content
+  https://stackoverflow.com/questions/75303305/migrating-apollo-server-express-to-apollo-server-or-graphql-yoga
+
+
+  logging options to set up
+  The options object can be anything that you want to pass to the module. It depends on what the module needs in order to function correctly. Here are some examples of options that could be added:
+
+database connection settings
+authentication settings
+authorization settings
+caching settings
+environment variables
+logging settings
+feature toggles
+default configuration values
+Basically, anything that the module needs to configure itself or to operate correctly could be added as an option. It's up to you to decide what options are necessary for your specific use case.

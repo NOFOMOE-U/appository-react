@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@appository/backend/data-access": ["libs/backend/data-access/src/index.ts"],
+      "@appository/backend/common": ["libs/backend/common/src/index.ts"],
       "@appository/backend/nexus-lazy-types": ["libs/backend/nexus-lazy-types/src/index.ts"],
       "@appository/books/data-access": ["libs/books/data-access/src/index.ts"],
       "@appository/books/feature": ["libs/books/feature/src/index.ts"],

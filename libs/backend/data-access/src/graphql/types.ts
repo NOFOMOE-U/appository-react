@@ -1,7 +1,6 @@
 //data-access/src/graphql/types.ts
 import { objectType } from 'nexus';
 
-
 // Define the Query type
 const Query = objectType({
   name: 'Query',

@@ -1,9 +1,11 @@
+//Users/dixiejones/Development/main-app/appository-react/libs/backend/data-access/src/modules/user/user.service.ts
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from 'libs/backend/data-access/src/node_modules/.prisma/client';
+import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
 import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from './user';
-
 @Injectable()
 export class UserService {
+  constructor(private readonly prisma: PrismaService) {}
 
   private readonly users: User[] = [
         {

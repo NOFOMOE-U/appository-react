@@ -1,12 +1,16 @@
-import { Module } from '@nestjs/common'
-
-import { PrismaModule } from '@appository/backend/data-access'
+import { LoggingModule, PermissionsMiddleware, PermissionsModule, PrismaModule } from '@appository/backend/data-access'
 import { CoreModule } from '@appository/core'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { Module } from '@nestjs/common'
 import { GqlModuleOptions, GraphQLModule } from '@nestjs/graphql'
 import { join } from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+
+
+const options = {
+  permissionsEnabled: true,
+}
 @Module({
   imports: [CoreModule,
   GraphQLModule.forRootAsync<ApolloDriverConfig>({
@@ -16,8 +20,14 @@ import { AppService } from './app.service'
       }),
     }),
     PrismaModule,
+    
+    LoggingModule,
+    PermissionsModule.forRoot(options),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    PermissionsMiddleware
+  ],
 })
 export class AppModule {}

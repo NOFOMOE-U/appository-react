@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { GraphQLSchema, printSchema } from 'graphql';
 import { makeSchema } from 'nexus'; // <-- Update import statement
 import { join } from 'path';
-import { BackendDataAccessService } from '../../../../backend/data-access/src';
+import { BackendDataAccessService } from '../backenddataaccess/backenddataaccess.service';
 
 import { RootTypes } from './types';
 

@@ -7,12 +7,12 @@ export class UserController {
 
   @Get()
   findAll() {
-    return this.userService.findAll()
+    return this.userService.getAllUsers()
   }
 
   @Get(':id')
   findById(@Param('id') id: number) {
-    return this.userService.findById(id)
+    return this.userService.getUserById(id)
   }
 
   // Add more routes as needed

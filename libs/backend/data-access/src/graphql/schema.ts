@@ -1,8 +1,4 @@
-//backend/data-access/src/graphql/schema.ts
-import { makeSchema } from 'nexus';
-import { RootTypes } from './types';
+// data-access/graphql/schema.ts
+import { nexusSchema } from './nexus.schema';
 
-export const schema = makeSchema({
-  types: RootTypes,
-});
-
+export { nexusSchema as schema };

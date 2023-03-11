@@ -1,3 +1,4 @@
+import { Context } from '@appository/backend/common';
 import { hash } from 'bcryptjs';
 import { enumType, extendType, objectType } from 'nexus';
 
@@ -30,15 +31,15 @@ export const Query = extendType({
   definition(t) {
     t.list.field('users', {
       type: 'User',
-      resolve: async (_parent, _args, { prisma }) => {
-        return prisma.user.findMany()
+      resolve: async (_parent, _args, ctx:Context) => {
+        return ctx.prisma.user.findMany()
       },
     })
     t.field('user', {
       type: 'User',
       args: { id: 'Int' },
-      resolve: async (_parent, { id }, { prisma }) => {
-        return prisma.user.findUnique({
+      resolve: async (_parent, { id }, ctx:Context) => {
+        return ctx.prisma.user.findUnique({
           where: { id },
         })
       },
@@ -54,7 +55,7 @@ export const Mutation = extendType({
       args: {
         data: 'UserInput'
       },
-      resolve: async (_parent, { data }, { prisma }) => {
+      resolve: async (_parent, { data }, ctx:Context) => {
         const { name, email, password, confirmPassword } = data
 
         if (password !== confirmPassword) {
@@ -62,7 +63,7 @@ export const Mutation = extendType({
         }
 
         const passwordHash = await hash(password, 10)
-        return prisma.user.create({
+        return ctx.prisma.user.create({
           data: {
             name,
             email,
@@ -78,8 +79,8 @@ export const Mutation = extendType({
         name: 'String',
         email: 'String',
       },
-      resolve: async (_parent, { id, name, email }, { prisma }) => {
-        return prisma.user.update({
+      resolve: async (_parent, { id, name, email }, ctx:Context) => {
+        return ctx.prisma.user.update({
           data: {
             name,
             email,
@@ -95,8 +96,8 @@ export const Mutation = extendType({
       args: {
         id: 'id',
       },
-      resolve: async (_parent, { id }, { prisma }) => {
-        return prisma.user.delete({
+      resolve: async (_parent, { id }, ctx:Context) => {
+        return ctx.prisma.user.delete({
           where: {
             id,
           },

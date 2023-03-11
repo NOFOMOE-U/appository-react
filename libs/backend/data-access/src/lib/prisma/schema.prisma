@@ -1,22 +1,39 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../../node_modules/.prisma/client"
+  previewFeatures = ["multiSchema"]
+
 }
 
+generator nexusPrisma {
+  provider = "nexus-prisma"
+}
 datasource db {
   provider = "postgres"
   url      = env("DATABASE_URL")
+  schemas  = ["base", "communication"]
 }
 
 model User {
   id        Int      @id @default(autoincrement())
   email     String?  @unique
   name      String?
+  profile   Profile?
   role      UserRole @default(USER)
   posts     Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
  
+  @@schema("base")
+}
+
+model Profile{
+  id     Int    @id @default(autoincrement())
+  bio    String
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
+
+  @@schema("base")
 }
 
 model Post {
@@ -28,10 +45,14 @@ model Post {
   author    User?    @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@schema("communication")
 }
 
 enum UserRole {
   USER
   ADMIN
   MODERATOR
+
+  @@schema("base")
 }
