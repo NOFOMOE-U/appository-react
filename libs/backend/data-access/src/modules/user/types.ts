@@ -14,7 +14,7 @@ export const UserRoleEnum = enumType({
 export const User = objectType({
   name: 'User',
   definition(t) {
-    t.id('id')
+    t.string('id')
     t.string('name')
     t.string('email')
     t.list.field('posts', { type: 'Post' })
@@ -24,6 +24,7 @@ export const User = objectType({
     t.string('createdAt')
     t.string('updatedAt')
   },
+  
 })
 
 export const Query = extendType({

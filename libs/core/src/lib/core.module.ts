@@ -1,4 +1,4 @@
-import { createContext } from '@appository/backend/common'
+import { BackendCommonModule, ContextModule, createContext } from '@appository/backend/common'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -14,13 +14,15 @@ import { CoreResolver } from './core.resolver'
       load: [configuration],
       validationSchema,
     }),
+    BackendCommonModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
+      autoSchemaFile: true,
       debug: true,
       playground:true,
       context: createContext
     }),
+    ContextModule
   ],
   controllers: [],
   providers: [CoreResolver],

@@ -14,9 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "typeRoots" : ["./src/typing", "./node_modules/@types"],
     "paths": {
-      "@appository/backend/data-access": ["libs/backend/data-access/src/index.ts"],
+      "@appository/backend/auth": ["libs/backend/auth/src/index.ts"],
       "@appository/backend/common": ["libs/backend/common/src/index.ts"],
+      "@appository/backend/data-access": ["libs/backend/data-access/src/index.ts"],
       "@appository/backend/nexus-lazy-types": ["libs/backend/nexus-lazy-types/src/index.ts"],
       "@appository/books/data-access": ["libs/books/data-access/src/index.ts"],
       "@appository/books/feature": ["libs/books/feature/src/index.ts"],
@@ -26,5 +28,6 @@
       "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
     }
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "tmp"]
 }

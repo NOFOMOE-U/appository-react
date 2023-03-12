@@ -35,7 +35,7 @@ export class UserResolver {
   }
 
   @Mutation(() => UserType)
-  async deleteUser(@Args('id') id: number): Promise<User> {
+  async deleteUser(@Args('id') id: number): Promise<User | null> {
     return prisma.user.delete({ where: { id } });
   }
 }

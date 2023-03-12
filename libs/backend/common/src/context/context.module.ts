@@ -2,16 +2,20 @@
 import { PrismaModule } from '@appository/backend/data-access'
 import { Module } from '@nestjs/common'
 import { createContext } from './context'
+import { ContextService } from './context.service'
 @Module({
   imports: [PrismaModule],
   providers: [
     {
       provide: 'CONTEXT',
-      useFactory: async () => createContext(),
+      useFactory: async (contextService: ContextService) => createContext(),
+      inject: [ContextService]
     },
+    ContextService
   ],
   exports: [
-    'CONTEXT'
+    'CONTEXT',
+    ContextService
   ],
 })
 export class ContextModule {}

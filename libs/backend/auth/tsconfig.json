@@ -1,9 +1,10 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "files": [],
   "compilerOptions": {
-    "typeRoots": ["./src/typing", "./node_modules/@types"]
+    "module": "commonjs"
   },
+  "files": [],
+  "include": [],
   "references": [
     {
       "path": "./tsconfig.lib.json"
@@ -11,7 +12,5 @@
     {
       "path": "./tsconfig.spec.json"
     }
-  ],
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "tmp"]
+  ]
 }
