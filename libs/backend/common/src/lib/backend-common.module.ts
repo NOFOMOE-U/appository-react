@@ -1,15 +1,15 @@
-import { PrismaModule } from '@appository/backend/data-access';
+import { BackendDataAccessModule, ContextModule, PrismaService } from '@appository/backend/data-access';
+import { SharedDataModule } from '@appository/shared/module';
 import { Module } from '@nestjs/common';
-import { createContext } from '../context/context';
-
+import { ConfigModule } from '@nestjs/config';
 @Module({
-  controllers: [PrismaModule],
-  providers: [
-    {
-      provide: 'CONTEXT',
-      useFactory: async () => createContext(),
-    },
+  imports: [ConfigModule,
+    ContextModule,
+    BackendDataAccessModule,
+    SharedDataModule
   ],
-  exports: ['CONTEXT'],
+  providers: [PrismaService],
+  exports: [BackendDataAccessModule,
+    PrismaService],
 })
 export class BackendCommonModule {}

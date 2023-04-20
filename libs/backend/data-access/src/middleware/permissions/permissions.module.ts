@@ -1,32 +1,51 @@
-//Users/dixiejones/Development/main-app/appository-react/libs/backend/data-access/src/middleware/permissions/permissions.module.ts
-import { DynamicModule, Injectable, MiddlewareConsumer, Module } from '@nestjs/common';
-import { LoggingMiddleware } from '../logging/logging.middleware';
-import { PermissionsMiddleware } from './permissions.middleware';
-import express = require('express')
+import { DynamicModule, Injectable, MiddlewareConsumer, Module } from '@nestjs/common'
+import { LoggingMiddleware } from '../logging/logging.middleware'
+import { PermissionsController } from './permissions.controller'
+import { PermissionsMiddleware } from './permissions.middleware'
+import { PERMISSIONS_ENABLED, PERMISSIONS_MODULE_OPTIONS, PermissionsModuleAsyncOptions } from './permissions.types'
 
 @Module({
+  imports: [
+    // SharedDataModule
+  ],
+  controllers:[PermissionsController],
   providers: [PermissionsMiddleware],
   exports: [PermissionsMiddleware],
 })
 @Injectable()
 export class PermissionsModule {
-  private readonly permissionsMiddleware: PermissionsMiddleware;
 
-  static forRoot(options: any): DynamicModule{
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(PermissionsMiddleware).forRoutes('*')
+    consumer.apply(LoggingMiddleware).forRoutes('*')
+  }
+
+  static forRootAsync(options: PermissionsModuleAsyncOptions): DynamicModule {
+    return {
+      module: PermissionsModule,
+      imports: options.imports,
+      providers: [
+        {
+          provide: PERMISSIONS_MODULE_OPTIONS,
+          useFactory: options.useFactory || (() => ({})),
+          inject: options.inject || []
+        },
+        PermissionsMiddleware,
+      ],
+    }
+  }
+
+  static forRoot(permissionsEnabled: boolean): DynamicModule {
     return {
       module: PermissionsModule,
       providers: [
         {
-          provide: 'OPTIONS',
-          useValue: options
+          provide:   PERMISSIONS_ENABLED,
+          useValue: permissionsEnabled,
         },
-        PermissionsMiddleware
+        PermissionsMiddleware,
       ],
-      exports: [PermissionsMiddleware]
+      exports: [PermissionsMiddleware],
     }
-  }
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(PermissionsMiddleware).forRoutes('*');
-    consumer.apply(LoggingMiddleware).forRoutes('*');
   }
 }

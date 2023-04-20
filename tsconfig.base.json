@@ -13,21 +13,23 @@
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
-    "typeRoots" : ["./src/typing", "./node_modules/@types"],
     "paths": {
       "@appository/backend/auth": ["libs/backend/auth/src/index.ts"],
       "@appository/backend/common": ["libs/backend/common/src/index.ts"],
+      "@appository/backend/communication": ["libs/backend/communication/src/index.ts"],
       "@appository/backend/data-access": ["libs/backend/data-access/src/index.ts"],
       "@appository/backend/nexus-lazy-types": ["libs/backend/nexus-lazy-types/src/index.ts"],
+      "@appository/backend/shared": ["libs/backend/shared/src/index.ts"],
       "@appository/books/data-access": ["libs/books/data-access/src/index.ts"],
       "@appository/books/feature": ["libs/books/feature/src/index.ts"],
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
       "@appository/core": ["libs/core/src/index.ts"],
       "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
+      "@appository/shared/module": ["libs/shared/module/src/index.ts"],
       "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "tmp"]
 }

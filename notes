@@ -4,6 +4,10 @@ must create the file for docker
 # around 11 min mark
 
 
+sign up set up for nexus:
+https://javascript.plainenglish.io/ultimate-authentication-using-graphql-nexus-ec01f79dff2c
+
+
 <!-- add in the main.ts file -->
 <!-- //**** const { default: graphqlUploadExpress } = await import(
   //   'graphql-upload/graphqlUploadExpress.mjs'

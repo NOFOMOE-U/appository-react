@@ -1,42 +1,37 @@
-import { Context } from '@appository/backend/common';
-import { Injectable } from '@nestjs/common';
-import { PrismaClient } from 'libs/backend/data-access/src/node_modules/.prisma/client'; //--removed
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+export interface PrismaContext{
+  prisma: PrismaClient
+}
+
 @Injectable()
-export class PrismaService {
-  private prisma: PrismaClient
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
+  
+  private prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient()
+    this.prisma = new PrismaClient();
   }
 
-  async createContext(): Promise<Context> {
-    return 
+  async onModuleInit() {
+    await this.prisma.$connect();
   }
 
+  async onModuleDestroy() {
+    await this.prisma.$disconnect();
+  }
+
+  async getContext() {
+    return { prisma: this.prisma };
+  }
+  
   getPrismaClient(): PrismaClient {
-    return this.prisma
+    return this.prisma;
   }
 }
 
-
-
-
-// import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common'
-// import { PrismaClient } from './../node_modules/.prisma/client/'
-
-// @Injectable()
-// export class PrismaService extends PrismaClient implements OnModuleInit {
-//   async onModuleInit() {
-//     await this.$connect()
-//   }
-
-//   async enableShutdownHooks(app: INestApplication) {
-//     this.$on('beforeExit', async () => {
-//       await app.close()
-//     })
-//   }
-
-//   get client() {
-//     return this
-//   }
-// }
+export const getContext = async (): Promise<PrismaContext> => {
+  const prismaService = new PrismaService();
+  const prisma = await prismaService.getContext();
+  return prisma
+}

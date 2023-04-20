@@ -1,56 +1,96 @@
 //Users/dixiejones/Development/main-app/appository-react/libs/backend/data-access/src/modules/user/user.service.ts
+//module provides a higher-level abstraction that exposes specific user-related functionality (e.g. creating, updating, and deleting users) vs backendDataAccessService
+
+// responsible for handling business logic and validation,
 import { Injectable } from '@nestjs/common';
-import { Prisma, User } from 'libs/backend/data-access/src/node_modules/.prisma/client';
+import { Prisma, Task, User } from '@prisma/client';
+import { validate } from 'class-validator';
 import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
-import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from './user';
-@Injectable()
-export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+import { userSchema } from '../../middleware/validation-yup-schemas/validate-user';
+import { UserWithoutSensitiveData, createUser, deleteUser, getAllUsers, updateUser } from './user';
+import { UserInput } from './user.input';
+  @Injectable()
+  export class UserService {
+    constructor(private readonly prismaService: PrismaService) { }
 
-  private readonly users: User[] = [
-        {
-          id: 1,
-          name: 'Alice',
-          email: 'alice@example.com',
-          role: 'ADMIN',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 2,
-          name: 'Bob',
-          email: 'bob@example.com',
-          role: 'ADMIN',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 3,
-          name: 'Charlie',
-          email: 'charlie@example.com',
-          role: 'ADMIN',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ]
+    private readonly users: User[] = [
+      {
+        id: '',
+        name: 'Alice',
+        email: 'alice@example.com',
+        roles: ['USER'],
+        userProfileId: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        resetPasswordToken: '',
+        passwordHash: ''
+      },
+      {
+        id: '',
+        name: 'Bob',
+        email: 'bob@example.com',
+        roles: ['USER'],
+        userProfileId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        resetPasswordToken: '',
+        passwordHash: ''
+        
+      },
+      {
+        id:'',
+        name: 'Charlie',
+        email: 'charlie@example.com',
+        roles: ['USER'],
+        userProfileId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        resetPasswordToken: '',
+        passwordHash: ''
+      },
+    ]
+
+    async validateUserInput(userInput: UserInput) {
+      const errors = await validate(userInput)
+      if (errors.length > 0) {
+        throw new Error(errors.toString())
+      }
+    }
     
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    return createUser(data);
+    async createUser(data: Prisma.UserCreateInput): Promise<UserWithoutSensitiveData> {
+      //validate user input
+      await userSchema.validate(data)
+      return createUser(data)
+    }
+
+
+
+    async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<UserWithoutSensitiveData | null> {
+      await userSchema.validate(data)
+      return updateUser(id, data)
+    }
+
+    async deleteUser(id: string): Promise<UserWithoutSensitiveData | null> {
+      return deleteUser(id)
+    }
+
+    async getAllUsers(): Promise<UserWithoutSensitiveData[]> {
+      return getAllUsers()
+    }
+
+    async getUserById(id: string): Promise<UserWithoutSensitiveData | null> {
+      return this.prismaService.getPrismaClient().user.findUnique({ where: { id } });
+    }
+
+    async getUserByEmail(email: string): Promise<UserWithoutSensitiveData | null> {
+      return this.prismaService.getPrismaClient().user.findUnique({where: {email}})
+    }
+
+
+    //tasks
+    async getTaskById(id: string): Promise<Task | null> { 
+      return this.prismaService.getPrismaClient().task.findUnique({where: {id}})
+    }
   }
 
-  async updateUser(id: number, data: Prisma.UserUpdateInput): Promise<User | null> {
-    return updateUser(id, data);
-  }
 
-  async deleteUser(id: number): Promise<User | null> {
-    return deleteUser(id);
-  }
-
-  async getAllUsers(): Promise<User[]> {
-    return getAllUsers();
-  }
-
-  async getUserById(id: number): Promise<User | null> {
-    return getUserById(id);
-  }
-}

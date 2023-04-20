@@ -2,7 +2,6 @@ import { Module, Type } from '@nestjs/common';
 import { GraphQLSchema } from 'graphql';
 
 export type LazyTypeRegistryMap = Map<string, Type<unknown>>;
-
 export class LazyTypeRegistry {
   private readonly types = new Map<string, Type<unknown>>();
   private readonly typeLoader = new Map<string, () => Type<unknown>>();
@@ -14,12 +13,12 @@ export class LazyTypeRegistry {
   }
     
   public get(name: string): Type<unknown> {
-    const resolver = this.types[name];
+    const resolver = this.types.get(name);
     if (!resolver) {
       throw new Error(`Unable to find resolver for ${name}`);
     }
-
-    return resolver();
+    const newResolver = new resolver() as Type<unknown>
+    return newResolver
   }
 
   public getType(name: string): Type<unknown> | undefined {
@@ -34,7 +33,6 @@ export class LazyTypeRegistry {
 
     const type = typeLoader();
     this.types.set(name, type);
-
     return type;
   }
 

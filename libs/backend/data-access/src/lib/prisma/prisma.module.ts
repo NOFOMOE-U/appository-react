@@ -1,17 +1,16 @@
 //backend/data-access/src/prisma/prisma.module
 import { Module } from '@nestjs/common';
-import { PrismaClient } from 'libs/backend/data-access/src/node_modules/.prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaService } from './prisma.service';
+
 @Module({
   providers: [
+    PrismaService,
     {
       provide: 'PRISMA_CLIENT',
       useValue: new PrismaClient(),
     },
-    PrismaService
   ],
-  exports: [
-    PrismaService
-  ],
+  exports: [PrismaService, PrismaClient],
 })
 export class PrismaModule {}

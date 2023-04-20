@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { GraphQLSchema, printSchema } from 'graphql';
 import { makeSchema } from 'nexus'; // <-- Update import statement
 import { join } from 'path';
-import { BackendDataAccessService } from '../backenddataaccess/backenddataaccess.service';
+import { BackendDataAccessService } from '../backend-data-access/backend-data-access.service';
 
 import { RootTypes } from './types';
 
@@ -13,8 +13,8 @@ export class GraphqlService {
   constructor(private readonly data: BackendDataAccessService) {}
 
   async createSchema(): Promise<GraphQLSchema> {
-    const generatedTypesPath = join(process.cwd(), 'libs/backend/data-access/src/graphql/nexus.schema.generated.d.ts');
-    const schemaPath = join(process.cwd(), 'libs/backend/data-access/src/graphql/schema.graphql');
+    const generatedTypesPath = join(process.cwd(), 'libs/backend/data-access/src/graphql/nexus.schema.generated.d.ts')
+    const schemaPath = join(process.cwd(), 'libs/backend/data-access/src/graphql/schema.graphql')
 
     const generatedSchema = makeSchema({
       types: RootTypes,
@@ -26,9 +26,9 @@ export class GraphqlService {
         module: join(process.cwd(), 'libs/backend/data-access/src/backenddataaccess.service.ts'),
         export: 'BackendDataAccessService',
       },
-    });
-    fs.writeFileSync(schemaPath, printSchema(generatedSchema));
+    })
+    fs.writeFileSync(schemaPath, printSchema(generatedSchema))
 
-    return generatedSchema;
+    return generatedSchema
   }
 }

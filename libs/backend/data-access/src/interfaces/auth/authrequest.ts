@@ -1,6 +1,6 @@
-import { objectType } from 'nexus';
+import { objectType } from 'nexus'
 
-export const AuthenticatedUser = objectType({
+export const AuthenticatedUserType = objectType({
   name: 'AuthenticatedUser',
   definition(t) {
     t.string('id')
@@ -13,4 +13,4 @@ export const AuthenticatedUser = objectType({
     t.string('createdAt')
     t.string('updatedAt')
   },
-});
+})

@@ -1,57 +1,63 @@
-import { getUserById } from '@appository/backend/data-access';
-import { rule, shield } from 'graphql-shield';
-import { MiddlewareFn } from 'type-graphql';
+//designed to be used on server side(backend)
+import { PrismaClient } from '@prisma/client'
+import { isEmail } from 'class-validator'
+import { useState } from 'react'
+import * as yup from 'yup'
+import errorMessages from './error-messages'
 
-const isAuthenticatedUser = rule()((_, __, { context }) => {
-  const userId = getUserById(context);
-  return Boolean(userId);
-});
+const prisma = new PrismaClient()
 
-const isAdmin = rule()(async (_, __, { context }) => {
-  const userId = getUserById(context);
-  const user = await context.prisma.user.findUnique({ where: { id: userId } });
-  return user.role === 'ADMIN';
-});
+const [errors, setErrors] = useState({})
 
-const permissions = shield({
-  Query: {
-    me: isAuthenticatedUser,
-    users: isAdmin,
-  },
-  Mutation: {
-    updateMyProfile: isAuthenticatedUser,
-    deleteUser: isAdmin,
-  },
-});
-
-export const permissionsMiddleware: MiddlewareFn<any> = async ({ context, info }, next) => {
-  const fieldPath = info.path;
-  const fieldTypeName = info.parentType.name;
-  const roles = [];
-
-  if (fieldTypeName === 'Query') {
-    if (fieldPath.key === 'me') {
-      roles.push(isAuthenticatedUser);
-    } else if (fieldPath.key === 'users') {
-      roles.push(isAdmin);
-    }
-  } else if (fieldTypeName === 'Mutation') {
-    if (fieldPath.key === 'updateMyProfile') {
-      roles.push(isAuthenticatedUser);
-    } else if (fieldPath.key === 'deleteUser') {
-      roles.push(isAdmin);
-    }
+const setError = (name: string, message: string) => {
+  setErrors(prevState => ({...prevState, [name]: message}))
+}
+// Define a Yup validation rule for email uniqueness
+const emailUniquenessRule = (prisma: PrismaClient) =>
+  function (this: yup.TestContext) {
+    // Get the value of the email field
+    const value = this.parent.email
+    // Check if the email is already registered
+    return validateEmailUniqueness(prisma)(value, this)
   }
 
-  if (roles.length > 0) {
-    await Promise.all(
-      roles.map((role) =>
-        role({
-          context,
-        })
-      )
-    );
-  }
+const validateEmailUniqueness = (prisma: PrismaClient) => async (value: string, context: any) => {
+  const user = await context.prisma.user.findUnique({ where: { email: value } })
+  return !user || context.createError(errorMessages.emaillNotUnique)
+}
 
-  return next();
-};
+export const validateRule = (rule: yup.TestFunction<any,any>) => async (value: any, context: yup.TestContext) => {
+  try {
+    await rule.call(context, value, context)
+    return true
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return new yup.ValidationError(error.message)
+    }
+    throw error
+  }
+}
+
+
+const yupSchema = yup.object().shape({
+  email: yup.string().email().required(),
+  password: yup
+    .string()
+    .required()
+    .test('email', 'Invalid email address', (value) => isEmail(value))
+    .test('emailUniqueness', 'Email is already registered', emailUniquenessRule(prisma)),
+})
+
+const validateInput = async () => {
+  try {
+    await yupSchema.validate(FormData, { abortEarly: false })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      setError('unknown',error.message)
+    } else {
+      errorMessages.unknownError
+    }
+  }
+}
+
+module.exports = validateInput
