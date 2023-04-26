@@ -1,20 +1,37 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
 import { UserWithoutSensitiveData } from '../modules/user/user';
-import { MyContext } from './mycontext';
 
-export interface CustomContextType extends MyContext {
-  // Define any additional properties or methods for your custom context type here
-  customProp: string;
-  ctx: any
+export interface CustomContextType<T = {}> {
+  id: string
+  user?: UserWithoutSensitiveData | null
+  context: T & {}
+  accessToken?: string | null
+  prisma: any;
+  [key: string]: any //allow any additional properties
+  
+  body: any
+  session: any
+  cookies: { [key: string]: string };
+  get(name: string): string | undefined;
+  ctx: T
+  cache: any
+  credentials: RequestCredentials
+  
+  // req: CustomRequestWithContext<MyContext<T>>;
+  // currentUser: UserWithoutSensitiveData | null;
+  // userId?: number;
+  // token?: string;
+  // customProp: string;
+  // request: CustomRequestWithContext<MyContext<T>>// removed
 }
 
 export interface CustomContextProps {
   id: string;
   prisma: PrismaClient;
   userId?: string;
-  currentUser?: UserWithoutSensitiveData | null;
+  currentUser?: UserWithoutSensitiveData | User |  null;
   accessToken: string | null;
   request: CustomRequest<{}>;
   customProp: string;
@@ -25,7 +42,7 @@ const createCustomContext = async (prisma: PrismaClient, req: CustomRequest<{}>)
   const token = authorizationHeader?.replace('Bearer ', '')
 
   let userId: number | null = null
-  let currentUser: UserWithoutSensitiveData | null = null
+  let currentUser: UserWithoutSensitiveData | User | null = null
 
   if (token) {
     try {
@@ -55,13 +72,6 @@ const createCustomContext = async (prisma: PrismaClient, req: CustomRequest<{}>)
 }
 
 export default createCustomContext;
-
-
-
-
-
-
-
 
 
 

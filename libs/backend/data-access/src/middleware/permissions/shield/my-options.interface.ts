@@ -1,9 +1,9 @@
 import { PrismaClient, User, UserRole } from '@prisma/client'
 import { IOptions } from 'graphql-shield/typings/types'
+import { CustomRequestWithContext } from '../../../context/custom-request-with-context'
 import { MyContext } from '../../../context/mycontext'
-import { CustomRequest } from '../../../interfaces/user/custom-request'
-
-export interface MyOptions extends IOptions {
+import { UserWithoutSensitiveData } from '../../../modules/user/user'
+export interface MyOptions extends IOptions<MyContext> {
   //override the debug property to accept a string instead of a boolean
   debug?: boolean
   //add a new property that specifies the type of context expected by the middleware
@@ -26,25 +26,29 @@ const user: User = {
 const options: MyOptions = {
   debug: true,
   context: {
-    /* your context object here */
-    id: '',
-    userId: '1',
-    currentUser: user,
-    accessToken: '',
-    token: '',
+    req: {} as CustomRequestWithContext<MyContext>,
+    // cache: {}, removed from mycontex
+    // token: '', removed from mycontex
+    // user: '',// causese an error if removed but should be removed due to being in mycontext
+    // session: {}, removed from mycontex
+    cookies: { key: ''},
+    // get: () => '',// tied to mycontext.ts
+    id: '',// removing from myContext causs
+    userId: 0,
+
     request: {
       id: '',
-      user: { id: '' },
+      user: { id: '' } as UserWithoutSensitiveData,
       body: {},
-      headers: {},
+      headers: {} as Headers,
       prisma: new PrismaClient(),
-      currentUser: null,
-      accessToken: null,
-      context: {},
-    } as CustomRequest<{}>,
-
+      currentUser:  null,
+      accessToken:  null,
+      context: {} as MyContext,
+      ...{} as any
+    },
     prisma: new PrismaClient(),
   },
-}
+};
 
-export default MyOptions
+export default options

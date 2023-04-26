@@ -1,21 +1,30 @@
 import { PrismaClient } from '@prisma/client';
-import { getUserId } from '../utils/backend-auth.utils';
 import { CustomRequestWithContext } from './custom-request-with-context';
+import { MyContext } from './mycontext';
 
-export async function createInitialContext(prisma: PrismaClient, req: CustomRequestWithContext) {
-  const accessToken = req.cookies['access_token'] || null;
-  const userId = await getUserId(req);
-  let currentUser = null;
-  
-  if (userId) {
-    currentUser = await prisma.user.findUnique({
-      where: { id: userId.toString() },
-    });
+const prisma = new PrismaClient()
+
+export const createInitialContext = (req: CustomRequestWithContext<MyContext>): MyContext => {
+  const accessToken = req.get('access-token');
+  const accessTokenString = Array.isArray(accessToken) ? accessToken.join('') : accessToken;
+  const context: MyContext = {
+    req,
+    // cache: '',
+    cookies: {key: ''},
+    // session: req.session,
+    // currentUser:req.currentUser,
+    // user: req.currentUser ?? null,
+    id: '',
+    userId: 0,
+    // accessToken: accessTokenString || null,
+    // token: '',
+    request: req,
+    prisma: prisma
   }
-  
-  return {
-    accessToken,
-    userId,
-    currentUser,
-  };
+  return context
+}
+
+export const initContext = async (req: CustomRequestWithContext<MyContext>): Promise<MyContext> => {
+  const context = createInitialContext(req);
+  return context;
 }

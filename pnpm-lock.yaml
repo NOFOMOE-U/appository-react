@@ -49,6 +49,7 @@ specifiers:
   '@testing-library/react': 13.4.0
   '@types/bcryptjs': ^2.4.2
   '@types/cors': ^2.8.13
+  '@types/express-serve-static-core': ^4.17.33
   '@types/jest': 28.1.1
   '@types/jsonwebtoken': ^9.0.1
   '@types/node': 18.7.1
@@ -148,6 +149,7 @@ dependencies:
   '@storybook/addons': 6.5.16_biqbaboplfbrettd7655fr4n2y
   '@storybook/core-common': 6.5.16_l5mfndz4oofjzphygwrycjhl44
   '@storybook/theming': 6.5.16_biqbaboplfbrettd7655fr4n2y
+  '@types/express-serve-static-core': 4.17.33
   '@types/jsonwebtoken': 9.0.1
   apollo-server: 3.12.0_graphql@16.6.0
   bcryptjs: 2.4.3
@@ -14761,7 +14763,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
+    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
     requiresBuild: true
     dependencies:
       bindings: 1.5.0

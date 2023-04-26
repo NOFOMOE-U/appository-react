@@ -1,14 +1,18 @@
 import { PrismaClient, User } from '@prisma/client'
-import { CustomRequest } from '../interfaces/user/custom-request'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-  export interface MyContext<T = {}> {
-    id: string
-    userId: string | undefined
-    currentUser?: UserWithoutSensitiveData | null
-    accessToken: string | null
-    token: string | null
-    request: CustomRequest<T>
+import { CustomRequestWithContext } from './custom-request-with-context'
+ 
+export interface MyContext<T = {}> {
+    req: CustomRequestWithContext<MyContext>
+    id: string //removing the id will  cause errors because  it is being used in the setContextId and getContextId
+    currentUser?: UserWithoutSensitiveData | null //removing currentUser will create error in context-service.ts
+    userId?: number 
+    cookies: {key: [string] | string},
+  
+
+    request: CustomRequestWithContext<MyContext<T>>
     prisma: PrismaClient
+    // get: () => string; // removing get will cause an error iin my-options.interface
   }
 
   export interface UserWithAccessToken extends User {

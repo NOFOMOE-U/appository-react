@@ -1,50 +1,57 @@
-import { PrismaClient, User } from "@prisma/client";
-import { NextFunction, Response } from "express";
-import { CustomRequest } from "../interfaces/user/custom-request";
-import { createContext } from "./create-context";
-import { CustomContextType } from "./custom-context-types";
+import { PrismaClient } from '@prisma/client'
+import { NextFunction, Response } from 'express'
+import { UserWithoutSensitiveData } from '../modules/user/user'
+import { createContext } from './create-context'
+import { CustomContextType } from './custom-context-types'
+import { MyContext } from './mycontext'
+// import {any}
 
-export interface CustomRequestWithContext<T = {}> extends CustomRequest<T> {
-  context: (T & {});
-  user: { id: string };
-  currentUser?: User | null;
-  accessToken?: string;
-
-  // cache: any;
-  // credentials: any;
-  // destination: any;
-  // integrity: any;
-  // variables: any,
-
-  id: string;
+export interface CustomRequestWithContext<T> extends Request {
+  id: string
+  user?: UserWithoutSensitiveData | null
+  currentUser?: UserWithoutSensitiveData | null
+  context: T & {}
+  accessToken?: string | null
   prisma: any
-[key: string]: any; // allow any additional properties
+  [key: string]: any // allow any additional properties
+
+  body: any
+  session: any
+  cookies: { [key: string]: string }
+  get(name: string): string | undefined
+  ctx: T
+  cache: any
+  credentials: RequestCredentials
 }
 
+interface CustomRequestWithAllProps<T> extends CustomRequestWithContext<T> {
+  session: any
+  ctx: T
+  cache: any
+
+  // credentials?: string;
+  credentials: RequestCredentials
+  destination: RequestDestination
+  integrity: string
+  cookies: Record<string, string>
+  signedCookies: Record<string, string>
+  [key: string]: any // allow any additional properties
+}
 
 // Middleware function to attach our custom context to the request object
-export const attachCustomContext = (): ((req: CustomContextType, res: Response, next: NextFunction)=> void) => {
+export const attachCustomContext = (): ((req: CustomContextType, res: Response, next: NextFunction) => void) => {
   return (req: CustomContextType, res: Response, next: NextFunction) => {
-    const customProp = "example custom property";
-    req.ctx = {
-      ...req.ctx,
-      customProp,
-    };
-    next();
-  };
-};
+    const customProp = 'example custom property'
+    ;(req.customProp = customProp), next()
+  }
+}
 
+export function createCustomContextWithRequest(prisma: PrismaClient, contextType: MyContext<{}>) {
+  return async (req: CustomRequestWithAllProps<MyContext<{}>>, res: Response, next: NextFunction) => {
+    req.prisma = prisma
+    req.userId = req.currentUser?.id ?? undefined
+    req.context = await createContext(prisma, req)
 
-
-export function createCustomContextWithRequest(prisma: PrismaClient, contextType: CustomContextType) {
-  return async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const context = await createContext(prisma, req);
-    // setContextId(context, (req.headers as any)['x-request-id'] || '');
-    context.customProp = 'updated custom property'
-    req.context = context
-    if (req.user){
-      req.userId = req.user?.id?.toString() ?? undefined;
-      next();
-    }
-  };
+    next()
+  }
 }

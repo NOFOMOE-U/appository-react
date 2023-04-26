@@ -5,10 +5,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { Context } from './context'
 import { CustomRequestWithContext } from './custom-request-with-context'
+import { MyContext } from './mycontext'
 
 export async function getUserInfoFromDB(
   prisma: PrismaClient,
-  req: CustomRequestWithContext,
+  req: CustomRequestWithContext<MyContext<{}>>,
   res: Response,
 ): Promise<UserWithoutSensitiveData | null> {
   const context = await Context.create(prisma, req, res)

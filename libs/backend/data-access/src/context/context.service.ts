@@ -9,7 +9,7 @@ import { MyContext } from './mycontext';
   export class ContextService {
     constructor(private readonly context: MyContext){}
 
-    async createContext(req: CustomRequestWithContext, prisma: PrismaClient): Promise<MyContext> {
+    async createContext(req: CustomRequestWithContext<MyContext>, prisma: PrismaClient): Promise<MyContext> {
       return createContext(prisma, req)
     }
 
@@ -19,7 +19,7 @@ import { MyContext } from './mycontext';
 
     async getUserById(userId: string, prisma: PrismaClient): Promise<UserWithoutSensitiveData | null> {
       //user the imported getUserById function
-      const user = this.context.currentUser ? await getUserById(userId, prisma) || null : null
+      const user = this.context.currentUser ? await getUserById(userId, prisma) : null;
       return user
     }
   }

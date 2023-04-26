@@ -5,8 +5,6 @@ const prisma = new PrismaClient();
 
 
 
-
-
 export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
   password?: string;
   passwordHash?: never;
