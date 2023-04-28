@@ -6,8 +6,9 @@ import { createInitialContext } from './init-context'
 import { MyContext } from './mycontext'
 export interface ContextProps {
   prisma: PrismaClient;
-  request: CustomRequestWithContext<MyContext>;
+  request: CustomRequestWithContext<MyContext<{}>>;
   response: Response;
+  userId: number | null, 
 }
 
 export class Context {
@@ -16,14 +17,14 @@ export class Context {
   private userId: number | null = null;
   public currentUser: UserWithoutSensitiveData | null = null;
   public id: string;
-  public cookies: string | string[] | undefined;
+  public cookies: Record<string, string> | string | string[] | undefined;
   public token: string | null;
 
   constructor({ prisma, request, response }: ContextProps) {
     this.prisma = prisma;
-    this.id = request.context.id;
+    this.id = request.id ?? '';
     this.cookies = request.cookies;
-    this.token = request.context.token;
+    this.token = request.token;
   }
 
   async getUserById(userId: string): Promise<UserWithoutSensitiveData | null> {
@@ -55,17 +56,21 @@ export class Context {
     return this.prisma;
   }
 
-  getUser() {
+  async getUser() {
     if (!this.userId) {
       return null;
     }
+    if (!this.currentUser) {
+      this.currentUser = await this.getUserById(this.userId.toString());
+    }
+    return this.currentUser;
   }
+  
 
-  static async create(prisma: PrismaClient, req: CustomRequestWithContext<MyContext>, response: Response): Promise<Context> {
+  static async create(prisma: PrismaClient, req: CustomRequestWithContext<MyContext<{}>>, response: Response): Promise<Context> {
     const contextType = await createInitialContext(req);
-    const context = new Context({ prisma, request: req, response });
-    context.userId = contextType.userId ? Number(contextType.userId) : null;
-    context.currentUser = contextType.currentUser ?? null;
+    const userId = contextType.userId ? Number(contextType.userId) : null;
+    const context = new Context({ prisma, request: req, response, userId });
     if (contextType.accessToken) {
       context.setAccessToken(contextType.accessToken);
     }

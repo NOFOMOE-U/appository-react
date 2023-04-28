@@ -17,14 +17,46 @@ const validateUser = async ({ email, password }: { email: string; password: stri
       .email()
       .required()
       .test('emailUniqueness', 'Email is already registered', validateRule(emailUniquenessRule)),
-    password: yup
+      password: yup
       .string()
       .required()
-      .test('password', 'Password must be at least 8 characters long', (value) => value.length >= 8),
+      .min(8, 'Password must be at least 8 characters long')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/,
+        'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character')
+      .matches(
+        /[A-Z]/, 'Password must contain at least one uppercase letter')
+      .matches(
+        /[\W_]/, 'Password must contain at least one special character'),
+        
   })
   await schema.validate({ email, password })
   return true
 }
+
+
+const validatePasswordAsync = async (password: string): Promise<boolean> => {
+  const schema = yup.object().shape({
+    password: yup
+      .string()
+      .required()
+      .min(8)
+      .matches(/^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z]).{8,}$/),
+  });
+
+  try {
+    await schema.validate({ password });
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export { validatePasswordAsync }
+
+validatePasswordAsync('');
+
+
 
 const validateUserRule = rule()(async (parent, args, context: yup.TestContext) => {
   await validateRule(validateUser)(args, context)

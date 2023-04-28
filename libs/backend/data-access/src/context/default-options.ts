@@ -1,20 +1,26 @@
-import { ExtendedCustomRequest } from './../interfaces/user/custom-request';
+import { ExtendedCustomRequest, getHeaderValue } from '../interfaces/user/custom-request';
 import { CustomRequestWithContext } from './custom-request-with-context';
 import { MyContext } from './mycontext';
 
 interface DefaultOptions {
   req: CustomRequestWithContext<MyContext<{}>>;
-  headers?: Record<string, string | string[]>;
-
+  headers?: Record<string, string>;
 }
 
-export const defaultOptions = ({ req}: DefaultOptions) => {
+const defaultOptions = ({ req }: DefaultOptions): ExtendedCustomRequest<MyContext<{}>> => {
   // Retrieve host, referer, and origin from the request headers
   const headers: Record<string, string> = {};
-  req.headers.forEach((value, key) => {
-    headers[key] = value as string;
-  });
-  
+  if (req.headers) {
+    for(const[key,value] of Object.entries(req.headers)) {
+      if (typeof value === 'string') {
+        headers[key] = value;
+      }
+      if (Array.isArray(value)) {
+        headers[key] = value.join(',');
+      }
+    };
+  }
+
   const host = headers.host || '';
   const referer = headers.referer || '';
   const origin = headers.origin || '';
@@ -22,50 +28,44 @@ export const defaultOptions = ({ req}: DefaultOptions) => {
   // Retrieve accessToken from the request object
   const { accessToken } = req;
 
-  // Determin if the request is an API request
+  // Determine if the request is an API request
   const isApiRequest = referer.includes(`${origin}/api/`);
 
   // Define the options object with the necessary headers
   const options: ExtendedCustomRequest<MyContext<{}>> = {
-    //spread the properties of the request object
+    // Spread the properties of the request object
     ...req,
-    get: (name: string) => {
-      const value = headers[name]
-      if (name === 'set-cookie') {
-        return value ? [value]: undefined
-      }
-      return typeof value === 'string' ? value : undefined;
-    },
+    get: (name: string)=> getHeaderValue(req,name),
     headers: {
-      //spread the properties of headers object
+      // Spread the properties of headers object
       ...headers,
-      // add the x-poser-by header
+      // Add the x-poser-by header
       'x-powered-by': 'test-server',
-      // add the x-test-header header
+      // Add the x-test-header header
       'x-test-header': 'true',
-      // add the access-control-allow-origin header
+      // Add the access-control-allow-origin header
       'Access-Control-Allow-Origin': '*',
-      //add the authorization header
+      // Add the authorization header
       Authorization: `Bearer ${accessToken || ''}`,
-      //add the content-type header
+      // Add the content-type header
       'Content-Type': 'application/json',
-      // add the referer header if it is an API request
+      // Add the referer header if it is an API request
       ...(isApiRequest && { Referer: referer }),
-      // add the request-policy header iif it is an API rrequest
+      // Add the request-policy header if it is an API request
       ...(isApiRequest && { 'Referer-Policy': 'strict-origin-when-cross-origin' }),
-      // add the strict-transport-security header
+      // Add the strict-transport-security header
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-      // add the x-content-type-options header
+      // Add the x-content-type-options header
       'X-Content-Type-Options': 'nosniff',
-      //add x-frame-options header
+      // Add x-frame-options header
       'X-Frame-Options': 'SAMEORIGIN',
-      //add the x-xss protection header
+      // Add the x-xss protection header
       'X-XSS-Protection': '1; mode=block',
     },
-    signedCookies: req.signedCokies, 
-    cookies: {},
+    signedCookies: req.signedCookies,
     currentUser: req.currentUser,
-    context: req.context
+    context: req.context,
+    cookies: {},
   };
 
   return options;

@@ -8,6 +8,7 @@ export interface MyOptions extends IOptions<MyContext> {
   debug?: boolean
   //add a new property that specifies the type of context expected by the middleware
   context: MyContext
+  prisma?: PrismaClient
 }
 
 const user: User = {
@@ -27,28 +28,32 @@ const options: MyOptions = {
   debug: true,
   context: {
     req: {} as CustomRequestWithContext<MyContext>,
-    // cache: {}, removed from mycontex
-    // token: '', removed from mycontex
-    // user: '',// causese an error if removed but should be removed due to being in mycontext
-    // session: {}, removed from mycontex
-    cookies: { key: ''},
-    // get: () => '',// tied to mycontext.ts
-    id: '',// removing from myContext causs
-    userId: 0,
+    token: '', //removed from mycontex
+    session: {},  //removed from mycontex
+    cookies: { key: '' },
+    userId: parseInt('0'),
 
+    body: {},
+    cache: {},
+    accessToken: '',
+    credentials:'',
     request: {
       id: '',
       user: { id: '' } as UserWithoutSensitiveData,
       body: {},
-      headers: {} as Headers,
+      // todo figure out if I need headers here
+      // headers: {
+      //   [key: string]: string | string[] | undefined,
+      //   authorization?: string
+      // },
       prisma: new PrismaClient(),
-      currentUser:  null,
-      accessToken:  null,
+      currentUser: null,
+      accessToken: null,
       context: {} as MyContext,
-      ...{} as any
+      ...({} as any),
     },
     prisma: new PrismaClient(),
   },
-};
+}
 
 export default options

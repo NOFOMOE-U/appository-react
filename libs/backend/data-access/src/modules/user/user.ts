@@ -2,9 +2,6 @@ import { Prisma, PrismaClient, User } from '@prisma/client';
 import { hashPassword, verifyPassword } from '../../interfaces/auth/user-with-password-hash';
 const prisma = new PrismaClient();
 
-
-
-
 export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
   password?: string;
   passwordHash?: never;
@@ -98,13 +95,6 @@ export const createUser = async (
 
   return { ...createdUser };
 };
-
-
-
-
-
-
-
 
 
 export const updateUser = async (

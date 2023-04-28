@@ -20,7 +20,6 @@ import { join } from 'path'
     CommonContextModule,
     PrismaModule,
     BackendAuthModule,
-    // BackendCommonModule, // Moved the import here
   ],
 })
 export class GraphQLModule {}
@@ -38,12 +37,9 @@ export class GraphQLModule {}
             id: '',
             userId: '',
             request: req,
-            customProp: '',
-            currentUser: null,
             ctx: {},
-            prisma: new PrismaClient(),
-            token: null,
-            accessToken: null,
+            prisma,
+            
           }) as unknown as () => { prisma: PrismaClient; currentUser: any }
 
           const context = createContext()

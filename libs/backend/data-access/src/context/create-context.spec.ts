@@ -30,16 +30,29 @@ describe('createContext', () => {
       userProfileId: currentUser.userProfileId,
     };
 
-    const mockRequest: CustomRequest = {
+    const mockRequest: CustomRequest<{}> = {
       id: 'abc123',
-      user: { id: '456' },
+      user: {
+        id: '456',
+        email:"",
+        name: "",
+        roles: [],
+        createdAt: new Date,
+        updatedAt: new Date,
+        userProfileId: 0 ,
+        
+     
+      },
       userId: '456',
-      body: {},
+      // body: {},
       headers: {},
       prisma,
-      currentUser: safeUser, // use safeUserWithoutPasswordHash instead of currentUser
-      accessToken: 'token',
-      context: {},
+      currentUser: {
+        ...safeUser,
+        passwordHash: undefined
+      },
+      accessToken: undefined,
+      //context: {},
     };
 
     const context = await createContext(prisma, mockRequest);

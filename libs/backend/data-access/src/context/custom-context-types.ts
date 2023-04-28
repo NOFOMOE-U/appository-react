@@ -2,30 +2,25 @@ import { PrismaClient, User } from '@prisma/client';
 import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
 import { UserWithoutSensitiveData } from '../modules/user/user';
+import { CustomRequestWithContext } from './custom-request-with-context';
+import { MyContext } from './mycontext';
 
-export interface CustomContextType<T = {}> {
-  id: string
-  user?: UserWithoutSensitiveData | null
-  context: T & {}
-  accessToken?: string | null
-  prisma: any;
-  [key: string]: any //allow any additional properties
-  
-  body: any
-  session: any
-  cookies: { [key: string]: string };
-  get(name: string): string | undefined;
-  ctx: T
-  cache: any
-  credentials: RequestCredentials
-  
-  // req: CustomRequestWithContext<MyContext<T>>;
-  // currentUser: UserWithoutSensitiveData | null;
-  // userId?: number;
-  // token?: string;
-  // customProp: string;
-  // request: CustomRequestWithContext<MyContext<T>>// removed
-}
+export interface CustomContextType<T = MyContext<{}>> {
+  req: CustomRequestWithContext<T>;
+  request: CustomRequestWithContext<T>;
+  context: T;
+  body: any;
+  session: any;
+  cache: any;
+  accessToken?: string;
+  credentials: any;
+  prisma: PrismaClient;
+  cookies: Record<string, string>;
+  userId?: number;
+  currentUser: UserWithoutSensitiveData | null;
+  token: string;
+  get: (name: string) => string | undefined;
+  }
 
 export interface CustomContextProps {
   id: string;
@@ -35,6 +30,7 @@ export interface CustomContextProps {
   accessToken: string | null;
   request: CustomRequest<{}>;
   customProp: string;
+  [key: string]: any
 }
 
 const createCustomContext = async (prisma: PrismaClient, req: CustomRequest<{}>): Promise<CustomContextProps> => {

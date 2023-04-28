@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Task, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
-import { userSchema } from '../../middleware/validation-yup-schemas/validate-user';
+import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user';
 import { UserWithoutSensitiveData, createUser, deleteUser, getAllUsers, updateUser } from './user';
 import { UserInput } from './user.input';
   @Injectable()
@@ -59,14 +59,14 @@ import { UserInput } from './user.input';
     
     async createUser(data: Prisma.UserCreateInput): Promise<UserWithoutSensitiveData> {
       //validate user input
-      await userSchema.validate(data)
+      await validateUserSchema.validate(data)
       return createUser(data)
     }
 
 
 
     async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<UserWithoutSensitiveData | null> {
-      await userSchema.validate(data)
+      await validateUserSchema.validate(data)
       return updateUser(id, data)
     }
 

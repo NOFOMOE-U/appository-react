@@ -9,17 +9,16 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
   const accessTokenString = Array.isArray(accessToken) ? accessToken.join('') : accessToken;
   const context: MyContext = {
     req,
-    // cache: '',
     cookies: {key: ''},
-    // session: req.session,
-    // currentUser:req.currentUser,
-    // user: req.currentUser ?? null,
-    id: '',
-    userId: 0,
-    // accessToken: accessTokenString || null,
-    // token: '',
+    userId: '0',
+    accessToken: accessTokenString || '',
+    token: '',
     request: req,
-    prisma: prisma
+    prisma: prisma,
+    body: {},
+    session: {},
+    cache: {},
+    credentials: {},
   }
   return context
 }
