@@ -1,7 +1,7 @@
 import { PrismaClient, User, UserRole } from '@prisma/client'
 import { IOptions } from 'graphql-shield/typings/types'
-import { CustomRequestWithContext } from '../../../context/custom-request-with-context'
-import { MyContext } from '../../../context/mycontext'
+import { MyContext } from '../../../context/my-context'
+import { axiosRequest } from '../../../make-api/axios-request'
 import { UserWithoutSensitiveData } from '../../../modules/user/user'
 export interface MyOptions extends IOptions<MyContext> {
   //override the debug property to accept a string instead of a boolean
@@ -24,15 +24,18 @@ const user: User = {
   // add any additional fields as necessary
 }
 
-const options: MyOptions = {
+
+
+const prisma = new PrismaClient();
+
+const options: MyOptions= {
   debug: true,
   context: {
-    req: {} as CustomRequestWithContext<MyContext>,
-    token: '', //removed from mycontex
     session: {},  //removed from mycontex
     cookies: { key: '' },
-    userId: parseInt('0'),
-
+    userId: '',
+    get: (name: string) => undefined,
+    context:{},
     body: {},
     cache: {},
     accessToken: '',
@@ -41,17 +44,15 @@ const options: MyOptions = {
       id: '',
       user: { id: '' } as UserWithoutSensitiveData,
       body: {},
-      // todo figure out if I need headers here
-      // headers: {
-      //   [key: string]: string | string[] | undefined,
-      //   authorization?: string
-      // },
+      // #todo verify axiosRequest is accurately being used
+      headers: axiosRequest,
       prisma: new PrismaClient(),
       currentUser: null,
       accessToken: null,
       context: {} as MyContext,
       ...({} as any),
     },
+    signedCookies:{},
     prisma: new PrismaClient(),
   },
 }

@@ -2,7 +2,7 @@ import { AbilityBuilder, PureAbility } from '@casl/ability';
 import { PrismaQuery, Subjects, createPrismaAbility } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient, User, User as UserType } from '@prisma/client';
-import { CustomRequestWithContext } from '../../../context/custom-request-with-context';
+import { CustomRequestWithContext } from '../../../make-api/custom-request-with-context';
 import { getUserId } from '../../../utils/backend-auth.utils';
 
 type AppAbility = PureAbility<

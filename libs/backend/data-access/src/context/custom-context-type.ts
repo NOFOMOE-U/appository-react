@@ -1,14 +1,15 @@
 import { PrismaClient, User } from '@prisma/client';
 import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
+import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
 import { UserWithoutSensitiveData } from '../modules/user/user';
-import { CustomRequestWithContext } from './custom-request-with-context';
-import { MyContext } from './mycontext';
+import { MyContext } from './my-context';
 
 export interface CustomContextType<T = MyContext<{}>> {
+  ctx: any;
+  context: T;
   req: CustomRequestWithContext<T>;
   request: CustomRequestWithContext<T>;
-  context: T;
   body: any;
   session: any;
   cache: any;
@@ -16,7 +17,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   credentials: any;
   prisma: PrismaClient;
   cookies: Record<string, string>;
-  userId?: number;
+  userId?: string;
   currentUser: UserWithoutSensitiveData | null;
   token: string;
   get: (name: string) => string | undefined;
@@ -37,7 +38,7 @@ const createCustomContext = async (prisma: PrismaClient, req: CustomRequest<{}>)
   const authorizationHeader = req.headers.authorization
   const token = authorizationHeader?.replace('Bearer ', '')
 
-  let userId: number | null = null
+  let userId: string | null = null
   let currentUser: UserWithoutSensitiveData | User | null = null
 
   if (token) {
@@ -57,7 +58,7 @@ const createCustomContext = async (prisma: PrismaClient, req: CustomRequest<{}>)
   const contextProps: CustomContextProps = {
     id: '',
     prisma,
-    userId: userId ? userId.toString() : undefined,
+    userId: userId ? userId : undefined,
     currentUser,
     accessToken: token || null,
     request: req,

@@ -1,6 +1,8 @@
 import { PrismaClient, UserRole } from '@prisma/client'
 import { NextFunction, Response } from 'express'
+import { MyContext } from '../context/my-context'
 import { CustomRequest } from '../interfaces/user/custom-request'
+import { UserWithoutSensitiveData } from '../modules/user/user'
 import {
   CustomRequestWithContext,
   attachCustomContext,
@@ -10,9 +12,9 @@ import {
 describe('attachCustomContext', () => {
   it('should attach custom property to request context', () => {
     const middleware = attachCustomContext()
-    const req: CustomRequestWithContext = {
+    const req: CustomRequestWithContext<MyContext> = {
       ctx: {},
-      user: { id: '123' },
+      user: { } as UserWithoutSensitiveData,
       prisma: new PrismaClient(),
       id: '123',
       accessToken: 'abc',
@@ -57,7 +59,7 @@ describe('createCustomContextWithRequest', () => {
   })
 
   it('should create custom context and attach it to request object', async () => {
-    const req: CustomRequestWithContext = {
+    const req: CustomRequestWithContext<MyContext> = {
       ctx: {},
       id: '123',
       user: { id: '123' },

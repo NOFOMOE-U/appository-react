@@ -1,0 +1,73 @@
+import { PrismaClient, UserRole } from '@prisma/client'
+import { createNestedContext } from '../context/create-nested-context'
+import { MyContext } from '../context/my-context'
+import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
+import { SafeUser, getHeaderValue } from '../interfaces/user/custom-request'
+import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
+import { UserWithoutSensitiveData } from '../modules/user/user'
+
+const currentUser: UserWithoutSensitiveData = {
+  id: '123',
+  email: 'test@example.com',
+  name: 'Test User',
+  roles: [UserRole.USER],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  userProfileId: null,
+}
+
+const safeUser: SafeUser = {
+  id: currentUser.id,
+  email: currentUser.email,
+  name: currentUser.name,
+  roles: currentUser.roles,
+  createdAt: currentUser.createdAt,
+  updatedAt: currentUser.updatedAt,
+  userProfileId: currentUser.userProfileId,
+  passwordHash: undefined,
+}
+
+export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext<MyContext<MyContext<T>>> => {
+  const nestedContext = createNestedContext(context || ({} as MyContext<T>))
+  const request: CustomRequestWithContext<MyContext<MyContext<T>>> = {
+    id: 'test-id',
+    user: safeUser,
+    currentUser: currentUser,
+    ctx: nestedContext.ctx,
+    accessToken: 'test-token',
+    prisma: {} as PrismaClient,
+    req: {} as ExtendedCustomRequest<MyContext<T>>['req'],
+    body: {},
+    token: 'test-token',
+    session: {},
+    rawHeaders: [],
+    cookies: {},
+    cache: {},
+    headers: {
+      authorization: 'Bearer test-token',
+    },
+
+    // get(name: string): string | undefined,
+    // get(name: string | string[]): string[] | undefined
+    // get(name: 'set-cookie'): string[] | undefined
+    get(name: string | string[] ): string | string[] | undefined {
+      if (typeof name === 'string') {
+        return getHeaderValue(request.headers, name) as string[] | undefined
+      }
+      const values = name.map((n) => getHeaderValue(request.headers, n)).filter(Boolean) as string[]
+      if (values.length > 0) {
+        return values
+      }
+      return undefined
+    },
+    getAll(name: string | string[]): string[] | undefined {
+      const headerNames = Array.isArray(name) ? name : [name]
+      return headerNames.map((headerName) => getHeaderValue(request.headers, headerName)).filter(Boolean) as
+        | string[]
+        | undefined
+    },
+  }
+  return request
+}
+
+export default mockRequest

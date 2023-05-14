@@ -1,8 +1,8 @@
 import { PrismaClient, User } from '@prisma/client';
 import { NextFunction, Response } from 'express';
 import { createContext } from '../../context/create-context';
-import { CustomContextType } from '../../context/custom-context-types';
-import { CustomRequestWithContext } from '../../context/custom-request-with-context';
+import { CustomContextType } from '../../context/custom-context-type';
+import { CustomRequestWithContext } from '../../make-api/custom-request-with-context';
 // Instantiate a new Prisma client
 const prisma = new PrismaClient();
 

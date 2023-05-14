@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
 import { UserWithoutSensitiveData } from '../modules/user/user';
 import { createNestedContext } from './create-nested-context';
-import createCustomContext, { CustomContextProps, CustomContextType } from './custom-context-types';
-import { CustomRequestWithContext } from './custom-request-with-context';
-import { MyContext } from './mycontext';
+import createCustomContext, { CustomContextProps, CustomContextType } from './custom-context-type';
+import { MyContext } from './my-context';
 
 export const createContext = async (
   prisma: PrismaClient,
@@ -17,10 +17,14 @@ export const createContext = async (
     const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
     const filteredCookies = cookiesArray.filter((cookie: string | undefined): cookie is string => typeof cookie === 'string');
 
+  
+  const session = req.session;
+  const token = session?.get('token') ?? undefined
+
   const customReq: CustomRequestWithContext<MyContext<{}>> = {
     ...req,
-    token: '',
-    session: undefined,
+    token: token ?? '',
+    session: session ?? undefined,
     cache: {},
     credentials: '' as any,
     ctx: createNestedContext({
@@ -30,8 +34,8 @@ export const createContext = async (
       token: '',
       cache: {},
       body: {},
-      session: {},
-      credentials: '',
+      session: {userId: ''},
+      credentials: undefined,
       request: req,
     }),
     getAll: (name: string) => req.headers[name.toLowerCase()] as string[],
@@ -40,12 +44,12 @@ export const createContext = async (
   // usage
   const context: CustomContextType<MyContext> = {
     ...contextProps,
-    // ctx: {},
     req: customReq,
     request: customReq,
-    context: customReq.ctx,
-    body: customReq.body,
+    ctx: customReq.ctx,
+    context: customReq.context,
     session: customReq.session, 
+    body: customReq.body,
     get: (name: string) => {
       const value = contextProps[name];
       if (value !== undefined) {
@@ -61,7 +65,7 @@ export const createContext = async (
         }
       }
     },
-    userId: currentUser ? Number(currentUser.id) : undefined,
+    userId: currentUser ? currentUser.id : undefined,
     cache: {},
     credentials: '' as any,
      
@@ -71,7 +75,7 @@ export const createContext = async (
     }, {}),
     currentUser: currentUser as UserWithoutSensitiveData | null,
     token: '',
-    accessToken: ''
+    accessToken: '',
   }
 
   return context;

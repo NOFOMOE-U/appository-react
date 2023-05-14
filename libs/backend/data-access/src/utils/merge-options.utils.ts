@@ -1,5 +1,5 @@
-  import { defaultOptions } from "../context/default-options";
-import { MyContext } from "../context/mycontext";
+import { MyContext } from "../context/my-context";
+import defaultOptions from '../make-api/default-options';
 
   // merge the request and default contexts with the current context
   export function mergeContext(context: MyContext, request: any) {

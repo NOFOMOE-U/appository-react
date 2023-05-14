@@ -2,10 +2,10 @@ import { PrismaClient } from '@prisma/client'
 import { createNamespace } from 'cls-hooked'
 import { Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
+import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { Context } from './context'
-import { CustomRequestWithContext } from './custom-request-with-context'
-import { MyContext } from './mycontext'
+import { MyContext } from './my-context'
 
 export async function getUserInfoFromDB(
   prisma: PrismaClient,

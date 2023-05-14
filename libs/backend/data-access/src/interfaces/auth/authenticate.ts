@@ -1,6 +1,6 @@
 import { PrismaClient, UserRole } from '@prisma/client'
 import { compare, hash } from 'bcryptjs'
-import { MyContext } from '../../context/mycontext'
+import { MyContext } from '../../context/my-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
 import generateToken from '../../utils/generate-token.utils'
 import { removeSensitiveData } from './remove-sensitive-data'

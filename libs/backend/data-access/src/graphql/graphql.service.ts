@@ -6,7 +6,7 @@ import { makeSchema } from 'nexus'; // <-- Update import statement
 import { join } from 'path';
 import { BackendDataAccessService } from '../backend-data-access/backend-data-access.service';
 
-import { RootTypes } from './types';
+import { RootTypes } from './type';
 
 @Injectable()
 export class GraphqlService {

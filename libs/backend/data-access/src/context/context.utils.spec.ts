@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
 import { Context } from './context';
 import { contextNamespace, getRequestContext, getUserInfoFromDB, setRequestContext } from './context.utils';
-import { CustomRequestWithContext } from './custom-request-with-context';
+import { MyContext } from './my-context';
 
 describe('context-utils', () => {
   let prisma: PrismaClient;
@@ -18,14 +19,14 @@ describe('context-utils', () => {
 
   describe('getUserInfoFromDB', () => {
     it('should return null if there is no user ID', async () => {
-      const req = { user: undefined } as CustomRequestWithContext;
+      const req = { user: undefined } as CustomRequestWithContext<MyContext>;
       const res = {} as Response;
       const user = await getUserInfoFromDB(prisma, req, res);
       expect(user).toBeNull();
     });
 
     it('should return null if the user ID is not a number', async () => {
-      const req = { user: { id: 'not-a-number' } } as CustomRequestWithContext;
+      const req = { user: { id: 'not-a-number' } } as CustomRequestWithContext<MyContext>;
       const res = {} as Response;
       const user = await getUserInfoFromDB(prisma, req, res);
       expect(user).toBeNull();
@@ -36,10 +37,11 @@ describe('context-utils', () => {
         data: {
           email: 'testuser@example.com',
           name: 'Test',
+          passwordHash: 'undefined'
         },
       });
 
-      const req = { user: { id: newUser.id.toString() } } as CustomRequestWithContext;
+      const req = { user: { id: newUser.id.toString() } } as CustomRequestWithContext<MyContext>;
       const res = {} as Response;
       const user = await getUserInfoFromDB(prisma, req, res);
       expect(user?.id).toEqual(newUser.id);
@@ -63,7 +65,7 @@ describe('context-utils', () => {
     it('should return an object with the request ID', () => {
       const { id } = getRequestContext();
       expect(typeof id).toEqual('string');
-      expect(uuidv4.test(id)).toBe(true);
+      expect(uuidv4(id)).toMatch(/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i);
     });
 
     it('should set the request ID in the context namespace', () => {
@@ -83,7 +85,7 @@ describe('context-utils', () => {
         },
       });
 
-      const req = { user: { id: newUser.id.toString() } } as CustomRequestWithContext;
+      const req = { user: { id: newUser.id.toString() } } as CustomRequestWithContext<MyContext>;
       const res = {} as Response;
       const context = await Context.create(prisma, req, res);
 

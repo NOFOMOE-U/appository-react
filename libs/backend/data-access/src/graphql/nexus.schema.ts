@@ -1,13 +1,21 @@
 ///graphql/nexus.schema.ts
 
 import { RootTypes } from '@appository/backend/data-access';
+import { GraphQLSchema } from 'graphql';
 import { applyMiddleware } from 'graphql-middleware';
 import { makeSchema } from 'nexus';
 import * as path from 'path';
 import { join } from 'path';
 import { permissions } from '../middleware/permissions/shield/shield-permissions';
 import * as UserModule from '../modules/user/user.module';
-import * as types from './types';
+import * as types from './type';
+
+export interface GraphQLSchemaWithProps extends GraphQLSchema {
+  query: any;
+  mutation: any;
+  subscription: any;
+  context: any;
+}
 
 export const nexusSchema = makeSchema({
   types: [RootTypes, types, UserModule],
@@ -20,19 +28,10 @@ export const nexusSchema = makeSchema({
     export: 'Context',
   },
   shouldGenerateArtifacts: true,
-  // sourceTypes: {
-  //   modules: [
-  //     {
-  //       // module: '@prisma/client',
-  //       module: '@prisma/client',
-  //       alias: 'prisma',
-  //     },
-  //     {
-  //       module: path.dirname('/context'),
-  //       alias: 'ContextModule',
-  //     },
-  //   ],
-  // },
 })
 
-export const schema = applyMiddleware(nexusSchema, permissions);
+export const schema = applyMiddleware(nexusSchema, permissions) as GraphQLSchema;
+
+export const createTestSchema = () => {
+  return schema;
+}

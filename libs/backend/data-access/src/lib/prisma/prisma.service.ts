@@ -25,9 +25,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return { prisma: this.prisma };
   }
   
-  getPrismaClient(): PrismaClient {
-    return this.prisma;
-  }
+
 }
 
 export const getContext = async (): Promise<PrismaContext> => {

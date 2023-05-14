@@ -1,20 +1,20 @@
 import { PrismaClient } from '@prisma/client'
 import { Response } from 'express'
+import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-import { CustomRequestWithContext } from './custom-request-with-context'
 import { createInitialContext } from './init-context'
-import { MyContext } from './mycontext'
+import { MyContext } from './my-context'
 export interface ContextProps {
   prisma: PrismaClient;
   request: CustomRequestWithContext<MyContext<{}>>;
   response: Response;
-  userId: number | null, 
+  userId: string | null, 
 }
 
 export class Context {
   private accessToken: string | null = null;
   private prisma: PrismaClient;
-  private userId: number | null = null;
+  private userId: string | null = null;
   public currentUser: UserWithoutSensitiveData | null = null;
   public id: string;
   public cookies: Record<string, string> | string | string[] | undefined;
@@ -69,7 +69,7 @@ export class Context {
 
   static async create(prisma: PrismaClient, req: CustomRequestWithContext<MyContext<{}>>, response: Response): Promise<Context> {
     const contextType = await createInitialContext(req);
-    const userId = contextType.userId ? Number(contextType.userId) : null;
+    const userId = contextType.userId ? contextType.userId : null;
     const context = new Context({ prisma, request: req, response, userId });
     if (contextType.accessToken) {
       context.setAccessToken(contextType.accessToken);

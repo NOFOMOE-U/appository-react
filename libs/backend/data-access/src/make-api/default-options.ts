@@ -1,41 +1,41 @@
-import { ExtendedCustomRequest, getHeaderValue } from '../interfaces/user/custom-request';
-import { CustomRequestWithContext } from './custom-request-with-context';
-import { MyContext } from './mycontext';
+import { MyContext } from '../context/my-context'
+import { CustomRequestWithContext } from './custom-request-with-context'
 
-interface DefaultOptions {
-  req: CustomRequestWithContext<MyContext<{}>>;
-  headers?: Record<string, string>;
+// Import the ExtendedCustomRequest and AxiosRequestConfig types
+import type { AxiosRequestConfig } from 'axios'
+
+export interface DefaultOptions {
+  req: CustomRequestWithContext<MyContext<{}>>
+  headers?: Record<string, string>
 }
 
-const defaultOptions = ({ req }: DefaultOptions): ExtendedCustomRequest<MyContext<{}>> => {
+// Define the function that returns the default options
+const defaultOptions = ({ req }: DefaultOptions): AxiosRequestConfig => {
   // Retrieve host, referer, and origin from the request headers
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {}
   if (req.headers) {
-    for(const[key,value] of Object.entries(req.headers)) {
+    for (const [key, value] of Object.entries(req.headers)) {
       if (typeof value === 'string') {
-        headers[key] = value;
+        headers[key] = value
       }
       if (Array.isArray(value)) {
-        headers[key] = value.join(',');
+        headers[key] = value.join(',')
       }
-    };
+    }
   }
 
-  const host = headers.host || '';
-  const referer = headers.referer || '';
-  const origin = headers.origin || '';
+  const host = headers.host || ''
+  const referer = headers.referer || ''
+  const origin = headers.origin || ''
 
   // Retrieve accessToken from the request object
-  const { accessToken } = req;
+  const { accessToken } = req
 
   // Determine if the request is an API request
-  const isApiRequest = referer.includes(`${origin}/api/`);
+  const isApiRequest = referer.includes(`${origin}/api/`)
 
   // Define the options object with the necessary headers
-  const options: ExtendedCustomRequest<MyContext<{}>> = {
-    // Spread the properties of the request object
-    ...req,
-    get: (name: string)=> getHeaderValue(req,name),
+  const options: AxiosRequestConfig = {
     headers: {
       // Spread the properties of headers object
       ...headers,
@@ -62,13 +62,11 @@ const defaultOptions = ({ req }: DefaultOptions): ExtendedCustomRequest<MyContex
       // Add the x-xss protection header
       'X-XSS-Protection': '1; mode=block',
     },
-    signedCookies: req.signedCookies,
-    currentUser: req.currentUser,
-    context: req.context,
-    cookies: {},
-  };
+    baseURL: process.env.API_URL,
+    responseType: 'json',
+  }
 
-  return options;
-};
+  return options
+}
 
-export default defaultOptions;
+export default defaultOptions
