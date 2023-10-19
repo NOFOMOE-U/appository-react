@@ -1,6 +1,7 @@
 //4. create a request when a client makes a request to the server
 import { User } from '@prisma/client'
 import { Request } from 'express'
+import { Session, SessionData } from 'express-session'
 import { IncomingHttpHeaders } from 'http'
 import { CustomRequestCommon } from '../../context/custom-common-request'
 import { MyContext } from '../../context/my-context'
@@ -43,10 +44,10 @@ export interface CustomRequest<T = unknown> extends Request {
 // Define the ExtendedCustomRequest interface that extends CustomRequest with additional properties
 export interface ExtendedCustomRequest<T extends {} = {}> extends CustomRequestCommon, CustomRequest<T> {
   context?: T
-  cache?: {} 
+  cache?: {}
   credentials?: string
   destination?: string
-  session: Express.SessionData & {userId: string}
+  session: Session & Partial<SessionData> & {userId: string}
   integrity?: string
   accessToken?: string
   headers: IncomingHttpHeaders & {authorization?: string}

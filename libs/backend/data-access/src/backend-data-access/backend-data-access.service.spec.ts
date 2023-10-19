@@ -63,7 +63,7 @@ describe('BackendDataAccessService', () => {
       }
       const createdUser = await service.createUser(newUser)
       if (!createdUser) {
-        throw new Error('Failed to create user')
+      throw new Error('Failed to create user')
       }
   
       const fetchedUser = createdUser?.id && (await service.getUserById(createdUser.id))

@@ -1,17 +1,14 @@
 import { PrismaClient } from '@prisma/client'
+import { SessionData } from 'express-session'
 import { Headers } from 'node-fetch'
 import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
 import { MyContext } from './my-context'
 
 const prisma = new PrismaClient()
 
-
-
 interface ExtendedRequest extends Request {
-  session: Express.SessionData; // replace 'any' with the type of your session data
+  session: SessionData; // replace 'any' with the type of your session data
 }
-
-
 
 export const createInitialContext = (req: CustomRequestWithContext<MyContext>): MyContext => {
   const accessToken = req.get('access-token')
@@ -27,23 +24,23 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
   }
 
   const context: MyContext = {
-    cookies: { key: '' },
-    userId: '',
-    accessToken: accessTokenString || '',
-    token: '',
-    request: {} as  Request,
-    prisma: prisma,
-    body: {},
-    session: { userId: '' },
-    cache: {},
-    credentials: {},
-    context: {},
-    get: (name: string) => undefined,
-    signedCookies: {}
+    cookies: {}, // Add your cookies data here if needed
+    userId: '', // Initialize with the user ID if available
+    accessToken: accessTokenString || '', // Set the access token
+    token: '', // Initialize with the token if available
+    request: {} as Request, // Set the request object
+    prisma: prisma, // Set the Prisma client instance
+    body: {}, // Add your request body data here if needed
+    cache: {} as RequestCache, // Add caching data here if needed
+    credentials: {}, // Add credentials data here if needed
+    context: {} as MyContext<{}>, // Add your custom context data here if needed
+    get: (name: string) => undefined, // Define the get function if needed
+    signedCookies: {}, // Add signed cookies data here if needed
+    accepts: (types: string | string[]) => [],
   } 
   return context
 }
-
+//define an asynchronous function that initializes the context
 export const initContext = async (req: CustomRequestWithContext<MyContext>): Promise<MyContext> => {
   const context = createInitialContext(req)
   return context

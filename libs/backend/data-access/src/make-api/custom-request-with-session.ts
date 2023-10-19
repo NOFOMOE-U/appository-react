@@ -2,16 +2,16 @@ import { CustomHeaders, HeadersWithIndexSignature } from '../context/create-nest
 import { CustomRequest } from '../interfaces/user/custom-request';
 import { SessionData } from '../types/express';
 
-export interface SharedHeaders {
-  [key: string]
-  : string
+export interface SharedHeaders<T extends SharedHeaders<T>> extends Headers{
+  [key: string]:
+  | string
   | string[]
   | undefined
   | ((name: string, value: string) => void)
   | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
 
   authorization?: string;
-  append(name: string): string;
+  append(name: string, value?: string): T;
   has(name: string): boolean;
   get(name: string): string | null;
   delete(name: string): boolean;
@@ -19,20 +19,28 @@ export interface SharedHeaders {
   entries(): IterableIterator<[string, string]>;
   [Symbol.iterator](): IterableIterator<[string, string]>;
   getAll(name: string): string[];
+  values(): IterableIterator<string>;
+  getSetCookie(): string[]
 }
 
 
-export type CustomRequestSessionHeaders = SharedHeaders & {
-  set(name: string, value: string): CustomRequestSessionHeaders;
+export type CustomRequestSessionHeaders = ()=>{} & {
+  set: (name: string, value: string) => CustomRequestSessionHeaders;
 }
 
-export interface CustomRequestWithSession<T> extends CustomRequest<T> {
-  
+export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'headers'> {
+  customHeaders: import("/Users/dixiejones/Development/main-app/appository-react/libs/backend/data-access/src/make-api/headers/custom-headers-impl").CustomHeadersImpl;
   session: SessionData & { userId: string }
   cache: any
   context: T
   rawHeaders: string[] & readonly string[]
-  headers: CustomHeaders 
+  headers: CustomHeaders
+  accepts: {
+    (type: string): string | false;
+    (types: string[]): string | false;
+    (types: string[]): string[] | false;
+    (): string[];
+  }
   ctx: {
     context: {}
     rawHeaders: string[] & readonly string[]
@@ -42,5 +50,4 @@ export interface CustomRequestWithSession<T> extends CustomRequest<T> {
   get: (name: string) => undefined
   cookies: any
   signedCookies: any
-  
-} 
+}

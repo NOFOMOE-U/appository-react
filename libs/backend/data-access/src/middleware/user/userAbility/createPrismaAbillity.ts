@@ -2,6 +2,7 @@ import { AbilityBuilder, PureAbility } from '@casl/ability';
 import { PrismaQuery, Subjects, createPrismaAbility } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient, User, User as UserType } from '@prisma/client';
+import { MyContext } from '../../../context/my-context';
 import { CustomRequestWithContext } from '../../../make-api/custom-request-with-context';
 import { getUserId } from '../../../utils/backend-auth.utils';
 
@@ -39,7 +40,7 @@ export class CaslAbilityFactory {
     return build()
   }
 
-  static async createForPrisma(prisma: PrismaClient, req: CustomRequestWithContext): Promise<AppAbility>{
+  static async createForPrisma(prisma: PrismaClient, req: CustomRequestWithContext<MyContext>): Promise<AppAbility>{
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(createPrismaAbility)
       
       const user = await getUserId(req) // replace with actual user
@@ -54,7 +55,7 @@ export class CaslAbilityFactory {
 }
 
 const prisma = new PrismaClient()
-const req: CustomRequestWithContext = {} as CustomRequestWithContext;
+const req: CustomRequestWithContext<MyContext> = {} as CustomRequestWithContext<MyContext>;
 const ability =  CaslAbilityFactory.createForPrisma(prisma, req)
 
 export default ability

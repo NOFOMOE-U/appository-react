@@ -1,9 +1,6 @@
-import { SessionData } from '../types/express'
-import {CustomRequestInit, MyCustomRequest} from './my-custom-request'
-import { Cookie } from 'tough-cookie'
-import fetch, { Headers, RequestInit, Response } from 'node-fetch'
 import { MyContext } from '../context/my-context'
-import http from 'http'
+import { SessionData } from '../types/express'
+import { MyCustomRequest } from './my-custom-request'
 
 export interface ParsedUrl {
   protocol: string
@@ -20,48 +17,56 @@ export interface ParsedUrl {
   href: string
 }
 
-async function makeRequest() {
+export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
+  const sessionData = req.session as SessionData;
+  const userId = sessionData.userId;
+  
+  const requestHeaders: Record<string, string | undefined> = {
+    'Authorization' : `Bearer ${userId}`,
+    'Content-Type' : 'application/json'
+  };
+
+  //.... populate requestHeaders ...
+
+  // Convert requestHeaders to an array of two-item arrays
+  const requestHeadersArray: [string, string][] = Object.entries(requestHeaders)
+    .map(([key,value]) => [key,value || ""])
+
+  for (const key in requestHeaders) {
+    if (Object.prototype.hasOwnProperty.call(requestHeaders, key)) {
+      const value = requestHeaders[key];
+      requestHeadersArray.push([key,value || ''])
+    }
+  }
+
   const request: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest({
-    body: {
-      request: {},
-      context: {},
-      session: SessionData,
-      signedCookies: '',
-      get: (name: string) => headers.get(name) || null,
-    },
+    body: undefined,
     url: 'https://jsonplaceholder.typicode.com/posts/1',
     method: 'GET',
-    headers: {},
+    headers: requestHeaders as HeadersInit, // Use requestHeaders here
     get: (name: string) => {
-      if (name === 'set-cookie') {
-        const value = headers.get(name)
-        return value ? [...value.split(', ')] : undefined;
+      const foundHeader = (requestHeaders as unknown as [string,string][])?.find(([key]: [string, string]) => key === name);
+      if (foundHeader) {
+        const value = foundHeader[1];
+        return value ? value : undefined
       }
-      return headers.get(name) 
+      return undefined
     },
-    header: (name: string, value?: string | undefined
- | string[] | undefined) => {
-      if (value) {
-        headers.set(name, value)
-      } 
-      return headers.get(name)
-    },
-    accepts: (types: string | string[]) => true,
+    accepts: (types: string | string[]) => [],
+    session: req.session
   })
 
-  const headers = request.headers
-
-  const response = await request.fetch()
+  const response = await request.fetch();
 
   if (response.ok) {
-    const data = await response.json()
-    console.log('Response data:', data)
+    const data = await response.json();
+    console.log('Response data:', data);
   } else {
-    console.error('Error:', response.status, response.statusText)
+    console.error('Error:', response.status, response.statusText);
   }
 }
 
-makeRequest()
+
 // #todo ways to use tough cookie
 // Web scraping: When scraping websites, it's common to send multiple requests to the same website over a period of time. By using Tough Cookie, you can ensure that the website doesn't block you due to repeated requests from the same IP address. You can set up a cookie jar to store cookies and send them with subsequent requests, mimicking a regular user's behavior.
 

@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, User } from '@prisma/client';
-import { hashPassword, verifyPassword } from '../../interfaces/auth/user-with-password-hash';
+import { verifyPassword } from '../../interfaces/auth/user-with-password-hash';
 const prisma = new PrismaClient();
 
 export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
@@ -24,13 +24,6 @@ const userSelect = {
   updatedAt: true,
 };
 
-
-
-
-
-
-
-
 export const getAllUsers = async (): Promise<UserWithoutSensitiveData[]> => {
   const users = await prisma.user.findMany({
     select: {
@@ -42,11 +35,6 @@ export const getAllUsers = async (): Promise<UserWithoutSensitiveData[]> => {
 
   return users.map((user) => ({ ...user }));
 };
-
-
-
-
-
 
 export const getUserById = async (
   userId: string
@@ -76,20 +64,15 @@ export const getUserById = async (
 
 
 export const createUser = async (
-  data: UserCreateInputWithPassword
+  data: Prisma.UserCreateInput
 ): Promise<UserWithoutSensitiveData> => {
-  const { password, ...userData } = data;
-  const hashedPassword = await hashPassword(password);
 
   const createdUser = await prisma.user.create({
-    data: {
-      ...userData,
-      passwordHash: hashedPassword,
-    },
+    data: data,
     select: {
       ...userSelect,
       passwordHash: false,
-      resetPasswordToken: false,
+      resetPasswordToken: false 
     },
   });
 

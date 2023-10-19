@@ -1,8 +1,10 @@
-  import { HeadersWithIndexSignature } from './create-nested-context';
+  import { SessionData } from 'express-session';
+import { ExtendedCustomRequest } from '../interfaces/user/custom-request';
+import { HeadersWithIndexSignature } from './create-nested-context';
 
   export interface CustomRequestCommon {
     req: {
-      readonly session: Express.SessionData;
+      readonly session: SessionData;
       readonly cache: {};
       readonly context: {};
       get: (name: string) => undefined;
@@ -20,7 +22,7 @@
   //access the session data to verify that the user has permission to update the task.
   export interface CustomRequestWithMutableHeaders extends CustomRequestCommon {
       req: {
-          readonly session: Express.SessionData & { userId: string };
+          readonly session: SessionData & { userId: string };
           readonly cache: {};
           readonly context: {};
           readonly cookies: any
@@ -36,7 +38,7 @@
 
           // Add any other properties that are specific to this option
         };
-        // req: ExtendedCustomRequest['req'];
+        req: ExtendedCustomRequest['req'];
 
         // Add any other properties that are specific to this option
       };
@@ -56,7 +58,7 @@
         
           readonly cache: {};
           readonly context: {};
-          readonly session: Express.SessionData & {userId: string};
+          readonly session: SessionData & {userId: string};
           readonly cookies: any;
           readonly signedCookies: any;
           get: (name: string) => undefined;

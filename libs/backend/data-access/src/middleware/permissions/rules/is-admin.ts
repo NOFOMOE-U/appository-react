@@ -5,7 +5,7 @@ import errorMessages from '../error-messages';
 
 
 export const isAdmin = rule()(async (_, __, { request, prisma }) => {
-  const userId = await getUserById(request, prisma);
+  const userId = await getUserById(request);
   if (typeof userId !== 'string') {
     return new Error(errorMessages.notAuthorized);
   }

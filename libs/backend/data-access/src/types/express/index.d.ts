@@ -5,15 +5,22 @@ declare global {
     interface Request {
       user?: typeof AuthenticatedUser;
       startTime?: number;
-      prisma: PrismaClient
+      prisma: PrismaClient;
     }
     interface SessionData{
-      userId?: string
+      userId: string
+      user?: AuthenticatedUser
+      token?: string
       [key: string]: any;
+      session: string
     }
   }
 }
-
+declare module 'express-session' {
+  interface Session {
+    yourSessionKey?: string
+  }
+}
 declare module global {
   interface Request {
     ctx: CustomContextType;
@@ -21,5 +28,6 @@ declare module global {
   }
 }
 
-export { Request, SessionData };
+
+export { Request, Session, SessionData };
 

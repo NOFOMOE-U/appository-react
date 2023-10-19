@@ -1,11 +1,12 @@
 import { PrismaClient, User, UserRole } from '@prisma/client'
-import { IOptions } from 'graphql-shield/typings/types'
+import { IOptions, ShieldRule } from 'graphql-shield/typings/types'
 import { MyContext } from '../../../context/my-context'
 import { axiosRequest } from '../../../make-api/axios-request'
+import { CustomSessionType } from '../../../make-api/my-custom-request'
 import { UserWithoutSensitiveData } from '../../../modules/user/user'
-export interface MyOptions extends IOptions<MyContext> {
+export interface MyOptions extends IOptions{
   //override the debug property to accept a string instead of a boolean
-  debug?: boolean
+  debug: boolean
   //add a new property that specifies the type of context expected by the middleware
   context: MyContext
   prisma?: PrismaClient
@@ -31,15 +32,15 @@ const prisma = new PrismaClient();
 const options: MyOptions= {
   debug: true,
   context: {
-    session: {},  //removed from mycontex
+    session: {} as CustomSessionType,
     cookies: { key: '' },
     userId: '',
     get: (name: string) => undefined,
-    context:{},
+    context: {},
     body: {},
     cache: {},
     accessToken: '',
-    credentials:'',
+    credentials: '',
     request: {
       id: '',
       user: { id: '' } as UserWithoutSensitiveData,
@@ -52,9 +53,20 @@ const options: MyOptions= {
       context: {} as MyContext,
       ...({} as any),
     },
-    signedCookies:{},
+    accepts: (types: string | string[]) => {
+      if (typeof types === 'string' && types == 'application/json') {
+        return ['application/json']
+      }
+      return []
+    },
+    signedCookies: {},
     prisma: new PrismaClient(),
   },
+  allowExternalErrors: false,
+  fallbackRule: {} as ShieldRule,
+  hashFunction: function (arg: { parent: any; args: any }): string {
+    throw new Error('Function not implemented.')
+  }
 }
 
 export default options

@@ -1,65 +1,64 @@
 import { PrismaClient } from '@prisma/client'
 import { Request } from 'express'
+import { Session } from 'express-session'
 import http, { IncomingHttpHeaders } from 'http'
 import { jest } from '../interfaces/user/custom-request'
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
+import { CustomSessionType } from '../make-api/my-custom-request'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { SessionData } from '../types/express'
 import { MyContext } from './my-context'
 
-export type HeadersWithIndexSignature  =
-    Record<
-      string, string 
-      
-        | string[]
-        | ((name: string, value: string) => void)
-        | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
-        | undefined
-    >;
-
-export type CustomHeaders = {
-  [key: string]: string | string[] | undefined;
-  authorization?: string;
-};
-export interface ExtendedCustomRequestWithPrisma<T extends Record<string, unknown> = Record<string, unknown>>
-  extends CustomRequestWithContext<MyContext<T>>{
-    req: {
-    session: Express.SessionData & {userId: string}
-    cache: any
-    context: MyContext<T>
-    rawHeaders: string[] & readonly string[]
-    headers: IncomingHttpHeaders
-    ctx: {
-      context: {}
-      rawHeaders: string[] & readonly string[]
-      headers: HeadersWithIndexSignature
-      getAll: (name: string) => undefined
-    }
-    // Add any other properties that are needed
-    get: (name: string) => undefined
-    cookies: any
-    signedCookies: any
-    // Add any other properties that are needed
-  } & { cache?: any } & BaseCustomRequest
+export type HeadersWithIndexSignature = Record<
+  string,
+  string>
+  & {
+   
+[name:string]:string 
+| string[]
+| ((name: string, value: string) => void)
+| ((callbackFn: (value: string, name: string, headers: Headers) => void,
+  thisArg?: any) => void)
+| undefined;
 }
 
+export interface CustomHeaders {
+  [key: string]:
+  | string
+  | string[]
+  | ((name: string, value: string) => void)
+  | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
+  | undefined;
+
+  has(name: string): boolean;
+  set(name: string, value: string): this;
+  get(name: string): string | null;
+  delete(name: string): boolean;
+  append(name: string, value?: string): this;
+  keys(): IterableIterator<string>;
+  entries(): IterableIterator<[string, string]>;
+  values(): IterableIterator<string>;
+  getAll(name: string): string[];
+  [Symbol.iterator](): IterableIterator<[string, string]>;
+}
+
+
 type BaseCustomRequest = {
-  readonly session: SessionData;
-  readonly cache: {};
-  readonly context: {};
-  get: (name: string) => undefined;
-  cookies: any;
-  signedCookies: any;
+  readonly session: SessionData
+  readonly cache: {}
+  readonly context: {}
+  get: (name: string) => undefined
+  cookies: any
+  signedCookies: any
   req: http.IncomingMessage
 }
 
 export interface MyMockContext<T> extends MyContext {
   context: MyContext<T>
-  rawHeaders: string[] 
+  rawHeaders: string[]
   headers: HeadersWithIndexSignature & Record<string, string | string[] | undefined>
   getAll: (name: string) => undefined
-  //fixes error at line 121 to safify the constraint Record<string, unknown> for  'ExtendedCustomRequestWithPrisma<MyMockContext<T>> 
-  [key:string]: unknown 
+  //fixes error at line 121 to safify the constraint Record<string, unknown> for  'ExtendedCustomRequestWithPrisma<MyMockContext<T>>
+  [key: string]: unknown
   // Add the other required properties here
 }
 
@@ -71,14 +70,14 @@ export interface MockExtendedCustomRequest<T extends {}> {
     id: string
     prisma: any
     body: any
-    currentUser: UserWithoutSensitiveData,
+    currentUser: UserWithoutSensitiveData
     req: {
       session: {
         userId: string
       }
       cache: {}
       context: MyContext<T>
-      rawHeaders:  readonly string[]
+      rawHeaders: readonly string[]
       headers: HeadersWithIndexSignature
       getAll: (name: string) => undefined
       cookies: any
@@ -91,33 +90,32 @@ export interface MockExtendedCustomRequest<T extends {}> {
   [key: string]: any // allow any additional properties
 }
 
-export const createNestedContext = <T>(context?: MyContext<T>)
-  : MyContext<MyContext> => {
+export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyContext<MyContext>> => {
   // Define default values for all required properties
   const headers = new Headers()
   const headersObj: Record<string, string> = {}
-  const rawHeaders= ['','Content-Type: text/html']
+  const rawHeaders = ['', 'Content-Type: text/html']
 
   for (const [key, value] of Object.entries(headersObj)) {
     headers.append(key, value)
   }
 
-  const emptyRawHeaders:  string[] = ['']
-  
-  const defaultMockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
+  const emptyRawHeaders: string[] = ['']
 
-    session: { 
-      userId: ''
-    },
+  const defaultMockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
+    session: {
+      userId: '',
+      yourSessionKey: ''
+    } as Session & Partial<SessionData>,
     cache: {},
     outerContext: {
       id: '',
-      prisma: new PrismaClient,
+      prisma: new PrismaClient(),
       body: {},
       currentUser: {} as UserWithoutSensitiveData,
       req: {
-        session: { 
-          userId: ''
+        session: {
+          userId: '',
         },
         cache: {},
         context: {} as MyContext<MyMockContext<T>>,
@@ -129,11 +127,11 @@ export const createNestedContext = <T>(context?: MyContext<T>)
         get: (name: string) => undefined,
         ctx: {
           context: {},
-          rawHeaders: ([] as string[]) as string [] & readonly string[],
+          rawHeaders: [] as string[] as string[] & readonly string[],
           headers: {} as HeadersWithIndexSignature,
           getAll: (name: string) => undefined,
         },
-      
+
         currentUser: {} as UserWithoutSensitiveData,
       },
     },
@@ -143,12 +141,15 @@ export const createNestedContext = <T>(context?: MyContext<T>)
     logIn: jest.fn(),
     logOut: jest.fn(),
     isAuthenticated: jest.fn(),
-    isUnauthenticated: jest.fn(),    // Add all other required properties here
+    isUnauthenticated: jest.fn(), // Add all other required properties here
     // ...
   }
 
+  const defaultHeaders: IncomingHttpHeaders ={}
+
   const mockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
     ...defaultMockRequest,
+    headers: defaultHeaders,
     ctx: {
       context: context ? context : {},
       rawHeaders: [''],
@@ -156,18 +157,27 @@ export const createNestedContext = <T>(context?: MyContext<T>)
       getAll: (name: string) => {
         return undefined
       },
+      accepts: () => {
+        return undefined;
+      }
     },
   }
 
   const nestedContext: MyContext<MyContext<MyContext>> = {
     context: createNestedContext(),
-    get:(name: string) => undefined,
-    session: {},
+    get: (name: string) => undefined,
+    session: {} as CustomSessionType,
     signedCookies: {},
     ctx: {
       ...mockRequest.context,
       req: mockRequest,
+      accepts: () => {
+        return undefined
+      }
     },
+    accepts: function (types: string | string[]): string[] {
+      throw new Error('Function not implemented.')
+    }
   }
 
   return nestedContext

@@ -16,5 +16,5 @@ export default {
   taskNotValidated: 'Error validating task: ',
   //email now unique
   emaillNotUnique: 'Email is already registered'
-}
+} as { [key: string]: string }
  

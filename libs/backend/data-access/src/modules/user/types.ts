@@ -3,9 +3,6 @@ import { Prisma, User } from '@prisma/client'
 import { enumType, extendType, nullable, objectType } from 'nexus'
 import { hashPassword } from '../../interfaces/auth/user-with-password-hash'
 
-
-
-
 export const UserRoleEnum = enumType({
   name: 'UserRoleEnum',
   members: ['ADMIN', 'USER', 'MODERATOR', 'EDITOR'],

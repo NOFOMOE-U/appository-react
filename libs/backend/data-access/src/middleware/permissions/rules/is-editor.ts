@@ -6,7 +6,7 @@ import errorMessages from '../error-messages';
 const prisma = new PrismaClient();
 
 export const isEditor = rule()(async(_, __, {request}) => {
-  const userId = getUserById(request, prisma);
+  const userId = getUserById(request);
 
   if (typeof userId !== 'string') {
     return new Error(errorMessages.notAuthorized)

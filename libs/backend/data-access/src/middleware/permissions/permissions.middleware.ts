@@ -3,13 +3,14 @@ import { Context, GqlExecutionContext } from '@nestjs/graphql'
 import { NextFunction } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import { shield } from 'graphql-shield'
+import { CustomContextType } from '../../context/custom-context-type'
 import prisma from '../../lib/prisma/prisma'
 import { CustomRequestWithContext } from '../../make-api/custom-request-with-context'
 import { CaslAbilityFactory } from '../user/userAbility/createPrismaAbillity'
 import errorMessages from './error-messages'
 import { PermissionsModuleOptions } from './permissions.types'
+import isAuthorized from './rules/isAuthorized'
 import { permissions } from './shield/shield-permissions'
-
 
 export const Info = createParamDecorator((data: unknown, context: ExecutionContext) => {
   const ctx = GqlExecutionContext.create(context)
@@ -17,16 +18,23 @@ export const Info = createParamDecorator((data: unknown, context: ExecutionConte
 })
 
 //set up for shield permissions to be imported into types
-export const permissionsMiddleware = shield(permissions, {
-  debug: true,
-  allowExternalErrors: true,
-});
+export const permissionsMiddleware = shield(
+  { ...permissions, isAuthorized },
+  {
+    debug: true,
+    allowExternalErrors: true,
+  },
+)
 
 @Injectable()
 export class PermissionsMiddleware implements NestMiddleware {
   constructor(private readonly options: PermissionsModuleOptions) {}
 
-  async use(@Info() info: GraphQLResolveInfo, @Context() context: CustomRequestWithContext, next: NextFunction) {
+  async use(
+    @Info() info: GraphQLResolveInfo,
+    @Context() context: CustomRequestWithContext<CustomContextType>,
+    next: NextFunction,
+  ) {
     const ability = await CaslAbilityFactory.createForPrisma(prisma, context)
 
     const fieldPath = info.path

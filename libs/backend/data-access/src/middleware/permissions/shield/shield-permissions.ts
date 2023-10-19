@@ -8,6 +8,8 @@ import { isOwner } from '../rules/is-owner'
 import { isReadingOwnSession } from '../rules/is-reading-own-session'
 import { isReadingOwnUser } from '../rules/is-reading-own-user'
 
+
+
 export const permissions: IRuleTypeMap = {
   Query: {
     //define rules for each query field
@@ -37,5 +39,6 @@ export const permissions: IRuleTypeMap = {
     secret: isOwner,
   },
 }
+
 
 export const isAuthenticatedAdmin = chain(isAuthenticatedUser, isAdmin)

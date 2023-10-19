@@ -15,7 +15,7 @@ export const isOwner = rule()(async (parent, _, { context }) => {
   })
   
 
-export async function checkIfUserIsOwner(userId: string, type: string, postId: string): Promise<UserWithoutSensitiveData>{
+export async function checkIfUserIsOwner(userId: string, type: string, postId: string): Promise<UserWithoutSensitiveData> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new Error(errorMessages.userNotFound);
@@ -24,9 +24,12 @@ export async function checkIfUserIsOwner(userId: string, type: string, postId: s
   if (!post) {
     throw new Error(errorMessages.postNotFound);
   }
+  
   if (post.authorId !== userId) {
     throw new Error(errorMessages.notAuthorized);
   }
-  
-  return user
+
+  const { passwordHash, ...userWithoutPassword } = user;
+
+  return userWithoutPassword;
 }

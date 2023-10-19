@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { Response } from 'express'
+import { PrismaService } from '../lib/prisma/prisma.service'
 import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { createInitialContext } from './init-context'
@@ -8,31 +9,28 @@ export interface ContextProps {
   prisma: PrismaClient;
   request: CustomRequestWithContext<MyContext<{}>>;
   response: Response;
-  userId: string | null, 
+  userId: string | null,
+  prismaService: PrismaService
 }
 
 export class Context {
+
   private accessToken: string | null = null;
   private prisma: PrismaClient;
   private userId: string | null = null;
+  private prismaService: PrismaService
   public currentUser: UserWithoutSensitiveData | null = null;
   public id: string;
   public cookies: Record<string, string> | string | string[] | undefined;
   public token: string | null;
+  
 
-  constructor({ prisma, request, response }: ContextProps) {
+  constructor({ prisma, request, response, prismaService }: ContextProps) {
     this.prisma = prisma;
     this.id = request.id ?? '';
     this.cookies = request.cookies;
     this.token = request.token;
-  }
-
-  async getUserById(userId: string): Promise<UserWithoutSensitiveData | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, roles: true, name: true, createdAt: true, updatedAt: true, userProfileId: true},
-    });
-    return user;
+    this.prismaService =  prismaService
   }
 
   setAccessToken(token: string) {
@@ -56,21 +54,11 @@ export class Context {
     return this.prisma;
   }
 
-  async getUser() {
-    if (!this.userId) {
-      return null;
-    }
-    if (!this.currentUser) {
-      this.currentUser = await this.getUserById(this.userId.toString());
-    }
-    return this.currentUser;
-  }
-  
 
   static async create(prisma: PrismaClient, req: CustomRequestWithContext<MyContext<{}>>, response: Response): Promise<Context> {
     const contextType = await createInitialContext(req);
     const userId = contextType.userId ? contextType.userId : null;
-    const context = new Context({ prisma, request: req, response, userId });
+    const context = new Context({ prisma, request: req, response, userId, prismaService: new PrismaService });
     if (contextType.accessToken) {
       context.setAccessToken(contextType.accessToken);
     }
