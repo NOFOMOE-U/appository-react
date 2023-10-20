@@ -1,18 +1,41 @@
 import { PrismaClient } from '@prisma/client'
-import { Request } from 'express'
+import { NextFunction, Request } from 'express'
 import { Application, ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
+import RangeParser from 'range-parser'
 import { Socket } from 'socket.io'
+import { AppConfiguration } from '../context/app-configuration'
 import { MyContext } from '../context/my-context'
-import { socket } from '../server'
+import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
+import { authenticationMiddlware, socket } from '../server'
 import { SessionData } from '../types/express'
 import { CustomContextHeaders, CustomRequestWithContext } from './custom-request-with-context'
+import { CustomRequestWithSession } from './custom-request-with-session'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
 import { specificSocket } from './socket/socket'
-import { authenticationMiddlware } from '../server'
-import { NextFunction } from 'express'
-import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
-import { CustomRequestWithSession } from './custom-request-with-session'
+
+
+// Define the RequestOptions type
+type RequestOptions = {
+  headers: {
+    [key: string]: string | string[];
+  };
+  baseURL: string;
+  responseType: string;
+  id: string;
+  ctx: {
+    headers: {
+      [key: string]: string;
+    };
+    accessToken?: string;
+  };
+  // Add other properties you need
+};
+
+
+
+
+
 let myRequest: MyCustomRequest<MyContext> | null = null
 
 function initializeCommonHeaders(socket: Socket): CustomContextHeaders {
@@ -29,7 +52,7 @@ function initializeCommonHeaders(socket: Socket): CustomContextHeaders {
     'Content-Type': '',
     Referer: '',
     'Referer-Policy': '',
-  } as unknown as CustomContextHeaders
+  } as CustomContextHeaders
 }
 
 export let myContext: MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>> | undefined
@@ -88,7 +111,7 @@ export function processRequest(req: Request, res: Response, next: NextFunction) 
       })
       myContext = {
         // Other properties in your context...
-
+        config: {} as AppConfiguration,
         context: {} as MyContext<{}>,
         session: {} as CustomSessionType,
         signedCookies: {},
@@ -104,17 +127,21 @@ export function processRequest(req: Request, res: Response, next: NextFunction) 
 
         // Implementation of the 'accepts' method
         accepts: (types: string | string[] | undefined) => {
-          const acceptHeader = req.headers?.get('accept') || '*/*'
+          if(req.headers === undefined){
+            
+          }
+          const acceptHeader = req.headers?.get('accept') as string || '*/*'
+            
           const results: string[] = []
 
-          if (!acceptHeader || acceptHeader === '*/*') {
+          if (acceptHeader === '*/*') {
             if (typeof types === 'string') {
               results.push(types)
             } else if (Array.isArray(types)) {
               results.push(...types)
             }
           } else {
-            if (typeof types === 'string' && acceptHeader?.includes(types)) {
+            if (typeof types === 'string' && acceptHeader.includes(types)) {
               results.push(types)
             } else if (Array.isArray(types)) {
               for (const type of types) {
@@ -125,6 +152,7 @@ export function processRequest(req: Request, res: Response, next: NextFunction) 
             }
           }
           return results
+          
         },
       }
     }
@@ -139,6 +167,10 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
   // Retrieve accessToken from the request object
   const { accessToken } = req
 
+
+  const commandHeaders = {
+    accept: ''
+  }
   // Define the options object with the necessary headers
   const options: RequestOptions = {
     headers: {
@@ -156,18 +188,21 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
       'Content-Type': 'application/json',
       // Define default options for the range parser
       'Client-IP': specificSocket?.handshake?.address || '',
-      get: (name: string) => undefined,
-      header: (name: string) => undefined,
-      accepts: () => undefined,
-      sessionStore: sessionStorage.Store
+      // Define session storage for user session information
+      sessionStore: sessionStorage.Store,
       // Add the referer header if it is an API request
       ...(isApiRequest && { Referer: req.headers?.referer }),
       // Add the request-policy header if it is an API request
       ...(isApiRequest && { 'Referer-Policy': 'strict-origin-when-cross-origin' }),
+      'set-cookie': [],
+      accept: '',
+      'accept-language': '',
+      'accep-patch': '',
+      'accept-range': '',
     },
 
-    options.baseURL: process.env.API_URL,
-    options.responseType: 'json',
+    baseURL: process.env.API_URL || '',
+    responseType: 'json',
     id: '',
     ctx: {
       headers: { ...commonHeaders },
@@ -176,7 +211,7 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
     prisma: new PrismaClient(),
     req: {
       session: {} as SessionData,
-      cache: Cache, //todo verify cache
+      cache: {} as RequestCache, //todo verify cache
       context: {} as CustomRequestWithContext<MyContext<{}>>,
       get: function (name: string): undefined {
         throw new Error('Function not implemented.')
@@ -219,8 +254,11 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
     acceptsLanguages: function (): string[] {
       throw new Error('Function not implemented.')
     },
-    range(size: number, options?: RangeParserOptions): RangeParserRanges | RangeParserResult | undefined{
-
+    range(size: number, options?: RangeParser.Options): RangeParser.Ranges| RangeParser.Range | RangeParser.Result | undefined{
+      //provide a valid 'str' argument. You may need to specify the appropiate 
+      //striing for your usecase
+      const str = 'sample-range-header'
+      return  RangeParser(size, str, options)
     },
     accepted: [],
     param: function (name: string, defaultValue?: any): string {

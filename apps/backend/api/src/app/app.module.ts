@@ -13,11 +13,13 @@ import { GqlModuleOptions, GraphQLModule } from '@nestjs/graphql'
 import { join } from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+// import {SocketModule} from '@nestjs/platform-socket.io'
 
 const permissionsEnabled= true
 
 @Module({
   imports: [
+    // SocketModule,
     UserModule,
     CommunicationModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({

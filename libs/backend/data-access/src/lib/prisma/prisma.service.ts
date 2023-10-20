@@ -20,6 +20,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     }
   } = {}
   private userId: string | null = null
+  private taskId: string | null = null
 
   constructor() {
     this.prisma = prisma
@@ -42,6 +43,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     const user = await this.prisma.user.findUnique({ where: { id } });
     return user ? {...user} : null
   }
+
+  // //todo set up tasks and connect how to find user by task id.
+  // async getUserByTaskId(id: string): Promise<Task | null> {
+  //   const userTask = await this.prisma.user.findUnique({where: {id}})
+  //   return userTask ? {...userTask} : null
+  // }
 
   async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });

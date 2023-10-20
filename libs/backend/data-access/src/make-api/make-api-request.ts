@@ -7,8 +7,7 @@ import { getDefaultAxiosOptions } from './default-options';
 export async function makeApiRequest(req: CustomRequestWithContext<MyContext<{}>>) {
   // Create an instance of ExtendedCustomRequest using defaultOptions
   const options = getDefaultAxiosOptions(req) as unknown as ExtendedCustomRequest;
-  
-
+  // Add any additional headers/params as needed
   try {
     
     // Use axios to make a GET request to the API endpoint

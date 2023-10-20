@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 import { Response } from 'express'
+import { CustomPrismaClient } from '../lib/prisma/prisma'
 import { PrismaService } from '../lib/prisma/prisma.service'
 import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { createInitialContext } from './init-context'
 import { MyContext } from './my-context'
 export interface ContextProps {
-  prisma: PrismaClient;
+  prisma: CustomPrismaClient;
   request: CustomRequestWithContext<MyContext<{}>>;
   response: Response;
   userId: string | null,

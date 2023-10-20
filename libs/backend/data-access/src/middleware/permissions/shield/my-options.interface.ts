@@ -1,9 +1,12 @@
 import { PrismaClient, User, UserRole } from '@prisma/client'
 import { IOptions, ShieldRule } from 'graphql-shield/typings/types'
+import { AppConfiguration } from '../../../context/app-configuration'
 import { MyContext } from '../../../context/my-context'
 import { axiosRequest } from '../../../make-api/axios-request'
 import { CustomSessionType } from '../../../make-api/my-custom-request'
 import { UserWithoutSensitiveData } from '../../../modules/user/user'
+import prisma from '../../../lib/prisma/prisma'
+import { hashPassword } from '../../../interfaces/auth/user-with-password-hash'
 export interface MyOptions extends IOptions{
   //override the debug property to accept a string instead of a boolean
   debug: boolean
@@ -25,20 +28,17 @@ const user: User = {
   // add any additional fields as necessary
 }
 
-
-
-const prisma = new PrismaClient();
-
 const options: MyOptions= {
   debug: true,
   context: {
+    config: {} as AppConfiguration,
     session: {} as CustomSessionType,
     cookies: { key: '' },
     userId: '',
     get: (name: string) => undefined,
     context: {},
     body: {},
-    cache: {},
+    cache: {} as RequestCache,
     accessToken: '',
     credentials: '',
     request: {
@@ -47,7 +47,7 @@ const options: MyOptions= {
       body: {},
       // #todo verify axiosRequest is accurately being used
       headers: axiosRequest,
-      prisma: new PrismaClient(),
+      prisma: prisma,
       currentUser: null,
       accessToken: null,
       context: {} as MyContext,
@@ -60,12 +60,14 @@ const options: MyOptions= {
       return []
     },
     signedCookies: {},
-    prisma: new PrismaClient(),
+    prisma: prisma,
   },
   allowExternalErrors: false,
   fallbackRule: {} as ShieldRule,
-  hashFunction: function (arg: { parent: any; args: any }): string {
-    throw new Error('Function not implemented.')
+  hashFunction: async (arg: { parent: any, args: any, context: MyContext }): Promise<string> => {
+    const dataToHash = `${arg.parent} - ${arg.args.date} - ${arg.context}`
+    const hashedPassword = await hashPassword(dataToHash);
+    return hashedPassword
   }
 }
 

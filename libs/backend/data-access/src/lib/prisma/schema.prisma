@@ -30,7 +30,6 @@ model User {
   updatedAt          DateTime         @default(now())
   resetPasswordToken String           @default(value: "")
   settings           UserSettings?    @relation("settings")
-  
   userProfile        UserProfile?     @relation("user_profile")
   userProfileId      Int?
   personas    Persona[]  @relation("user_personas")
@@ -187,6 +186,7 @@ model UserSettings {
   timeFormat           String?  @default("24")
   dateFormat           String?  @default("YYYY-MM-DD")
   timeZone             String?  @default("UTC")
+
   emailNotifications   Boolean? @default(true)
   pushNotifications    Boolean? @default(true)
   desktopNotifications Boolean? @default(true)
@@ -252,9 +252,11 @@ model UserSettings {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @default(now())
   user                 User             @relation("settings", fields: [userId], references: [id])
+  
   userId               String           @map(name: "user_id") 
-
   userProfile          UserProfile?     @relation("user_settings")
+  notificationPreferences NotificationPreferences[] @relation("notificationPreferences")
+  notificationPreferencesId String      @map(name: "notification_preferences_id")
 
   // id: Unique identifier for the user settings.
   // user: User to whom the settings belong.
@@ -399,6 +401,26 @@ model UserSettings {
 
   @@unique([userId])
 }
+
+
+model NotificationPreferences{
+  id         String   @id @default(uuid())
+  userId     String
+  
+  userSettings          UserSettings? @relation("notificationPreferences", fields: [userId], references: [id])
+  userSettingsId        String?   
+  email      Boolean
+  push       Boolean
+  desktop    Boolean
+  audio      Boolean
+  message    Boolean
+  video      Boolean
+  autoPlay   Boolean
+  // Add other notification preferences here
+
+  @@unique([userId])
+  }
+
 
 //ENUMS
 

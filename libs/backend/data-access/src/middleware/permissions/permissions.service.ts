@@ -142,22 +142,22 @@ export class PermissionsService {
     return false
   }
 
-  //Check if a user has permission to suggest reassigning a task to another user
-  async canSuggestReassignTask(userId: string, taskOwnerId: string, task: any): Promise<boolean> {
-    //Only admins, task owner, and task assignee can suggest reassigning the task
-    return (
-      userId === taskOwnerId || (await this.checkIsAdminById(userId)) || this.isTaskAssignee(userId, task.assigneeId)
-    )
-  }
+  // //Check if a user has permission to suggest reassigning a task to another user
+  // async canSuggestReassignTask(userId: string, taskOwnerId: string, task: any): Promise<boolean> {
+  //   //Only admins, task owner, and task assignee can suggest reassigning the task
+  //   return (
+  //     userId === taskOwnerId || (await this.checkIsAdminById(userId)) || this.isTaskAssignee(userId, task.assigneeId)
+  //   )
+  // }
 
-  //Check if a user has permission to update the due date of a task
-  async canUpdateTaskDueDate(userId: string, taskOwnerId: string, task: any): Promise<boolean> {
-    //todo update task from any to the proper type value once task code has been created
-    //Only admins, task owner, and task assignee can update the due date of the task
-    return (
-      userId === taskOwnerId || (await this.checkIsAdminById(userId)) || this.isTaskAssignee(userId, task.assigneeId)
-    )
-  }
+  // //Check if a user has permission to update the due date of a task
+  // async canUpdateTaskDueDate(userId: string, taskOwnerId: string, task: any): Promise<boolean> {
+  //   //todo update task from any to the proper type value once task code has been created
+  //   //Only admins, task owner, and task assignee can update the due date of the task
+  //   return (
+  //     userId === taskOwnerId || (await this.checkIsAdminById(userId)) || this.isTaskAssignee(userId, task.assigneeId)
+  //   )
+  // }
 
   //Check if a user is an admin
   private async checkIsAdminById(userId: string): Promise<boolean> {
@@ -170,11 +170,11 @@ export class PermissionsService {
     return false
   }
 
-  //Check if a user is the assignee of the task
-  private async isTaskAssignee(userId: string, taskId: string): Promise<boolean> {
-    // Retrieve the task by its ID
-    const task = await this.userService.getUserTaskById(taskId)
-    // Check if the task exists and if the assignee ID matches the user ID
-    return !!task && task.assigneeId === userId
-  }
+  // //Check if a user is the assignee of the task
+  // private async isTaskAssignee(userId: string, taskId: string): Promise<boolean> {
+  //   // Retrieve the task by its ID
+  //   const task = await this.userService.getUserTaskById(taskId)
+  //   // Check if the task exists and if the assignee ID matches the user ID
+  //   return !!task && task.assigneeId === userId
+  // }
 }

@@ -3,11 +3,11 @@
 
 // responsible for handling business logic and validation,
 import { Injectable } from '@nestjs/common';
-import { Prisma, Task, User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
 import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user';
-import { UserWithoutSensitiveData, createUser, deleteUser, getAllUsers, updateUser } from './user';
+import { UserWithoutSensitiveData, createUser, deleteUser, getAllUsers } from './user';
 import { UserInput } from './user.input';
   @Injectable()
   export class UserService {
@@ -65,9 +65,9 @@ import { UserInput } from './user.input';
 
 
 
-    async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<UserWithoutSensitiveData | null> {
+    async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User | null> {
       await validateUserSchema.validate(data)
-      return updateUser(id, data)
+      return this.prismaService.updateUser(id, data)
     }
 
     async deleteUser(id: string): Promise<UserWithoutSensitiveData | null> {
@@ -78,19 +78,19 @@ import { UserInput } from './user.input';
       return getAllUsers()
     }
 
-    async getUserById(id: string): Promise<UserWithoutSensitiveData | null> {
-      return this.prismaService.getPrismaClient().user.findUnique({ where: { id } });
+    async getUserById(id: string): Promise<User | null> {
+      return this.prismaService.getUserById(id);
     }
 
-    async getUserByEmail(email: string): Promise<UserWithoutSensitiveData | null> {
-      return this.prismaService.getPrismaClient().user.findUnique({where: {email}})
+    async getUserByEmail(email: string): Promise<User | null> {
+      return this.prismaService.getUserByEmail(email)
     }
 
 
-    //tasks
-    async getTaskById(id: string): Promise<Task | null> { 
-      return this.prismaService.getPrismaClient().task.findUnique({where: {id}})
-    }
+    //todo connect tasks to prismaService
+    // async getUserByTaskId(id: string): Promise<Task | null> { 
+    //   return this.prismaService.getUserByTaskId(id)
+    // }
   }
 
 

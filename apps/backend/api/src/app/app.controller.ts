@@ -13,7 +13,7 @@ export class AppController {
     return this.appService.getData()
   }
 
-  @Get()
+  @Get('hello')
   @UseInterceptors(LoggingInterceptor)
   async getHello(@Req() request: Request) {
     const context = await this.prismaService.getContext()

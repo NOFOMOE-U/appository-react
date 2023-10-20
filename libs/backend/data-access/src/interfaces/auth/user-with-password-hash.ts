@@ -1,7 +1,6 @@
 import { User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-
 export interface UserWithPasswordHash extends User {
   passwordHash: string ;
 }
