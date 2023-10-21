@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client'
-import { SessionData } from 'express-session'
+import { Session, SessionData } from 'express-session'
 import { Headers } from 'node-fetch'
 import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
+import { CustomSessionType } from '../make-api/my-custom-request'
+import { AppConfiguration } from './app-configuration'
 import { MyContext } from './my-context'
 
 const prisma = new PrismaClient()
@@ -24,18 +26,22 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
   }
 
   const context: MyContext = {
+    config: {} as AppConfiguration,
+    session: req.session as Session & Partial<SessionData> & CustomSessionType,
     cookies: {}, // Add your cookies data here if needed
-    userId: '', // Initialize with the user ID if available
+    currentUser: req.session.currentUser,
+    //cookies: req?.headers?.cookie ? parseCookies(req.headers.cookie) : {},
+    userId: req.sessions.userId, // Initialize with the user ID if available
     accessToken: accessTokenString || '', // Set the access token
     token: '', // Initialize with the token if available
     request: {} as Request, // Set the request object
     prisma: prisma, // Set the Prisma client instance
     body: {}, // Add your request body data here if needed
     cache: {} as RequestCache, // Add caching data here if needed
-    credentials: {}, // Add credentials data here if needed
+    // credentials: {}, // Add credentials data here if needed
     context: {} as MyContext<{}>, // Add your custom context data here if needed
     get: (name: string) => undefined, // Define the get function if needed
-    signedCookies: {}, // Add signed cookies data here if needed
+    signedCookies: {} as Record<string, string>, // Add signed cookies data here if needed
     accepts: (types: string | string[]) => [],
   } 
   return context

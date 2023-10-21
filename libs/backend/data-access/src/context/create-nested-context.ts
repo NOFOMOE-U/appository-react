@@ -6,8 +6,8 @@ import { jest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { SessionData } from '../types/express'
+import { AppConfiguration } from './app-configuration'
 import { MyContext } from './my-context'
-
 export type HeadersWithIndexSignature = Record<
   string,
   string>
@@ -53,7 +53,7 @@ type BaseCustomRequest = {
 }
 
 export interface MyMockContext<T> extends MyContext {
-  context: MyContext<T>
+  context: MyContext<MyContext<MyContext<{}>>>
   rawHeaders: string[]
   headers: HeadersWithIndexSignature & Record<string, string | string[] | undefined>
   getAll: (name: string) => undefined
@@ -86,7 +86,7 @@ export interface MockExtendedCustomRequest<T extends {}> {
     }
   }
   cache: any
-  credentials: any
+  // credentials: any
   [key: string]: any // allow any additional properties
 }
 
@@ -136,7 +136,7 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
       },
     },
     rawHeaders: emptyRawHeaders,
-    credentials: undefined,
+    // credentials: undefined,
     context: createNestedContext<T>(),
     logIn: jest.fn(),
     logOut: jest.fn(),
@@ -163,11 +163,13 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
     },
   }
 
-  const nestedContext: MyContext<MyContext<MyContext>> = {
+  const nestedContext: MyContext<MyContext<MyContext<{}>>> = {
     context: createNestedContext(),
     get: (name: string) => undefined,
+    currentUser: mockRequest.outerContext.currentUser,
     session: {} as CustomSessionType,
-    signedCookies: {},
+    signedCookies: {} as Record<string,string>,
+    config: {} as AppConfiguration,
     ctx: {
       ...mockRequest.context,
       req: mockRequest,
@@ -176,8 +178,14 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
       }
     },
     accepts: function (types: string | string[]): string[] {
-      throw new Error('Function not implemented.')
-    }
+      if (typeof types === 'string') {
+        return [types];
+      } else if (Array.isArray(types)) {
+        return types;
+      } else {
+        return [];
+      }
+    }    
   }
 
   return nestedContext

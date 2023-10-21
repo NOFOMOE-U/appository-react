@@ -1,6 +1,8 @@
+import { AppConfiguration } from '../context/app-configuration';
 import { CustomHeaders, HeadersWithIndexSignature } from '../context/create-nested-context';
 import { CustomRequest } from '../interfaces/user/custom-request';
 import { SessionData } from '../types/express';
+import { CustomHeadersImpl } from './headers/custom-headers-impl';
 
 export interface SharedHeaders<T extends SharedHeaders<T>> extends Headers{
   [key: string]:
@@ -29,7 +31,8 @@ export type CustomRequestSessionHeaders = ()=>{} & {
 }
 
 export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'headers'> {
-  customHeaders: import("/Users/dixiejones/Development/main-app/appository-react/libs/backend/data-access/src/make-api/headers/custom-headers-impl").CustomHeadersImpl;
+  customHeaders: CustomHeadersImpl;
+  config: AppConfiguration
   session: SessionData & { userId: string }
   cache: any
   context: T

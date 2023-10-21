@@ -15,7 +15,7 @@ import {
   makeRequest,
   nexusSchema,
 } from '@appository/backend/data-access'
-import { NextFunction, Request } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import session, { Session, SessionData } from 'express-session'
 import { applyMiddleware } from 'graphql-middleware'
 import { makeSchema } from 'nexus'
@@ -23,20 +23,21 @@ import { Namespace, Server } from 'socket.io'; // Import the necessary types
 import { processRequest } from './make-api/default-options'
 import { makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
-import { isAuthenticatedUser } from './middleware/permissions/rules/is-authenticated-user'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
-
+require ('dotenv').config()
 const json = require('body-parser')
 const cors = require('cors')
 const http = require('http')
 
 export const app = require('express')()
 
+const sessionStore = new sessionStorage.Store
 app.use(
   session({
     secret: 'your-secret-key', // replace with secret key
     resave: false,
     saveUninitialized: false,
+    store: sessionStore
   }),
 )
 
@@ -148,17 +149,23 @@ app.use(
   expressMiddleware(apolloServer),
 )
 
-app.post('/login', (req: Request, res: Response) => {
+app.post('/login', async (req: Request, res: Response) => {
   // Check credentials and authenticate the user
+  const isAuthenticatedUser = await permissions.check(req, {
+
+  }) 
   // If authentication is successful, store data in the session
-  req.session.yourSessionKey = 'yourTokenValue'; // Replace 'yourSessionKey' and 'yourTokenValue'
+  req.session.yourSessionKey = SESSION_SECRET; // Replace 'yourSessionKey' and 'yourTokenValue'
   // Redirect or send a response
+  // SESSION_SECRET = '
+// SESSION_TOKEN=yourTokenValue  
 });
+
 
 
 export function ensureAuthenticated({ req, res, next }: { req: Request; res: Response; next: NextFunction }) { 
   if (!req.session.yourSessionKey) {
-   return (res as any).status(401).send('Unauthorized');
+   return res..status(401).send('Unauthorized');
   }
   // authentication success, 
     next
@@ -172,16 +179,28 @@ export function authenticationMiddlware(req: Request, res: Response, next: NextF
   })
 }
 
-app.get('/protected', isAuthenticatedUser, (req: Request, res: Response, next: NextFunction) => {
+app.get('/protected', ensureAuthenticated, (req: Request, res: Response, next: NextFunction) => {
   ensureAuthenticated({
       req, res, next: (err: any) => {
 
         if (err) {
-          return (res as any).status(401).send('Unauthorized')
+          return res.status(401).send('Unauthorized')
         }
+      res.send('You are authenticated!')
       }
   })
   
+  app.get('/profile', ensureAuthenticated, (req: Request, res: Response next:) => {
+    if (!req.session.user) {
+      res.send('Not authenticaated')
+      return res.send('Not authenticated');
+    }
+    if (req.session.user) {
+      const userId = req.session.user.id
+      res.send(`Authenticated user ID: ${userId}`)
+      
+    }
+  })
   
   // Retrieve data from the session
   const sessionData = req.session as Session & Partial<SessionData>
@@ -190,12 +209,12 @@ app.get('/protected', isAuthenticatedUser, (req: Request, res: Response, next: N
   if (token) {
     // User is authenticated
     // Continue with protected route logic
-    (res as any).status(200).send('Authenticated'); // Replace with your logic for authenticated users
+    res..status(200).send('Authenticated'); // Replace with your logic for authenticated users
   } else {
     // User is not authenticated
     // Redirect or send an error response
-    (res as any).status(401).send('Unauthorized'); // You can customize the status code and response message
-    (res as any).redirected('/login');
+    res.status(401).send('Unauthorized'); // You can customize the status code and response message
+    res..send('Not Authenticated');
 
   }
 });
@@ -215,11 +234,11 @@ app.get('/your-route', async (req: Request, res: Response, next: NextFunction) =
 
     await makeRequest(myCustomReq)
     // Handle success or response from makeRequest if needed
-    ;(res as any).status(200).send('Request sent successfully')
+    ;res..status(200).send('Request sent successfully')
   } catch (error) {
     // Handle errors from makeRequest
     console.error(error)
-    ;(res as any).sendStatus(500) // Changed to sendStatus() instead of status()
+    ;res..sendStatus(500) // Changed to sendStatus() instead of status()
   }
 })
 
@@ -227,7 +246,7 @@ app.get('/make-api-request', async (req: Request & CustomRequestWithContext<MyCo
   try {
     await makeApiRequest(req);
 
-    (res as any).status(200).json({message: 'API request processed successfully'})
+    res..status(200).json({message: 'API request processed successfully'})
   } catch (error) {
     console.error('API request error: ', error);
 
@@ -235,14 +254,14 @@ app.get('/make-api-request', async (req: Request & CustomRequestWithContext<MyCo
       const errorMessage = error.message
 
       if (errorMessage === 'Oh no, we have an error'){
-        (res as any).status(400).json({ error: errorMessages.badRequest })
+        res..status(400).json({ error: errorMessages.badRequest })
       } else if(errorMessage === 'Seems to be an internal error'){
-        (res as any).status(500).json({error: errorMessages.internalServerError, message: 'An unexpected error occurred'})
+        res..status(500).json({error: errorMessages.internalServerError, message: 'An unexpected error occurred'})
       } else{
-      (res as any).status(500).json({error: errorMessages.unknownError})
+      res..status(500).json({error: errorMessages.unknownError})
       }
     } else {
-      (res as any).status(500).json({error: errorMessages.unknownError})
+      res..status(500).json({error: errorMessages.unknownError})
     }
   }
 })

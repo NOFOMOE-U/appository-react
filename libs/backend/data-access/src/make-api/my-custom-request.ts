@@ -24,9 +24,10 @@ import { Application, Dictionary, ParamsDictionary } from 'express-serve-static-
 import { Session } from 'express-session'
 import { IncomingHttpHeaders } from 'http'
 import { ParsedQs } from 'qs'
-import RangeParserRanges, { RangeParserOptions } from 'range-parser'
+
 import { Cookie } from 'tough-cookie'
 import { CustomHeaders } from '../context/create-nested-context'
+import { CustomContextType } from '../context/custom-context-type'
 import { MyContext } from '../context/my-context'
 import prisma from '../lib/prisma/prisma'
 import errorMessages from '../middleware/permissions/error-messages'
@@ -54,7 +55,7 @@ export interface CustomRequestInit extends RequestInit {
   session: CustomSessionType 
   body?: BodyInit | undefined
   signedCookies?: { [key: string]: string }
-  context?: { [key: string]: string }
+  context?: CustomContextType
 }
 
 export interface CustomRequestInitWithGet extends CustomRequestInit {
@@ -79,7 +80,11 @@ interface RequestCache {
 
 type CustomHeadersAndHeaders = CustomHeaders & IncomingHttpHeaders
 
-const customContextHeaders: CustomContextHeaders = {}
+const customContextHeaders: CustomContextHeaders = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer token',
+  'Custom-Header': ['value1', 'value2'],
+}
 
 customContextHeaders['Content-Type'] = 'application/json'
 customContextHeaders['Authorization'] = 'Bearer token'
@@ -89,15 +94,13 @@ customContextHeaders['Custom-Header'] = 'value2'
 export type MyHeadersInit = {[key: string]: string | string[] };
 
 export class MyCustomHeaders extends CustomHeadersHandler {
-   headersData: MyHeadersInit = {}
-
-  constructor(headers?: HeadersInit | Record<string, string>) {
-    super()
+  constructor(headers?: MyHeadersInit | undefined) {
+    super(headers)
     if (headers && typeof headers === 'object') {
       //iterate over the object properties
       for (const key in headers) {
         if (Object.prototype.hasOwnProperty.call(headers, key)) {
-          const value = (headers as Record<string, string>)
+          const value = headers[key];
 
           if (typeof value == 'string') {
             this.set(key, value)
@@ -109,7 +112,8 @@ export class MyCustomHeaders extends CustomHeadersHandler {
     }
   }
 
-  setAuthorization(token: string) {
+    
+    setAuthorization(token: string) {
     this.set('Authorization', `Bearer ${token}`)
   }
 
@@ -173,18 +177,20 @@ export class MyCustomHeaders extends CustomHeadersHandler {
     return entries[Symbol.iterator]()
   }
 
-  [name: string]:
-    | string
-    | string[]
-    | ((name: string, value: string) => void)
-    | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
-    | undefined
+  // [name: string]: 
+    // | string
+    // | string[]
+    // | ((name: string, value: string) => void)
+    // | ((callbackFn: (value: string, name: string, headers: CustomHeadersHandler) => void, thisArg?: any) => void)
+    // | undefined
 }
 
 export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   extends Request
   implements CustomRequestWithSession<MyContext>
 {
+
+  
   customHeaders: MyCustomHeaders = new MyCustomHeaders()
   headers: MyCustomHeaders = new MyCustomHeaders()
 
@@ -236,7 +242,6 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
 
     //set ur
     const customHeaderValues = ['value1', 'value2']
-    this.customHeaders = new MyCustomHeaders()
     this.customHeadersProperty = new Headers()
     // set custom headers as needed
     this.customHeaders.setAuthorization('your-token') // change to auth token
@@ -296,9 +301,9 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       cookies: {},
       userId: undefined,
       request: {},
-      get: function (name: string): string | undefined {
-        throw new Error('Function not implemented.')
-      },
+      // get: function (name: string): string | undefined {
+      //   throw new Error('Function not implemented.')
+      // },
       getAll: function (name: string): string[] | undefined {
         throw new Error('Function not implemented.')
       },
@@ -309,24 +314,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       getCustomHeader(): string | null {
         return this.customHeaders.getCustomHeader()
       },
-      header: function (name: 'set-cookie'): string[] | undefined {
-        throw new Error('Function not implemented.')
-      },
-      accepts: function (): string[] {
-        throw new Error('Function not implemented.')
-      },
-      acceptsCharsets: function (): string[] {
-        throw new Error('Function not implemented.')
-      },
-      acceptsEncodings: function (): string[] {
-        throw new Error('Function not implemented.')
-      },
-      acceptsLanguages: function (): string[] {
-        throw new Error('Function not implemented.')
-      },
-      range(size: number, options?: RangeParserOptions): RangeParserRanges.Range | RangeParserRanges.Result | undefined{
-        return new RangeParserOptions(size, options).parse()
-      },
+      
       
       accepted: [],
       param: function (name: string, defaultValue?: any): string {
@@ -424,45 +412,43 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       _destroy: function (error: Error | null, callback: (error?: Error | null | undefined) => void): void {
         throw new Error('Function not implemented.')
       },
-      addListener: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      emit: function (event: 'close'): boolean {
-        throw new Error('Function not implemented.')
-      },
-      on: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      once: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      prependListener: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      prependOnceListener: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      removeListener: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
+      // myCustomRequest.addListener('close', () => {
+      //   throw new Error('Function not implemented.')
+      // }),
+     
+      // emit: function (event: 'close'): boolean {
+      //   throw new Error('Function not implemented.')
+      // },
+      // on: function (
+      //   event: 'close',
+      //   listener: () => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // once: function (
+      //   event: 'close',
+      //   listener: () => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // prependListener: function (
+      //   event: 'close',
+      //   listener: () => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // prependOnceListener: function (
+      //   event: 'close',
+      //   listener: () => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // removeListener: function (
+      //   event: 'close',
+      //   listener: () => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
       pipe: function <T extends NodeJS.WritableStream>(
         destination: T,
         options?: { end?: boolean | undefined } | undefined,
@@ -545,7 +531,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       Header1: 'Value1',
       Header2: 'Value2',
     })
-    const customRequest: CustomRequestWithSession<MyContext> = new MyCustomRequest<MyContext<UserWithoutSensitiveData>>(options)
+    const customRequest: CustomRequestWithSession<MyContext> = new MyCustomRequest<CustomRequestWithSession<MyContext<{}>>>(options)
     customRequest.customHeaders = customHeaders
 
     // Assign it to the main headers
@@ -641,22 +627,22 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     return false
   }
 
-  accepts(typeOrTypes: string | string[]): string[] | string | false {
-    const acceptHeader = this.get('accept') || '*/*'
+  // accepts(typeOrTypes: string | string[]): string | false | string[]{
+  //   const acceptHeader = this.get('accept') || '*/*'
 
-    if (typeof typeOrTypes === 'string') {
-      if (acceptHeader.includes(typeOrTypes)) {
-        return typeOrTypes
-      } else {
-        return false
-      }
-    } else if (Array.isArray(typeOrTypes)) {
-      const results: string[] = typeOrTypes.filter((type) => acceptHeader.includes(type))
-      return results.length > 0 ? results : false
-    } else {
-      return false
-    }
-  }
+  //   if (typeof typeOrTypes === 'string') {
+  //     if (acceptHeader.includes(typeOrTypes)) {
+  //       return typeOrTypes
+  //     } else {
+  //       return false
+  //     }
+  //   } else if (Array.isArray(typeOrTypes)) {
+  //     const results: string[] = typeOrTypes.filter((type) => acceptHeader.includes(type))
+  //     return results.length > 0 ? results : false
+  //   } else {
+  //     return false
+  //   }
+  // }
 
   private acceptSingle(type: string, acceptHeader: string | null): string | false {
     if (acceptHeader && acceptHeader.includes(type)) {
@@ -764,6 +750,8 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     }
     return false
   }
+
+  
   // #todo
   // redirect: (url: string, status?: number) => void = (url: string, status?: number) => {
   //   this.headers.set('location', url)

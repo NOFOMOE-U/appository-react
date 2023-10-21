@@ -10,6 +10,7 @@ export default {
   userNotFound: 'Sorry, this user profile was not found, please try again',
   notAuthenticated: 'You must be authenticated to take this action',
   unknownError: 'An unknown error occurred. Please try again.',
+  
   //post errors
   postNotFound: 'The requested post was not found.',
   //task errors

@@ -1,6 +1,7 @@
 import { PrismaClient, UserRole } from '@prisma/client';
 import { compare, hash } from 'bcryptjs';
-import { MyContext } from '../../context/my-context';
+import { AppConfiguration } from '../../context/app-configuration';
+import { MyContext, UserWithAccessToken } from '../../context/my-context';
 import { CustomSessionType } from '../../make-api/my-custom-request';
 import { UserWithoutSensitiveData } from '../../modules/user/user';
 import { SessionData } from '../../types/express';
@@ -15,13 +16,49 @@ function createContextWithPrisma(): PrismaClient {
   const prisma = new PrismaClient();
   const context: MyContext = {
     prisma,
+    currentUser: {} as UserWithAccessToken | null,
+    config: {} as AppConfiguration,
     context: {
+      currentUser: {} as UserWithAccessToken,
       context: {
+        currentUser: {} as UserWithAccessToken,
+        // credentials: {} as UserWithPasswordHash,
         accepts: (types: string | string[]) => [],
         signedCookies: {},
         session: SessionData,
         get: (name: string) => '',
+        config: {} as AppConfiguration,
+        context: {} as MyContext<MyContext<MyContext<{}>>>
       },
+      config: {
+        enableVideo: false,
+        enableAudio: false,
+        defaultUserRole: 'USER',
+        userRoles: [],
+        allowRegistration: false,
+        requireEmailVerification: false,
+        allowPublicRooms: false,
+        allowPrivateRooms: false,
+        enableModeration: false,
+        moderatorRoles: [],
+        allowFileUploads: false,
+        maxFileSize: 0,
+        enableNotifications: false,
+        restrictAccessByLocation: false,
+        allowedLocations: []
+      },
+      session: {
+        userId: '',
+        username: '',
+        expires: 0
+      },
+      accepts: function (types: string | string[]): string[] {
+        throw new Error('Function not implemented.');
+      },
+      signedCookies:{} as  Record<string,string>,
+      get: function (name: string): string | undefined {
+        throw new Error('Function not implemented.');
+      }
     },
     accepts: (types: string | string[]) => [],
     session: {} as CustomSessionType,

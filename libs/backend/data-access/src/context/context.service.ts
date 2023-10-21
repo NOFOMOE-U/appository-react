@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import type { Request } from 'express'
 import { CustomRequestWithAllProps } from '../make-api/custom-request-with-context'
-import { MyContext } from './my-context'
+import { MyContext, UserWithAccessToken } from './my-context'
 @Injectable()
 export class ContextService {
   constructor(private readonly context: MyContext, private readonly req: CustomRequestWithAllProps<MyContext<{}>>) {}
@@ -11,10 +11,13 @@ export class ContextService {
   async createContext(prisma: PrismaClient, req: CustomRequestWithAllProps<MyContext<{}>>): Promise<MyContext> {
     const customRequest = Object.assign(req, {
       currentUser: {},
-    }) as CustomRequestWithAllProps<MyContext<{}>>
-
+    }) 
+    
     const context: MyContext<{}> = {
       prisma,
+      currentUser: this.req.currentUser && 'accessToken' in this.req.currentUser
+        ? this.req.currentUser as unknown as  UserWithAccessToken
+      : this.req.currentUser as UserWithoutSensitiveData,
       get: this.req.get,
       body: this.req.body,
       cache: this.req.cache,
@@ -24,9 +27,9 @@ export class ContextService {
       session: this.req.session,
       cookies: this.req.cookies,
       accessToken: this.req.accessToken,
-      credentials: this.req.credentials,
-      signedCookies: this.req.signedCookies,
-      accepts: this.req.accepts
+      signedCookies: this.req.signedCookies as unknown as Record<string, string>,
+      accepts: this.req.accepts,
+      config: this.req.config,
     }
     return context
   }

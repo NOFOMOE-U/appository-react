@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { Session, SessionData } from 'express-session';
 import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
 import { UserWithoutSensitiveData } from '../modules/user/user';
 import { createNestedContext } from './create-nested-context';
@@ -18,15 +19,15 @@ export const createContext = async (
     const filteredCookies = cookiesArray.filter((cookie: string | undefined): cookie is string => typeof cookie === 'string');
 
   
-  const session = req.session;
-  const token = session?.get('token') ?? undefined
+  const sessionData = req.session;
+  const token = sessionData.yourSessionKey ?? undefined;
 
   const customReq: CustomRequestWithContext<MyContext<{}>> = {
     ...req,
     token: token ?? '',
-    session: session ?? undefined,
-    cache: {},
-    credentials: '' as any,
+    session: sessionData,
+    cache: {} as RequestCache,
+    // credentials: '' as any,
     ctx: createNestedContext({
       ...req.ctx,
       prisma,
@@ -34,8 +35,8 @@ export const createContext = async (
       token: '',
       cache: {},
       body: {},
-      session: {userId: ''},
-      credentials: undefined,
+      session: req?.session as Session & Partial<SessionData>,
+      // credentials: undefined,
       request: req,
     }),
     getAll: (name: string) => req.headers[name.toLowerCase()] as string[],
@@ -50,6 +51,13 @@ export const createContext = async (
     context: customReq.context,
     session: customReq.session, 
     body: customReq.body,
+    config: customReq.config,
+    signedCookies: {} as Record<string, string>,
+    userId: currentUser ? currentUser.id : undefined,
+    cache: {},
+    currentUser: currentUser as UserWithoutSensitiveData | null,
+    token: '',
+    accessToken: '',
     get: (name: string) => {
       const value = contextProps[name];
       if (value !== undefined) {
@@ -65,17 +73,16 @@ export const createContext = async (
         }
       }
     },
-    userId: currentUser ? currentUser.id : undefined,
-    cache: {},
-    credentials: '' as any,
+
+    accepts(types: string | string[]) {
+      const typeArray = Array.isArray(types) ? types : [types];
+      return typeArray;
+    },
      
     cookies: filteredCookies.reduce((acc, cookieString) => {
       const [name, value] = cookieString.split('=');
       return { ...acc, [name.trim()]: value.trim() };
     }, {}),
-    currentUser: currentUser as UserWithoutSensitiveData | null,
-    token: '',
-    accessToken: '',
   }
 
   return context;

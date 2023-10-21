@@ -3,6 +3,7 @@ import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
 import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
 import { UserWithoutSensitiveData } from '../modules/user/user';
+import { AppConfiguration } from './app-configuration';
 import { MyContext } from './my-context';
 
 export interface CustomContextType<T = MyContext<{}>> {
@@ -10,7 +11,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   context: T;
   req: CustomRequestWithContext<T>;
   request: CustomRequestWithContext<T>;
-  body: any;
+  body?: any;
   session: any;
   cache: any;
   accessToken?: string;
@@ -20,8 +21,13 @@ export interface CustomContextType<T = MyContext<{}>> {
   userId?: string;
   currentUser: UserWithoutSensitiveData | null;
   token: string;
+  signedCookies: string;
   get: (name: string) => string | undefined;
-  }
+  config: AppConfiguration
+  accepts: (types: string | string[]) => string[];
+}
+
+  
 
 export interface CustomContextProps {
   id: string;

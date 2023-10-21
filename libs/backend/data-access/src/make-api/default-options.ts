@@ -1,20 +1,18 @@
-import { PrismaClient } from '@prisma/client'
-import { NextFunction, Request } from 'express'
-import { Application, ParamsDictionary } from 'express-serve-static-core'
+import { NextFunction, Request, Response } from 'express'
+import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import RangeParser from 'range-parser'
 import { Socket } from 'socket.io'
 import { AppConfiguration } from '../context/app-configuration'
 import { MyContext } from '../context/my-context'
 import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
+import prisma, { CustomPrismaClient } from '../lib/prisma/prisma'
 import { authenticationMiddlware, socket } from '../server'
-import { SessionData } from '../types/express'
 import { CustomContextHeaders, CustomRequestWithContext } from './custom-request-with-context'
 import { CustomRequestWithSession } from './custom-request-with-session'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
 import { specificSocket } from './socket/socket'
 
-
+type CustomRequestType = CustomRequestWithContext<MyContext<{} | Request<ParamsDictionary,any,any, ParsedQs, Record<string, any>>>>
 // Define the RequestOptions type
 type RequestOptions = {
   headers: {
@@ -25,10 +23,12 @@ type RequestOptions = {
   id: string;
   ctx: {
     headers: {
-      [key: string]: string;
+      [key: string]: string | string[] | undefined;
     };
     accessToken?: string;
   };
+  prisma: CustomPrismaClient;
+  req: CustomRequestType;
   // Add other properties you need
 };
 
@@ -130,7 +130,7 @@ export function processRequest(req: Request, res: Response, next: NextFunction) 
           if(req.headers === undefined){
             
           }
-          const acceptHeader = req.headers?.get('accept') as string || '*/*'
+          const acceptHeader = req.headers['accept'] as string || '*/*'
             
           const results: string[] = []
 
@@ -171,6 +171,11 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
   const commandHeaders = {
     accept: ''
   }
+
+  const filteredCommonHeaders: CustomContextHeaders = Object.fromEntries(
+    Object.entries(commonHeaders).filter(([_, value]) => typeof value === 'string')
+  )
+  
   // Define the options object with the necessary headers
   const options: RequestOptions = {
     headers: {
@@ -205,210 +210,201 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
     responseType: 'json',
     id: '',
     ctx: {
-      headers: { ...commonHeaders },
+      headers: { ...filteredCommonHeaders },
       accessToken: accessToken,
     },
-    prisma: new PrismaClient(),
-    req: {
-      session: {} as SessionData,
-      cache: {} as RequestCache, //todo verify cache
-      context: {} as CustomRequestWithContext<MyContext<{}>>,
-      get: function (name: string): undefined {
-        throw new Error('Function not implemented.')
-      },
-      cookies: {},
-      signedCookies: {},
-    },
-    context: {} as MyContext<{}>,
-    body: {},
-    token: '',
-    session: {} as SessionData,
-    rawHeaders: [],
-    cookies: {},
-    cache: {} as RequestCache,
-    credentials: 'include',
-    userId: undefined,
-    request: {} as Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    get: function (name: string | string): string | undefined {
-      throw new Error('Function not implemented.')
-    },
-    getAll: (function (name: string): string[] | undefined {
-      throw new Error('Function not implemented.')
-    }),
-    signedCookies: {},
-    [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
-      throw new Error('Function not implemented.')
-    },
-    header: function (name: 'set-cookie'): string[] | undefined {
-      throw new Error('Function not implemented.')
-    },
-    accepts: function (): string[] {
-      throw new Error('Function not implemented.')
-    },
-    acceptsCharsets: function (): string[] {
-      throw new Error('Function not implemented.')
-    },
-    acceptsEncodings: function (): string[] {
-      throw new Error('Function not implemented.')
-    },
-    acceptsLanguages: function (): string[] {
-      throw new Error('Function not implemented.')
-    },
-    range(size: number, options?: RangeParser.Options): RangeParser.Ranges| RangeParser.Range | RangeParser.Result | undefined{
-      //provide a valid 'str' argument. You may need to specify the appropiate 
-      //striing for your usecase
-      const str = 'sample-range-header'
-      return  RangeParser(size, str, options)
-    },
-    accepted: [],
-    param: function (name: string, defaultValue?: any): string {
-      throw new Error('Function not implemented.')
-    },
-    is: function (type: string | string[]): string | false | null {
-      throw new Error('Function not implemented.')
-    },
-    protocol: '',
-    secure: false,
-    ip: '',
-    ips: [],
-    subdomains: [],
-    path: '',
-    hostname: '',
-    host: '',
-    fresh: false,
-    stale: false,
-    xhr: false,
-    method: '',
-    params: {} as ParamsDictionary,
-    query: {} as ParsedQs,
-    route: undefined,
-    originalUrl: '',
-    url: '',
-    baseUrl: '',
-    app: {} as Application<Record<string, any>>,
-    aborted: false,
-    httpVersion: '',
-    httpVersionMajor: 0,
-    httpVersionMinor: 0,
-    complete: false,
-    trailers: {},
-    rawTrailers: [],
-    setTimeout: function (
-      msecs: number,
-      callback?: (() => void) | undefined,
-    ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    destroy: function (error?: Error | undefined): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    readableAborted: false,
-    readable: false,
-    readableDidRead: false,
-    readableEncoding: null,
-    readableEnded: false,
-    readableFlowing: null,
-    readableHighWaterMark: 0,
-    readableLength: 0,
-    readableObjectMode: false,
-    destroyed: false,
-    closed: false,
-    errored: null,
-    _read: function (size: number): void {
-      throw new Error('Function not implemented.')
-    },
-    read: function (size?: number | undefined) {
-      throw new Error('Function not implemented.')
-    },
-    setEncoding: function (
-      encoding: BufferEncoding,
-    ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    pause: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    resume: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    isPaused: function (): boolean {
-      throw new Error('Function not implemented.')
-    },
-    unpipe: function (
-      destination?: NodeJS.WritableStream | undefined,
-    ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    unshift: function (chunk: any, encoding?: BufferEncoding | undefined): void {
-      throw new Error('Function not implemented.')
-    },
-    wrap: function (stream: NodeJS.ReadableStream): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    push: function (chunk: any, encoding?: BufferEncoding | undefined): boolean {
-      throw new Error('Function not implemented.')
-    },
-    _destroy: function (error: Error | null, callback: (error?: Error | null | undefined) => void): void {
-      throw new Error('Function not implemented.')
-    },
-    addListener: function (event: 'data', listener: (chunk: any) => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    emit: function (event: 'close'): boolean {
-      throw new Error('Function not implemented.')
-    },
-    on: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    once: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    prependListener: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    prependOnceListener: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    removeListener: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    pipe: function <T extends NodeJS.WritableStream>(
-      destination: T,
-      options?: { end?: boolean | undefined } | undefined,
-    ): T {
-      throw new Error('Function not implemented.')
-    },
-    off: function (
-      eventName: string | symbol,
-      listener: (...args: any[]) => void,
-    ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    removeAllListeners: function (
-      event?: string | symbol | undefined,
-    ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    setMaxListeners: function (n: number): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
-    getMaxListeners: function (): number {
-      throw new Error('Function not implemented.')
-    },
-    listeners: function (eventName: string | symbol): Function[] {
-      throw new Error('Function not implemented.')
-    },
-    rawListeners: function (eventName: string | symbol): Function[] {
-      throw new Error('Function not implemented.')
-    },
-    listenerCount: function (eventName: string | symbol): number {
-      throw new Error('Function not implemented.')
-    },
-    eventNames: function (): (string | symbol)[] {
-      throw new Error('Function not implemented.')
-    },
-    sessionID: '',
-    sessionStore: sessionStorage.Store,
+    prisma,
+    req: {} as CustomRequestType,
+    // context: {} as RequestOptions,
+    // body: {},
+    // token: '',
+    // session: {} as SessionData,
+    // rawHeaders: [],
+    // cookies: {},
+    // cache: {} as RequestCache,
+    // // // credentials: 'include',
+    // // // userId: undefined,
+    // // // request: {} as Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    // // // get: function (name: string | string): string | undefined {
+    // //   throw new Error('Function not implemented.')
+    // // },
+    // getAll: (function (name: string): string[] | undefined {
+    //   throw new Error('Function not implemented.')
+    // }),
+    // signedCookies: {},
+    // [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // header: function (name: 'set-cookie'): string[] | undefined {
+    //   throw new Error('Function not implemented.')
+    // },
+    // accepts: function (): string[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // acceptsCharsets: function (): string[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // acceptsEncodings: function (): string[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // acceptsLanguages: function (): string[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // range(size: number, options?: RangeParser.Options): RangeParser.Ranges| RangeParser.Range | RangeParser.Result | undefined{
+    //   //provide a valid 'str' argument. You may need to specify the appropiate 
+    //   //striing for your usecase
+    //   const str = 'sample-range-header'
+    //   return  RangeParser(size, str, options)
+    // },
+    // accepted: [],
+    // param: function (name: string, defaultValue?: any): string {
+    //   throw new Error('Function not implemented.')
+    // },
+    // is: function (type: string | string[]): string | false | null {
+    //   throw new Error('Function not implemented.')
+    // },
+    // protocol: '',
+    // secure: false,
+    // ip: '',
+    // ips: [],
+    // subdomains: [],
+    // path: '',
+    // hostname: '',
+    // host: '',
+    // fresh: false,
+    // stale: false,
+    // xhr: false,
+    // method: '',
+    // params: {} as ParamsDictionary,
+    // query: {} as ParsedQs,
+    // route: undefined,
+    // originalUrl: '',
+    // url: '',
+    // baseUrl: '',
+    // app: {} as Application<Record<string, any>>,
+    // aborted: false,
+    // httpVersion: '',
+    // httpVersionMajor: 0,
+    // httpVersionMinor: 0,
+    // complete: false,
+    // trailers: {},
+    // rawTrailers: [],
+    // setTimeout: function (
+    //   msecs: number,
+    //   callback?: (() => void) | undefined,
+    // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // destroy: function (error?: Error | undefined): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // readableAborted: false,
+    // readable: false,
+    // readableDidRead: false,
+    // readableEncoding: null,
+    // readableEnded: false,
+    // readableFlowing: null,
+    // readableHighWaterMark: 0,
+    // readableLength: 0,
+    // readableObjectMode: false,
+    // destroyed: false,
+    // closed: false,
+    // errored: null,
+    // _read: function (size: number): void {
+    //   throw new Error('Function not implemented.')
+    // },
+    // read: function (size?: number | undefined) {
+    //   throw new Error('Function not implemented.')
+    // },
+    // setEncoding: function (
+    //   encoding: BufferEncoding,
+    // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // pause: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // resume: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // isPaused: function (): boolean {
+    //   throw new Error('Function not implemented.')
+    // },
+    // unpipe: function (
+    //   destination?: NodeJS.WritableStream | undefined,
+    // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // unshift: function (chunk: any, encoding?: BufferEncoding | undefined): void {
+    //   throw new Error('Function not implemented.')
+    // },
+    // wrap: function (stream: NodeJS.ReadableStream): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // push: function (chunk: any, encoding?: BufferEncoding | undefined): boolean {
+    //   throw new Error('Function not implemented.')
+    // },
+    // _destroy: function (error: Error | null, callback: (error?: Error | null | undefined) => void): void {
+    //   throw new Error('Function not implemented.')
+    // },
+    // addListener: function (event: 'data', listener: (chunk: any) => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // emit: function (event: 'close'): boolean {
+    //   throw new Error('Function not implemented.')
+    // },
+    // on: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // once: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // prependListener: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // prependOnceListener: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // removeListener: function (event: 'close', listener: () => void): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // pipe: function <T extends NodeJS.WritableStream>(
+    //   destination: T,
+    //   options?: { end?: boolean | undefined } | undefined,
+    // ): T {
+    //   throw new Error('Function not implemented.')
+    // },
+    // off: function (
+    //   eventName: string | symbol,
+    //   listener: (...args: any[]) => void,
+    // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // removeAllListeners: function (
+    //   event?: string | symbol | undefined,
+    // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // setMaxListeners: function (n: number): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
+    // getMaxListeners: function (): number {
+    //   throw new Error('Function not implemented.')
+    // },
+    // listeners: function (eventName: string | symbol): Function[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // rawListeners: function (eventName: string | symbol): Function[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // listenerCount: function (eventName: string | symbol): number {
+    //   throw new Error('Function not implemented.')
+    // },
+    // eventNames: function (): (string | symbol)[] {
+    //   throw new Error('Function not implemented.')
+    // },
+    // sessionID: '',
+    // sessionStore: sessionStorage.Store,
   }
 
   interface MyContextHeaders {

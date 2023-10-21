@@ -3,6 +3,7 @@ import { User } from '@prisma/client'
 import { Request } from 'express'
 import { Session, SessionData } from 'express-session'
 import { IncomingHttpHeaders } from 'http'
+import { AppConfiguration } from '../../context/app-configuration'
 import { CustomRequestCommon } from '../../context/custom-common-request'
 import { MyContext } from '../../context/my-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
@@ -54,7 +55,7 @@ export interface ExtendedCustomRequest<T extends {} = {}> extends CustomRequestC
   get(name: string): string | undefined
   get(name: string | string[]): string[] | undefined
   get(name: 'set-cookie' | string): string | string | undefined
-  geteAll(name: string): string[] | undefined
+  getAll(name: string): string[] | undefined
   cookies: Record<string, string>
   signedCookies: Record<string, string>
   ctx?: MyContext<T>['ctx']

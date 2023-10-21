@@ -1,12 +1,12 @@
+import { UserWithoutSensitiveData } from '@appository/backend/data-access'
 import { PrismaClient, User, UserRole } from '@prisma/client'
 import { IOptions, ShieldRule } from 'graphql-shield/typings/types'
 import { AppConfiguration } from '../../../context/app-configuration'
-import { MyContext } from '../../../context/my-context'
+import { MyContext, UserWithAccessToken } from '../../../context/my-context'
+import { hashPassword } from '../../../interfaces/auth/user-with-password-hash'
+import prisma from '../../../lib/prisma/prisma'
 import { axiosRequest } from '../../../make-api/axios-request'
 import { CustomSessionType } from '../../../make-api/my-custom-request'
-import { UserWithoutSensitiveData } from '../../../modules/user/user'
-import prisma from '../../../lib/prisma/prisma'
-import { hashPassword } from '../../../interfaces/auth/user-with-password-hash'
 export interface MyOptions extends IOptions{
   //override the debug property to accept a string instead of a boolean
   debug: boolean
@@ -31,16 +31,17 @@ const user: User = {
 const options: MyOptions= {
   debug: true,
   context: {
+    currentUser: {} as UserWithAccessToken | null,
     config: {} as AppConfiguration,
     session: {} as CustomSessionType,
     cookies: { key: '' },
     userId: '',
     get: (name: string) => undefined,
-    context: {},
+    context: {} as MyContext<MyContext<MyContext<{}>>>,
     body: {},
     cache: {} as RequestCache,
     accessToken: '',
-    credentials: '',
+    // credentials: '',
     request: {
       id: '',
       user: { id: '' } as UserWithoutSensitiveData,

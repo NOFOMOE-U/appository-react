@@ -29,16 +29,15 @@ export const verifyAuthToken = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<Response<any, Record<string, any>> | void> => {
+): Promise<void> => {
   const userId = await getUserId(req);
 
   if (!userId) {
-    return res.status(401).send("Unauthorized");
+    res.status(401).send("Unauthorized");
   }
 
   // Add the user ID to the request object so it can be used in later middleware
   (req as any).userId = userId;
-
   next();
 };
 

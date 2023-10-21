@@ -5,6 +5,5 @@ export interface ContextType {
   prisma: PrismaClient
   userId: string | null
   currentUser: UserWithoutSensitiveData | null
-  // | null #todo check if this causers errors after fixing defaultOptions
   accessToken: string | null
 }
