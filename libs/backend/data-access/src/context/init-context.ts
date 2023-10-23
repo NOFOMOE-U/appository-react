@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { Session, SessionData } from 'express-session'
 import { Headers } from 'node-fetch'
+import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
 import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context'
 import { AppConfiguration } from './app-configuration'
@@ -35,7 +36,8 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
     accessToken, // Set the access token
     token: '', // Initialize with the token if available
     request: {} as Request, // Set the request object
-    req:{} as CustomRequestWithContext<MyContext<CustomSessionType>>['req'] & ExtendedCustomRequest<MyContext<CustomSessionType>>    prisma: prisma, // Set the Prisma client instance
+    req: {} as CustomRequestWithContext<MyContext<CustomSessionType>>['req'] & ExtendedCustomRequest<MyContext<CustomSessionType>>,
+    prisma: prisma, // Set the Prisma client instance
     body: {}, // Add your request body data here if needed
     cache: {} as RequestCache, // Add caching data here if needed
     // credentials: {}, // Add credentials data here if needed

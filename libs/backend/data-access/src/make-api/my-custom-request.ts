@@ -33,12 +33,12 @@ import { MyContext, UserWithAccessToken } from '../context/my-context'
 import prisma from '../lib/prisma/prisma'
 import errorMessages from '../middleware/permissions/error-messages'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-import { CustomRequestWithSession } from './custom-request-with-session'
 import { getDefaultAxiosOptions } from './default-options'; // Import the getDefaultAxiosOptions function
 import { CustomHeadersImpl } from './headers/custom-headers-impl'
 import { MyCustomHeaders } from './headers/my-custom-headers'
 import { CustomRequestInit } from './requests/custom-request-init'
 import { CustomContextHeaders, CustomRequestWithContext } from './requests/custom-request-with-context'
+import { CustomRequestWithSession } from './requests/custom-request-with-session'
 import { socket } from './socket/socket'
 
 export type CustomSessionType = {
@@ -380,8 +380,8 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       Header1: 'Value1',
       Header2: 'Value2',
     })
-    const customRequest: CustomRequestWithSession<MyContext> = new MyCustomRequest<
-      CustomRequestWithSession<MyContext<{}>>
+    const customRequest: MyCustomRequest<MyContext> = new MyCustomRequest<
+    MyContext<UserWithoutSensitiveData>
     >(options) 
     customRequest.customHeaders = customHeaders
 
@@ -434,10 +434,11 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   }
 
  
+  
   accepts(type: string | string[]): string | false {
     // Implement this method to handle the 'accepts' logic.
-    const acceptHeader = this.headers?.get('accept') || '';
-
+    const acceptHeader = this.headers.get('accept') || '';
+  
     if (!acceptHeader || acceptHeader === '*/*') {
       if (typeof type === 'string') {
         return type;
@@ -445,15 +446,16 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
         return type[0] || false;
       }
     }
-
+  
     if (typeof type === 'string') {
       return this.acceptSingle(type, acceptHeader);
     } else if (Array.isArray(type)) {
       return this.acceptMultiple(type, acceptHeader);
     }
-
+  
     return false;
   }
+  
 
   currentUser?: UserWithoutSensitiveData | undefined | null 
   // sessions: SessionData
