@@ -1,21 +1,30 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, User } from '@prisma/client'
 import { createNamespace } from 'cls-hooked'
 import { Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
-import { UserWithoutSensitiveData } from '../modules/user/user'
-import { Context } from './context'
+import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context'
 import { MyContext } from './my-context'
 
 export async function getUserInfoFromDB(
   prisma: PrismaClient,
   req: CustomRequestWithContext<MyContext<{}>>,
   res: Response,
-): Promise<UserWithoutSensitiveData | null> {
-  const context = await Context.create(prisma, req, res)
-  //convert getUserId to number
+): Promise<User | null> {
+  
+  //get the user ID from the session
+  const userIdString = req.session.userId
 
-  const user = await context.getUserById(context.getUserId()!.toString())
+  //convert to a number
+  const userId = parseInt(userIdString, 10)
+
+  if(isNaN(userId)){
+    return null
+  }
+  //convert getUserId to number
+  const user = await prisma.user.findUnique({
+    where: { id: userId.toString()}
+  })
+
   return user
 }
 

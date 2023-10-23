@@ -1,5 +1,5 @@
-//Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/server.ts
-import { ApolloServer, ApolloServerOptionsWithSchema, BaseContext } from '@apollo/server'
+  //Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/server.ts
+  import { ApolloServer, ApolloServerOptionsWithSchema, BaseContext } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import {
@@ -11,12 +11,15 @@ import {
   PermissionsMiddleware,
   PermissionsModule,
   PermissionsModuleOptions,
+  UserWithAccessToken,
+  UserWithoutSensitiveData,
+  YourRequestObject,
   getContext,
   makeRequest,
-  nexusSchema,
+  nexusSchema
 } from '@appository/backend/data-access'
 import { NextFunction, Request, Response } from 'express'
-import session, { Session, SessionData } from 'express-session'
+import session from 'express-session'
 import { applyMiddleware } from 'graphql-middleware'
 import { makeSchema } from 'nexus'
 import { Namespace, Server } from 'socket.io'; // Import the necessary types
@@ -24,262 +27,274 @@ import { processRequest } from './make-api/default-options'
 import { makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
-require ('dotenv').config()
-const json = require('body-parser')
-const cors = require('cors')
-const http = require('http')
+import generateToken from './utils/generate-token.utils'
+  require('dotenv').config()
+  const json = require('body-parser')
+  const cors = require('cors')
+  const http = require('http')
 
-export const app = require('express')()
+  export const app = require('express')()
 
-const sessionStore = new sessionStorage.Store
-app.use(
-  session({
-    secret: 'your-secret-key', // replace with secret key
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore
-  }),
-)
+  const sessionStore = new sessionStorage.Store()
+  app.use(
+    session({
+      secret: 'your-secret-key', // replace with secret key
+      resave: false,
+      saveUninitialized: false,
+      store: sessionStore,
+    }),
+  )
 
-const httpServer = http.createServer(app) // Create an HTTP server for your Express app
+  const httpServer = http.createServer(app) // Create an HTTP server for your Express app
 
-const io = new Server(httpServer) // Create a Socket.IO server instance
+  const io = new Server(httpServer) // Create a Socket.IO server instance
 
-//export socket connected in default options
-export { io as socket }
+  //export socket connected in default options
+  export { io as socket }
 
-// Define a Namespace instance (provide appropriate values)
-const nsp: Namespace = io.of('/yourNamespaceName')
+  // Define a Namespace instance (provide appropriate values)
+  const nsp: Namespace = io.of('/yourNamespaceName')
 
-// Access the connected clients
-const clients = nsp.sockets
-
-//Get the client with the specifiedd socked ID
-const socketId = 'yourSocketId'
-const client = clients.get(socketId)
-
-
-if (client) {
-  // Define the auth object (provide appropriate values)
-  const auth = {
-    username: 'yourUsername',
-    token: 'yourAuthToken',
-  }
-
-  // Create the socket with the obtained instances, auth, and the previous session
+  // Access the connected clients
   const clients = nsp.sockets
 
-  // Define the previousSession object if needed
-  const previousSession = {
-    sessionId: 'yourPreviousSessionId',
-    sessionData: 'yourPreviousSessionData',
-    sid: 'yourSessionId', // Provide an appropriate session ID
-    pid: 'yourProcessId', // Provide an appropriate process ID
-    rooms: ['room1', 'room2'], // Provide an array of rooms if needed
-    data: {},
-    missedPackets: [[]],
-  }
-  class YourSocketClass {
+  //Get the client with the specifiedd socked ID
+  const socketId = 'yourSocketId'
+  const client = clients.get(socketId)
 
-    client: any
-    auth: any
-    previousSession: any
-    
-    constructor(client: any, auth: any, previousSession: any) {
-      this.client = client
-      this.auth = auth
-      this.previousSession = previousSession
+  if (client) {
+    // Define the auth object (provide appropriate values)
+    const auth = {
+      username: 'yourUsername',
+      token: 'yourAuthToken',
     }
-  }
 
-  const socketInstance = new YourSocketClass(client, auth, previousSession)
-  console.log(socketInstance.client) // Access and log the 'client' property
-  console.log(socketInstance.auth); // Access and log the 'auth' property
-  console.log(socketInstance.previousSession); // Access and log the 'previousSession' property
+    // Create the socket with the obtained instances, auth, and the previous session
+    const clients = nsp.sockets
 
-}
-
-const options: PermissionsModuleOptions = {
-  basePath: '/api',
-  [Symbol.iterator]: function* () {
-    yield this.basePath
-  },
-  // permissions: {}
-}
-
-// Create and configure the PermissionsMiddleware
-const permissionsMiddleware = new PermissionsMiddleware(options).use.bind(new PermissionsMiddleware(options))
-
-//Add permissions middlewaer to the Express app
-app.use(permissionsMiddleware)
-
-const schema = makeSchema({
-  types: [nexusSchema],
-})
-
-//Appy middleware to the schema (e.g., permmissions)
-const schemaWithMiddleware = applyMiddleware(schema, permissions)
-
-// Get the context
-const context = getContext()
-
-//Create an Apollo Server instance
-const apolloServer = new ApolloServer({
-  schema: schemaWithMiddleware,
-  introspection: true,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  context: async ({ req }: { req: Request }) => {
-    return {
-      request: req,
+    // Define the previousSession object if needed
+    const previousSession = {
+      sessionId: 'yourPreviousSessionId',
+      sessionData: 'yourPreviousSessionData',
+      sid: 'yourSessionId', // Provide an appropriate session ID
+      pid: 'yourProcessId', // Provide an appropriate process ID
+      rooms: ['room1', 'room2'], // Provide an array of rooms if needed
+      data: {},
+      missedPackets: [[]],
     }
-  },
-} as ApolloServerOptionsWithSchema<BaseContext>)
+    class YourSocketClass {
+      client: any
+      auth: any
+      previousSession: any
 
-app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware()))
-app.use(require('express').json())
-
-// Move the `path` property here
-const graphqlPath = '/graphql'
-
-app.use(
-  graphqlPath,
-  require('express').urlencoded({ extended: true }),
-  require('express').json(),
-  require('express').text(),
-  expressMiddleware(apolloServer),
-)
-
-app.post('/login', async (req: Request, res: Response) => {
-  // Check credentials and authenticate the user
-  const isAuthenticatedUser = await permissions.check(req, {
-
-  }) 
-  // If authentication is successful, store data in the session
-  req.session.yourSessionKey = SESSION_SECRET; // Replace 'yourSessionKey' and 'yourTokenValue'
-  // Redirect or send a response
-  // SESSION_SECRET = '
-// SESSION_TOKEN=yourTokenValue  
-});
-
-
-
-export function ensureAuthenticated({ req, res, next }: { req: Request; res: Response; next: NextFunction }) { 
-  if (!req.session.yourSessionKey) {
-   return res..status(401).send('Unauthorized');
-  }
-  // authentication success, 
-    next
-}
-
-export function authenticationMiddlware(req: Request, res: Response, next: NextFunction) { 
-  ensureAuthenticated({
-    req: req,
-    res: res,
-    next: next
-  })
-}
-
-app.get('/protected', ensureAuthenticated, (req: Request, res: Response, next: NextFunction) => {
-  ensureAuthenticated({
-      req, res, next: (err: any) => {
-
-        if (err) {
-          return res.status(401).send('Unauthorized')
-        }
-      res.send('You are authenticated!')
+      constructor(client: any, auth: any, previousSession: any) {
+        this.client = client
+        this.auth = auth
+        this.previousSession = previousSession
       }
-  })
-  
-  app.get('/profile', ensureAuthenticated, (req: Request, res: Response next:) => {
-    if (!req.session.user) {
-      res.send('Not authenticaated')
-      return res.send('Not authenticated');
     }
-    if (req.session.user) {
-      const userId = req.session.user.id
-      res.send(`Authenticated user ID: ${userId}`)
-      
-    }
+
+    const socketInstance = new YourSocketClass(client, auth, previousSession)
+    console.log(socketInstance.client) // Access and log the 'client' property
+    console.log(socketInstance.auth) // Access and log the 'auth' property
+    console.log(socketInstance.previousSession) // Access and log the 'previousSession' property
+  }
+
+  const options: PermissionsModuleOptions = {
+    basePath: '/api',
+    [Symbol.iterator]: function* () {
+      yield this.basePath
+    },
+   }
+
+  // Create and configure the PermissionsMiddleware
+  const permissionsMiddleware = new PermissionsMiddleware(options).use.bind(new PermissionsMiddleware(options))
+
+  //Add permissions middlewaer to the Express app
+  app.use(permissionsMiddleware)
+
+  const schema = makeSchema({
+    types: [nexusSchema],
   })
-  
-  // Retrieve data from the session
-  const sessionData = req.session as Session & Partial<SessionData>
-  const token = sessionData.yourSessionKey; // Replace 'yourSessionKey'
-  // Use the data, e.g., for authentication or authorization
-  if (token) {
-    // User is authenticated
-    // Continue with protected route logic
-    res..status(200).send('Authenticated'); // Replace with your logic for authenticated users
-  } else {
-    // User is not authenticated
-    // Redirect or send an error response
-    res.status(401).send('Unauthorized'); // You can customize the status code and response message
-    res..send('Not Authenticated');
 
-  }
-});
+  //Appy middleware to the schema (e.g., permmissions)
+  const schemaWithMiddleware = applyMiddleware(schema, permissions)
 
-app.get('/your-route', async (req: Request, res: Response, next: NextFunction) => {
-  processRequest(req, res, next)
-  // Create an instance of MyCustomRequest and provide the required properties
-  try {
-    const myCustomReq: MyCustomRequest<MyContext> = new MyCustomRequest({
-      query: req.query as Record<string, any>,
-      params: req.params as Record<string, any>,
-      customCache: {}, // Provide your customCache data here
-      session: {} as CustomSessionType,
-      accepts: req.accepts,
-      // Add other required properties
-    })
+  // Get the context
+  const context = getContext()
 
-    await makeRequest(myCustomReq)
-    // Handle success or response from makeRequest if needed
-    ;res..status(200).send('Request sent successfully')
-  } catch (error) {
-    // Handle errors from makeRequest
-    console.error(error)
-    ;res..sendStatus(500) // Changed to sendStatus() instead of status()
-  }
-})
-
-app.get('/make-api-request', async (req: Request & CustomRequestWithContext<MyContext<{}>>, res: Response, next: NextFunction) => {
-  try {
-    await makeApiRequest(req);
-
-    res..status(200).json({message: 'API request processed successfully'})
-  } catch (error) {
-    console.error('API request error: ', error);
-
-    if (error instanceof Error) {
-      const errorMessage = error.message
-
-      if (errorMessage === 'Oh no, we have an error'){
-        res..status(400).json({ error: errorMessages.badRequest })
-      } else if(errorMessage === 'Seems to be an internal error'){
-        res..status(500).json({error: errorMessages.internalServerError, message: 'An unexpected error occurred'})
-      } else{
-      res..status(500).json({error: errorMessages.unknownError})
+  //Create an Apollo Server instance
+  const apolloServer = new ApolloServer({
+    schema: schemaWithMiddleware,
+    introspection: true,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    context: async ({ req }: { req: Request }) => {
+      return {
+        request: req,
       }
+    },
+  } as ApolloServerOptionsWithSchema<BaseContext>)
+
+  app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware()))
+  app.use(require('express').json())
+
+  // Move the `path` property here
+  const graphqlPath = '/graphql'
+
+  app.use(
+    graphqlPath,
+    require('express').urlencoded({ extended: true }),
+    require('express').json(),
+    require('express').text(),
+    expressMiddleware(apolloServer),
+  )
+
+  app.post('/login', ensureAuthenticated, async (req: MyContext<UserWithoutSensitiveData>, res: Response, next: NextFunction) => {
+    // Assuming user data is already stored in the session during authentication
+    const user = req.session.user;
+
+    if (user) {
+      const currentUser: UserWithAccessToken = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        passwordHash: user.passwordHash,
+        roles: user.roles,
+        createdAt: user.createdAt, 
+        updatedAt: user.updatedAt, 
+        userProfileId:  user.userProfileId,
+        accessToken: generateToken(user),
+        resetPasswordToken: undefined,
+      };
+
+      res.json({ currentUser });
     } else {
-      res..status(500).json({error: errorMessages.unknownError})
+      // Handle the case where the user is not found in the session
+      res.status(401).send('Unauthorized');
+    }
+  });
+
+
+  app.post('/logout', (req: CustomRequestWithContext<MyContext<{}>>, res: Response) => {
+    req.clearAuthenticatedUser();
+    res.json({message: 'Logged out successfully'})
+  })
+
+
+  export async function ensureAuthenticated(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
+    if (!req.session.yourSessionKey) {
+      return res.status(401).send('Unauthorized')
+    } else {
+      //store user informatin in the session
+      const user = req.session.user
+
+      if (user) {
+        req.user = user
+        next()
+      }
+      // authentication success,
+      next()
     }
   }
-})
 
-// Register permissions middleware globally
-app.use(authenticationMiddlware, permissionsMiddleware)
+  export function authenticationMiddlware(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
+    ensureAuthenticated(req, res, next)
+  }
 
-// Apply cors and body parser middleware
-app.use(cors(), json())
-
-// Configure PermissionsModule
-const permissionsModule = new PermissionsModule()
-permissionsModule.configure(app) // Pass the app instance to the configure method of PermissionsModule
-
-const port = process.env.PORT || 4000
-
-apolloServer.start().then(() => {
-  httpServer.listen(port, () => {
-    console.log(`🚀 Server ready at http://localhost:${port}${graphqlPath}`)
+  app.get('/protected', ensureAuthenticated, (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
+    if (req.session.yourSessionKey) {
+      res.send('You are authenticated!')
+    } else {
+      res.status(401).send('Unauthorized')
+    }
   })
-})
+
+  app.get('/profile', ensureAuthenticated, (req: YourRequestObject<{}>, res: Response) => {
+    if (!req.session.user) {
+      res.send('Not authenticated')
+      return res.status(401).send(errorMessages.notAuthenticated)
+    }
+
+    if (req.session.user) {
+      const user = req.session.user
+      const userId = user.id
+      res.send(`Authenticated user ID: ${userId}`)
+    }
+  })
+
+  // Other route handlers
+  // ...
+
+  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
+    processRequest(req, res, next)
+    // Create an instance of MyCustomRequest and provide the required properties
+    try {
+      const myCustomReq: MyCustomRequest<MyContext> = new MyCustomRequest({
+        query: req.query as Record<string, any>,
+        params: req.params as Record<string, any>,
+        customCache: {} as RequestCache, // Provide your customCache data here
+        session: {} as CustomSessionType,
+        accepts: req.accepts,
+        // Add other required properties
+      })
+
+      await makeRequest(myCustomReq)
+      // Handle success or response from makeRequest if needed
+      res.status(200).send('Request sent successfully')
+    } catch (error) {
+      // Handle errors from makeRequest
+      console.error(error)
+      res.sendStatus(500) // Changed to sendStatus() instead of status()
+    }
+  })
+
+
+  app.get('/make-api-request', async (req: CustomRequestWithContext<MyContext<{}>>, res: Response, next: NextFunction) => {
+      try {
+        await makeApiRequest(req)
+
+        res.status(200).json({ message: 'API request processed successfully' })
+      } catch (error) {
+        console.error('API request error: ', error)
+
+        if (error instanceof Error) {
+          const errorMessage = error.message
+
+          if (errorMessage === 'Oh no, we have an error') {
+            res.status(400).json({ error: errorMessages.badRequest })
+          } else if (errorMessage === 'Seems to be an internal error') {
+            res.status(500).json({ error: errorMessages.internalServerError, message: 'An unexpected error occurred' })
+          } else {
+            res.status(500).json({ error: errorMessages.unknownError })
+          }
+        } else {
+          res.status(500).json({ error: errorMessages.unknownError })
+        }
+      }
+    },
+  )
+
+
+  app.get('/example', (req: CustomRequestWithContext<MyContext<{}>>, res: Response) => {
+    // Access custom properties and methods from the custom request object
+    const customProp = req.customProp
+    // Access standar request properties
+    const userId = req.userId
+  })
+  // Register permissions middleware globally
+  app.use(authenticationMiddlware, permissionsMiddleware)
+
+  // Apply cors and body parser middleware
+  app.use(cors(), json())
+
+  // Configure PermissionsModule
+  const permissionsModule = new PermissionsModule()
+  permissionsModule.configure(app) // Pass the app instance to the configure method of PermissionsModule
+
+  const port = process.env.PORT || 4000
+
+  apolloServer.start().then(() => {
+    httpServer.listen(port, () => {
+      console.log(`🚀 Server ready at http://localhost:${port}${graphqlPath}`)
+    })
+  })

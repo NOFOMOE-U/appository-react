@@ -37,12 +37,12 @@ const options: MyOptions= {
     cookies: { key: '' },
     userId: '',
     get: (name: string) => undefined,
-    context: {} as MyContext<MyContext<MyContext<{}>>>,
+    context: {} as MyContext<{}>,
+    ctx: {} as MyContext,
     body: {},
     cache: {} as RequestCache,
     accessToken: '',
-    // credentials: '',
-    request: {
+     request: {
       id: '',
       user: { id: '' } as UserWithoutSensitiveData,
       body: {},

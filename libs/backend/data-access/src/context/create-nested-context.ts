@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import { Request } from 'express'
 import { Session } from 'express-session'
-import http, { IncomingHttpHeaders } from 'http'
 import { jest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
+import { CustomContextHeaders } from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-import { SessionData } from '../types/express'
 import { AppConfiguration } from './app-configuration'
+import { CustomContextType } from './custom-context-type'
 import { MyContext } from './my-context'
 export type HeadersWithIndexSignature = Record<
   string,
@@ -41,21 +41,10 @@ export interface CustomHeaders {
   [Symbol.iterator](): IterableIterator<[string, string]>;
 }
 
-
-type BaseCustomRequest = {
-  readonly session: SessionData
-  readonly cache: {}
-  readonly context: {}
-  get: (name: string) => undefined
-  cookies: any
-  signedCookies: any
-  req: http.IncomingMessage
-}
-
 export interface MyMockContext<T> extends MyContext {
-  context: MyContext<MyContext<MyContext<{}>>>
+  context: MyContext<{}>
   rawHeaders: string[]
-  headers: HeadersWithIndexSignature & Record<string, string | string[] | undefined>
+  headers: Record<string, string | string[] | undefined>
   getAll: (name: string) => undefined
   //fixes error at line 121 to safify the constraint Record<string, unknown> for  'ExtendedCustomRequestWithPrisma<MyMockContext<T>>
   [key: string]: unknown
@@ -90,7 +79,7 @@ export interface MockExtendedCustomRequest<T extends {}> {
   [key: string]: any // allow any additional properties
 }
 
-export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyContext<MyContext>> => {
+export const createNestedContext = <T>(context?: MyContext<T>): CustomContextType<MyContext<T>> => {
   // Define default values for all required properties
   const headers = new Headers()
   const headersObj: Record<string, string> = {}
@@ -105,8 +94,10 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
   const defaultMockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
     session: {
       userId: '',
-      yourSessionKey: ''
-    } as Session & Partial<SessionData>,
+      yourSessionKey: '',
+      username: context?.session.username,
+      expires: 15,//todo update to accurate expiration
+    } as CustomSessionType | undefined,
     cache: {},
     outerContext: {
       id: '',
@@ -136,7 +127,6 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
       },
     },
     rawHeaders: emptyRawHeaders,
-    // credentials: undefined,
     context: createNestedContext<T>(),
     logIn: jest.fn(),
     logOut: jest.fn(),
@@ -145,7 +135,7 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
     // ...
   }
 
-  const defaultHeaders: IncomingHttpHeaders ={}
+  const defaultHeaders: CustomContextHeaders ={}
 
   const mockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
     ...defaultMockRequest,
@@ -163,13 +153,14 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
     },
   }
 
-  const nestedContext: MyContext<MyContext<MyContext<{}>>> = {
-    context: createNestedContext(),
+  const nestedContext: CustomContextType<MyContext<T>> = {
+    context,
     get: (name: string) => undefined,
     currentUser: mockRequest.outerContext.currentUser,
-    session: {} as CustomSessionType,
+    session: {} as CustomSessionType & Session,
     signedCookies: {} as Record<string,string>,
     config: {} as AppConfiguration,
+    accessToken: undefined,
     ctx: {
       ...mockRequest.context,
       req: mockRequest,
@@ -177,16 +168,20 @@ export const createNestedContext = <T>(context?: MyContext<T>): MyContext<MyCont
         return undefined
       }
     },
-    accepts: function (types: string | string[]): string[] {
+    accepts: function(types: string | string[]): string[] | false {
       if (typeof types === 'string') {
         return [types];
       } else if (Array.isArray(types)) {
         return types;
       } else {
-        return [];
+        return false;
       }
-    }    
+    }
   }
 
   return nestedContext
 }
+
+
+
+

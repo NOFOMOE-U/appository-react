@@ -5,7 +5,6 @@ import { PrismaService } from '../../lib/prisma/prisma.service'; //added because
 import { createTask, deleteTask, getAllTasks, updateTask } from './tasks';
 
 import { ContextService } from '@appository/backend/data-access';
-import prisma from '../../../dist/libs/backend/data-access/src/lib/prisma/prisma';
 @Injectable()
 export class TaskService {
   constructor(
@@ -76,18 +75,20 @@ export class TaskService {
   async getAllTasks(): Promise<Task[]> {
     return getAllTasks()
   }
+  //todo set up tasks
 
-  async getTaskById(id: string): Promise<Task | null> {
-    return this.prismaService.getPrismaClient().task.findUnique({ where: { id } });
-  }
+  // async getTaskById(id: string): Promise<Task | null> {
+  //   return this.prismaService.getContext().task.findUnique({ where: { id } });
+  // }
 
-  async getTaskByUser(userId: string, contextService: ContextService ): Promise<Task | null> {
-    const user = await this.contextService.getUserById(userId, prisma)
-    return this.prismaService.getPrismaClient().task.findUnique({
-      where:{creatorId: user?.id}
-    })
-  }
+  // async getTaskByUser(userId: string, contextService: ContextService ): Promise<Task | null> {
+  //   const user = await this.contextService.getUserById(userId, prisma)
+  //   return this.prismaService.getPrismaClient().task.findUnique({
+  //     where:{creatorId: user?.id}
+  //   })
+  // }
 
+  //todo set up team tasks
   // async getTaskByTeam(teamId: string, contextService: ContextService): Promise<Team | null>{
   //   const team = await this.contextService.getTeamById(teamId, prisma) 
   //   return this.prismaService.getPrismaClient().task.findUnique({

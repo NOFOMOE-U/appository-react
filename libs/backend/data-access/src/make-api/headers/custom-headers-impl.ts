@@ -1,5 +1,5 @@
 import { CustomHeaders } from '../../context/create-nested-context';
-import { CustomHeadersHandler } from './custom-headers';
+import { CustomHeadersHandler } from './custom-headers-handler';
 
 interface HeadersData {
   [key: string]: string | string[];
@@ -28,9 +28,8 @@ export class CustomHeadersImpl extends CustomHeadersHandler implements CustomHea
     return this.get('custom-header')
   }
 
-  setAcceptJson(): this {
+  setAcceptJson(): void {
     this.set('Accept', 'application/json')
-    return this
   }
 
   setAuthorization(token: string): this {

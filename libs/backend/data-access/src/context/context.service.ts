@@ -2,7 +2,7 @@ import { UserWithoutSensitiveData, getUserById } from '@appository/backend/data-
 import { Injectable } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import type { Request } from 'express'
-import { CustomRequestWithAllProps } from '../make-api/custom-request-with-context'
+import { CustomRequestWithAllProps } from '../make-api/requests/custom-request-with-context'
 import { MyContext, UserWithAccessToken } from './my-context'
 @Injectable()
 export class ContextService {
@@ -11,7 +11,7 @@ export class ContextService {
   async createContext(prisma: PrismaClient, req: CustomRequestWithAllProps<MyContext<{}>>): Promise<MyContext> {
     const customRequest = Object.assign(req, {
       currentUser: {},
-    }) 
+    }) as CustomRequestWithAllProps<MyContext<{}>>
     
     const context: MyContext<{}> = {
       prisma,
@@ -24,6 +24,7 @@ export class ContextService {
       token: this.req.token,
       userId: this.req.userId,
       context: this.req.context,
+      ctx: this.req.ctx,
       session: this.req.session,
       cookies: this.req.cookies,
       accessToken: this.req.accessToken,

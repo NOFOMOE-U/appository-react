@@ -1,23 +1,24 @@
 import { PrismaClient } from '@prisma/client'
 import { Session, SessionData } from 'express-session'
 import { Headers } from 'node-fetch'
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context'
 import { CustomSessionType } from '../make-api/my-custom-request'
+import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context'
 import { AppConfiguration } from './app-configuration'
+import { CustomContextType } from './custom-context-type'
 import { MyContext } from './my-context'
 
 const prisma = new PrismaClient()
 
 interface ExtendedRequest extends Request {
-  session: SessionData; // replace 'any' with the type of your session data
+  session: SessionData; 
 }
 
 export const createInitialContext = (req: CustomRequestWithContext<MyContext>): MyContext => {
-  const accessToken = req.get('access-token')
-  const accessTokenString = Array.isArray(accessToken) ? accessToken.join('') : accessToken
+  const accessToken = req.get('access-token') || ''
 
   // create an instance of Headers, 
-  const headers = new Headers()  //loop through key value pairs from the entries 
+  const headers = new Headers()
+  //loop through key value pairs from the entries
   //use the parse method of the http module to 
   // parse the headers key value from a string
   for (const [key, value] of Object.entries(req.headers)) {
@@ -28,18 +29,18 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
   const context: MyContext = {
     config: {} as AppConfiguration,
     session: req.session as Session & Partial<SessionData> & CustomSessionType,
-    cookies: {}, // Add your cookies data here if needed
-    currentUser: req.session.currentUser,
-    //cookies: req?.headers?.cookie ? parseCookies(req.headers.cookie) : {},
-    userId: req.sessions.userId, // Initialize with the user ID if available
-    accessToken: accessTokenString || '', // Set the access token
+    cookies: {} as Record<string, string>, // Add your cookies data here if needed
+    currentUser: req.session.currentUser || null,
+    userId: req.session.userId || '', // Initialize with the user ID if available
+    accessToken, // Set the access token
     token: '', // Initialize with the token if available
     request: {} as Request, // Set the request object
-    prisma: prisma, // Set the Prisma client instance
+    req:{} as CustomRequestWithContext<MyContext<CustomSessionType>>['req'] & ExtendedCustomRequest<MyContext<CustomSessionType>>    prisma: prisma, // Set the Prisma client instance
     body: {}, // Add your request body data here if needed
     cache: {} as RequestCache, // Add caching data here if needed
     // credentials: {}, // Add credentials data here if needed
     context: {} as MyContext<{}>, // Add your custom context data here if needed
+    ctx: {} as MyContext<{}>, // Add your custom context data here if needed, 
     get: (name: string) => undefined, // Define the get function if needed
     signedCookies: {} as Record<string, string>, // Add signed cookies data here if needed
     accepts: (types: string | string[]) => [],
@@ -48,7 +49,7 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
 }
 //define an asynchronous function that initializes the context
 export const initContext = async (req: CustomRequestWithContext<MyContext>): Promise<MyContext> => {
-  const context = createInitialContext(req)
+  const context = createInitialContext(req) as unknown as MyContext<CustomContextType>
   return context
 }
 

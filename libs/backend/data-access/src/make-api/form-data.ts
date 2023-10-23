@@ -1,42 +1,94 @@
-import { MyContext } from "../context/my-context";
-import { MyCustomRequest } from "./my-custom-request";
+import { AppConfiguration } from '../context/app-configuration'
+import { MyContext, UserWithAccessToken } from '../context/my-context'
+import prisma from '../lib/prisma/prisma'
 
-const headers = new Headers();
+import { Session, SessionData } from 'express-session'
+import { UserWithoutSensitiveData } from '../modules/user/user'
+import { myContext } from './default-options'
+import { MyCustomRequest } from './my-custom-request'
+import { CustomRequestWithContext } from './requests/custom-request-with-context'
+
+
+
+type  LoginRequestSession = UserWithoutSensitiveData & UserWithAccessToken
+
+
+
+
+
+const headers = new Headers()
 
 //define your headers as key-value pairs in an object
 
-const customHeaders: {[key: string]: string} = {};
+const customHeaders: { [key: string]: string } = {}
 
-const updateRequest: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest<MyContext<MyContext>>({
+type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
+  accepts: (types: string | string[]) => string[]
+  signedCookies: '' | undefined // Update this with the correct type for your signed cookies
+  get?: (name: string) => string | undefined
+}
+  
+const updateRequest = new MyCustomRequest<MyCustomContext>({
   body: {} as any,
+  request: {} as LoginRequestSession ,
   url: 'https://jsonplaceholder.typicode.com/posts/1',
   method: 'GET',
   get: (name: string) => {
     if (name === 'set-cookie') {
       const value = customHeaders[name]
-      return value ? value : undefined;
+      return value ? value : undefined
     }
     return customHeaders[name] || undefined
   },
   headers: customHeaders,
-  accepts: (types: string | string[]) => [],
-  session: {
+  accepts: (types: string | string[]) => {
+    if (typeof types === 'string') {
+      return [types]
+    }
+    if (Array.isArray(types)) {
+      return types
+    } else {
+      return ['']
+    }
+  },
+  session:  {
     userId: '',
     username: '',
-    expires: Date.now()
-    
+    expires: Date.now(),
+    user: {} as
   },
-  context: { foo: 'bar' },
-  signedCookies: {},
-});
+  context: {
+    ...myContext,
+    signedCookies: {} as Record<string, string>,
+    config: {} as AppConfiguration,
+    req: {} as CustomRequestWithContext<MyContext<{}>>,
+    cookies: {} as Record<string, string>,
+    token: '',
+    request: {} as CustomRequestWithContext<MyContext<{}>>,
+    prisma,
+    context: {} as MyContext,
+    currentUser: {} as UserWithoutSensitiveData,
+    ctx: {},
+    session: {} as Session
+      & Partial<SessionData>
+      & { userId: string; },
+    cache: {} as RequestCache,
+    get: (name: string) => undefined,
+    accepts: (types: string | string[]) => false ,
+  },
+  
+  config: {} as AppConfiguration
+})
 
-updateRequest.context = { hello: 'world' };
 
-const formData = new FormData();
-formData.append('request', JSON.stringify(updateRequest));
-formData.append('session', JSON.stringify(updateRequest.session));
-formData.append('context', JSON.stringify(updateRequest.context));
 
+
+updateRequest.context = { hello: 'world' }
+
+const formData = new FormData()
+formData.append('request', JSON.stringify(updateRequest))
+formData.append('session', JSON.stringify(updateRequest.session))
+formData.append('context', JSON.stringify(updateRequest.context))
 
 //#todo
 // File Uploads: Allow users to upload files and documents related to their projects. You can use FormData to construct requests for file uploads. Users can attach project documents, images, or any other files relevant to the product management tasks.
@@ -62,9 +114,6 @@ formData.append('context', JSON.stringify(updateRequest.context));
 // Polls and Surveys: If your app includes the ability to create polls or surveys, FormData can be used to send user responses, including text input or uploaded files, to the survey creator.
 
 // Export and Reporting: Users may need to export data or reports generated within the app. FormData can help in transmitting these exported files to users' email addresses or cloud storage.
-
-
-
 
 // File Uploads: The FormData object can be extended to include file uploads alongside other data.
 

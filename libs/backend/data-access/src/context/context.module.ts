@@ -1,7 +1,7 @@
 //Users/dixiejones/Development/main-app/appository-react/libs/backend/common/src/context/context.module.ts
 import { Module } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
+import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context';
 import { UserWithoutSensitiveData, getUserById } from '../modules/user/user';
 import { getUserId } from '../utils/backend-auth.utils';
 import { createContext } from './create-context';

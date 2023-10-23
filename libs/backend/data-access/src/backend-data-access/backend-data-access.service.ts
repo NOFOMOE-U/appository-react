@@ -8,7 +8,7 @@ type UserCreateInputWithoutSensitiveData = Omit<
   'resetPasswordToken' | 'password' | 'passwordHash'
 > & {
   passwordHash: string
-  resetPasswordToken?: string
+  resetPasswordToken?: string | null
 }
 
 @Injectable()

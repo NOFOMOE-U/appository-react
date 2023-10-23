@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { ExtendedCustomRequest } from '../interfaces/user/custom-request';
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
+import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context';
 import { MyContext, UserWithAccessToken } from './my-context';
 
 describe('MyContext', () => {

@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { MyContext } from '../context/my-context';
 import { ExtendedCustomRequest } from '../interfaces/user/custom-request';
-import { CustomRequestWithContext } from './custom-request-with-context';
 import { getDefaultAxiosOptions } from './default-options';
+import { CustomRequestWithContext } from './requests/custom-request-with-context';
 
 export async function makeApiRequest(req: CustomRequestWithContext<MyContext<{}>>) {
   // Create an instance of ExtendedCustomRequest using defaultOptions

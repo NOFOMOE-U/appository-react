@@ -28,7 +28,7 @@ model User {
   createdBy          Task?            @relation("created_by")
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @default(now())
-  resetPasswordToken String           @default(value: "")
+  resetPasswordToken String?           @default(value: "")
   settings           UserSettings?    @relation("settings")
   userProfile        UserProfile?     @relation("user_profile")
   userProfileId      Int?

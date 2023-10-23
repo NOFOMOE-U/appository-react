@@ -1,72 +1,85 @@
-import { PrismaClient, UserRole } from '@prisma/client';
-import { compare, hash } from 'bcryptjs';
-import { AppConfiguration } from '../../context/app-configuration';
-import { MyContext, UserWithAccessToken } from '../../context/my-context';
-import { CustomSessionType } from '../../make-api/my-custom-request';
-import { UserWithoutSensitiveData } from '../../modules/user/user';
-import { SessionData } from '../../types/express';
-import generateToken from '../../utils/generate-token.utils';
-import { removeSensitiveData } from './remove-sensitive-data';
-import { UserWithPasswordHash } from './user-with-password-hash';
+import { ExtendedCustomRequest } from '@appository/backend/data-access'
+import { PrismaClient, UserRole } from '@prisma/client'
+import { compare, hash } from 'bcryptjs'
+import { AppConfiguration } from '../../context/app-configuration'
+import { CustomContextType } from '../../context/custom-context-type'
+import { MyContext, UserWithAccessToken } from '../../context/my-context'
+import { CustomSessionType } from '../../make-api/my-custom-request'
+import { CustomRequestWithContext } from '../../make-api/requests/custom-request-with-context'
+import { UserWithoutSensitiveData } from '../../modules/user/user'
+import { SessionData } from '../../types/express'
+import generateToken from '../../utils/generate-token.utils'
+import { removeSensitiveData } from './remove-sensitive-data'
+import { UserWithPasswordHash } from './user-with-password-hash'
 
+
+type SessionRequestContext = CustomRequestWithContext<MyContext<CustomSessionType>>['req'] & ExtendedCustomRequest<MyContext<CustomSessionType>>
 // Before calling any of these functions, ensure that context contains prisma
-const contextWithPrisma = createContextWithPrisma();
+const contextWithPrisma = createContextWithPrisma()
 
 function createContextWithPrisma(): PrismaClient {
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient()
   const context: MyContext = {
     prisma,
-    currentUser: {} as UserWithAccessToken | null,
+    ctx: prisma,
+    currentUser: null,
     config: {} as AppConfiguration,
+    accessToken: undefined,
     context: {
       currentUser: {} as UserWithAccessToken,
+      accessToken: undefined,
       context: {
-        currentUser: {} as UserWithAccessToken,
-        // credentials: {} as UserWithPasswordHash,
+        accessToken: '',
+        currentUser: {} as UserWithoutSensitiveData,
         accepts: (types: string | string[]) => [],
         signedCookies: {},
         session: SessionData,
         get: (name: string) => '',
         config: {} as AppConfiguration,
-        context: {} as MyContext<MyContext<MyContext<{}>>>
+        context: {} as MyContext<{}>,
+        ctx: {} as CustomContextType<MyContext<{}>>,
+        req: {} as SessionRequestContext
       },
+      ctx: {} as CustomContextType<MyContext<{}>>,
       config: {
         enableVideo: false,
         enableAudio: false,
         defaultUserRole: 'USER',
         userRoles: [],
-        allowRegistration: false,
+        allowRegistration: true,
         requireEmailVerification: false,
         allowPublicRooms: false,
         allowPrivateRooms: false,
         enableModeration: false,
         moderatorRoles: [],
-        allowFileUploads: false,
+        allowFileUploads: true,
         maxFileSize: 0,
         enableNotifications: false,
+        //restrict access based on location
         restrictAccessByLocation: false,
-        allowedLocations: []
+        allowedLocations: [],
       },
       session: {
         userId: '',
         username: '',
-        expires: 0
+        expires: 0,
       },
       accepts: function (types: string | string[]): string[] {
-        throw new Error('Function not implemented.');
+        throw new Error('Function not implemented.')
       },
-      signedCookies:{} as  Record<string,string>,
+      signedCookies: {} as Record<string, string>,
       get: function (name: string): string | undefined {
-        throw new Error('Function not implemented.');
-      }
+        throw new Error('Function not implemented.')
+      },
     },
     accepts: (types: string | string[]) => [],
     session: {} as CustomSessionType,
     signedCookies: {},
     get: () => '',
-  };
-  context.user = prisma.user;
-  return prisma;
+  }
+  context.context.accessToken = ''
+  context.user = prisma.user
+  return prisma
 }
 
 export const createUser = async (
@@ -75,10 +88,10 @@ export const createUser = async (
   userWithPasswordHash: UserWithPasswordHash,
   roles: UserRole[] = ['USER'],
 ): Promise<UserWithoutSensitiveData> => {
-  const allowedRoles = Object.values(UserRole);
-  const validRoles = roles.filter((role) => allowedRoles.includes(role));
+  const allowedRoles = Object.values(UserRole)
+  const validRoles = roles.filter((role) => allowedRoles.includes(role))
 
-  const { name, email, passwordHash, id } = userWithPasswordHash;
+  const { name, email, passwordHash, id } = userWithPasswordHash
 
   const user = await prisma.user.create({
     data: {
@@ -89,20 +102,20 @@ export const createUser = async (
         set: validRoles,
       },
     },
-  });
+  })
 
   if (!user) {
     throw new Error('Failed to create the user, try again')
   }
 
   // Generate a JWT token for the newly created user
-  const token = generateToken(user);
+  const token = generateToken(user)
   // Add the JWT token to the context object
-  context.token = token;
+  context.token = token
 
-  const userWithoutSensitiveData = removeSensitiveData(user);
-  return userWithoutSensitiveData;
-};
+  const userWithoutSensitiveData = removeSensitiveData(user)
+  return userWithoutSensitiveData
+}
 
 export const updateUser = async (
   prisma: PrismaClient,
@@ -110,7 +123,7 @@ export const updateUser = async (
   id: string,
   name: string,
   email: string,
-  roles: UserRole[]
+  roles: UserRole[],
 ): Promise<UserWithoutSensitiveData | null> => {
   const user = await prisma.user.update({
     where: {
@@ -121,45 +134,49 @@ export const updateUser = async (
       email,
       roles,
     },
-  });
-  return user as unknown as UserWithoutSensitiveData | null;
-};
+  })
+  return user as unknown as UserWithoutSensitiveData | null
+}
 
-export const deleteUser = async (prisma:PrismaClient, context: MyContext, id: string): Promise<UserWithoutSensitiveData | null> => {
+export const deleteUser = async (
+  prisma: PrismaClient,
+  context: MyContext,
+  id: string,
+): Promise<UserWithoutSensitiveData | null> => {
   const user = await prisma.user.delete({
     where: {
       id,
     },
-  });
-  return user as unknown as UserWithoutSensitiveData | null;
-};
+  })
+  return user as unknown as UserWithoutSensitiveData | null
+}
 
 export async function authenticate(
   context: MyContext,
   email: string,
   password: string,
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<UserWithoutSensitiveData | null> {
   const user = await prisma.user.findUnique({
     where: { email },
-  });
+  })
   if (!user) {
-    return null;
+    return null
   }
 
-  const isPasswordCorrect = await compare(password, user.passwordHash);
+  const isPasswordCorrect = await compare(password, user.passwordHash)
 
   if (isPasswordCorrect) {
     // Remove sensitive fields from the user object before returning
-    const userWithoutSensitiveData = removeSensitiveData(user);
+    const userWithoutSensitiveData = removeSensitiveData(user)
     // Generate a JWT token for the authenticated user
-    const token = generateToken(user);
+    const token = generateToken(user)
     // Add the JWT token to the context object
-    context.token = token;
-    return userWithoutSensitiveData;
+    context.token = token
+    return userWithoutSensitiveData
   }
 
-  return null;
+  return null
 }
 
 export async function authenticateAndUpdateRoles(
@@ -167,11 +184,11 @@ export async function authenticateAndUpdateRoles(
   email: string,
   password: string,
   roles: UserRole[],
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<UserWithoutSensitiveData | null> {
-  const user = await authenticate(context, email, password, prisma);
+  const user = await authenticate(context, email, password, prisma)
   if (!user) {
-    return null;
+    return null
   }
 
   const updatedUser = await prisma.user.update({
@@ -181,11 +198,11 @@ export async function authenticateAndUpdateRoles(
     data: {
       roles,
     },
-  });
+  })
 
   // Remove sensitive fields from the user object before returning
-  const userWithoutSensitiveData = removeSensitiveData(updatedUser);
-  return userWithoutSensitiveData;
+  const userWithoutSensitiveData = removeSensitiveData(updatedUser)
+  return userWithoutSensitiveData
 }
 
 export async function authenticateAndUpdatePassword(
@@ -193,14 +210,14 @@ export async function authenticateAndUpdatePassword(
   email: string,
   password: string,
   newPassword: string,
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<UserWithoutSensitiveData | null> {
-  const user = await authenticate(context, email, password, prisma);
+  const user = await authenticate(context, email, password, prisma)
   if (!user) {
-    return null;
+    return null
   }
 
-  const hashedNewPassword = await hash(newPassword, 10);
+  const hashedNewPassword = await hash(newPassword, 10)
 
   const updatedUser = await prisma.user.update({
     where: {
@@ -209,13 +226,13 @@ export async function authenticateAndUpdatePassword(
     data: {
       passwordHash: hashedNewPassword,
     },
-  });
+  })
 
   // Remove sensitive fields from the user object before returning
-  const userWithoutSensitiveData = removeSensitiveData(updatedUser);
+  const userWithoutSensitiveData = removeSensitiveData(updatedUser)
   // Generate a new JWT token for the updated user
-  const token = generateToken(updatedUser);
+  const token = generateToken(updatedUser)
   // Add the JWT token to the context object
-  context.token = token;
-  return userWithoutSensitiveData;
-};
+  context.token = token
+  return userWithoutSensitiveData
+}

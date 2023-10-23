@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
+import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context';
 import { Context } from './context';
 import { contextNamespace, getRequestContext, getUserInfoFromDB, setRequestContext } from './context.utils';
 import { MyContext } from './my-context';

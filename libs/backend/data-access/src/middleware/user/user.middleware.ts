@@ -1,16 +1,18 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { NextFunction, Response } from 'express';
 import { createContext } from '../../context/create-context';
 import { CustomContextType } from '../../context/custom-context-type';
-import { MyContext } from '../../context/my-context';
-import { CustomRequestWithContext } from '../../make-api/custom-request-with-context';
+import { MyContext, UserWithAccessToken } from '../../context/my-context';
+import { CustomRequestWithContext } from '../../make-api/requests/custom-request-with-context';
 // Instantiate a new Prisma client
 const prisma = new PrismaClient();
 
-export interface AuthenticatedRequest extends CustomRequestWithContext<MyContext<{}>>{
+type AuthenticatedSession = AuthenticatedRequest & CustomRequestWithContext<MyContext<{}>>
+
+export interface AuthenticatedRequest  {
   context: CustomContextType;
-  user: User
-}
+  user: UserWithAccessToken
+}  
 
 /**
  * Middleware that checks if the user making the request has the required role.
@@ -41,10 +43,11 @@ export async function authorizeUser(...roles: string[]) {
   };
 }
 
+
 /**
  * Middleware that sets the authenticated user on the request object.
  */
-export async function authenticateUser(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+export async function authenticateUser(req: AuthenticatedSession, res: Response, next: NextFunction) {
   const context: CustomContextType = await createContext(prisma, req);
 
   // Set the context on the request object

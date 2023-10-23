@@ -1,17 +1,12 @@
-import { AppConfiguration } from '../context/app-configuration';
-import { CustomHeaders, HeadersWithIndexSignature } from '../context/create-nested-context';
-import { CustomRequest } from '../interfaces/user/custom-request';
-import { SessionData } from '../types/express';
-import { CustomHeadersImpl } from './headers/custom-headers-impl';
+import { AppConfiguration } from '../../context/app-configuration';
+import { CustomHeaders, HeadersWithIndexSignature } from '../../context/create-nested-context';
+import { CustomRequest } from '../../interfaces/user/custom-request';
+import { UserWithoutSensitiveData } from '../../modules/user/user';
+import { SessionData } from '../../types/express';
+import { CustomHeadersImpl } from '../headers/custom-headers-impl';
 
 export interface SharedHeaders<T extends SharedHeaders<T>> extends Headers{
-  [key: string]:
-  | string
-  | string[]
-  | undefined
-  | ((name: string, value: string) => void)
-  | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
-
+  [key: string]: any
   authorization?: string;
   append(name: string, value?: string): T;
   has(name: string): boolean;
@@ -25,25 +20,23 @@ export interface SharedHeaders<T extends SharedHeaders<T>> extends Headers{
   getSetCookie(): string[]
 }
 
-
 export type CustomRequestSessionHeaders = ()=>{} & {
   set: (name: string, value: string) => CustomRequestSessionHeaders;
 }
 
 export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'headers'> {
+  [key: string]: any
   customHeaders: CustomHeadersImpl;
   config: AppConfiguration
   session: SessionData & { userId: string }
-  cache: any
+  cache: RequestCache
   context: T
   rawHeaders: string[] & readonly string[]
   headers: CustomHeaders
-  accepts: {
-    (type: string): string | false;
-    (types: string[]): string | false;
-    (types: string[]): string[] | false;
-    (): string[];
-  }
+  
+  accepts(types: string[]): string | false;
+  accepts(type: string): string | false;
+  accepts(): string[];
   ctx: {
     context: {}
     rawHeaders: string[] & readonly string[]
@@ -52,5 +45,7 @@ export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'hea
   }
   get: (name: string) => undefined
   cookies: any
-  signedCookies: any
+  signedCookies: Record<string, string>
+  accessToken: string | undefined
+  currentUser?: UserWithoutSensitiveData | undefined | null
 }

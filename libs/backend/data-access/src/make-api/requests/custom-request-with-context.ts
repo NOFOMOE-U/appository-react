@@ -1,30 +1,65 @@
 import { PrismaClient } from '@prisma/client'
 import { NextFunction, Request, Response } from 'express'
+import { ParamsDictionary } from 'express-serve-static-core'
 import { Session, SessionData } from 'express-session'
 import { IncomingHttpHeaders } from 'http'
-import { createContext } from '../context/create-context'
-import { MyContext } from '../context/my-context'
-import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
-import { UserWithoutSensitiveData } from '../modules/user/user'
+import { ParsedQs } from 'qs'
+import { AppConfiguration } from '../../context/app-configuration'
+import { createContext } from '../../context/create-context'
+import { CustomContextType } from '../../context/custom-context-type'
+import { MyContext } from '../../context/my-context'
+import { UserWithoutSensitiveData } from '../../modules/user/user'
 
-export interface CustomContextHeaders extends IncomingHttpHeaders {
+export type YourRequestObject<T> = CustomRequestWithContext<T>;
+;
+  
+  export interface CustomContextHeaders extends IncomingHttpHeaders {
+  [key: string]: string | string[] | undefined
+}
+
+export interface CustomContextRequests {
   [key: string]: string | string[] | undefined
 }
 
 export interface CustomRequestWithContext<T> extends Omit<Request, 'context'> {
   id: string
-  // config: AppConfiguration
+  config: AppConfiguration
   user?: UserWithoutSensitiveData | null
-  currentUser?: UserWithoutSensitiveData | null
+  currentUser: UserWithoutSensitiveData | null
   ctx: MyContext<T>['ctx']
-  accessToken?: string
+  accessToken: string
   prisma: PrismaClient
+  destination: RequestDestination
   [key: string]: any // allow any additional properties
-  req: ExtendedCustomRequest<MyContext<T>>['req']
+  req: {
+    headers: CustomContextHeaders
+    session: Session & Partial<SessionData>
+    cache: RequestCache
+    context: CustomContextType
+    get: (name: string) => string | undefined
+    signedCookies: Record<string, string>
+    method: string
+    url: string
+    baseUrl: string
+    originalUrl: string
+    params: ParamsDictionary
+    query: ParsedQs
+    body: any
+    cookies: {[key: string]: string}
+    ip: string
+    ips: string[]
+    protocol: string
+    secure: boolean
+    stale: boolean
+    fresh: boolean
+    xhr: boolean
+    hostname: string
+    subdomains: string[]
+  }
   context: MyContext<UserWithoutSensitiveData>
   body: any
   token: string
-  session: Session & Partial<SessionData>
+  session: Session & Partial<SessionData> & { userId: string}
   rawHeaders: string[]
   cookies: { [key: string]: string }
   cache: RequestCache
@@ -36,7 +71,7 @@ export interface CustomRequestWithContext<T> extends Omit<Request, 'context'> {
   get(name: string | string[]): string[] | undefined
   get(name: 'set-cookie' | string): string | string | undefined
   getAll(name: string): string[] | undefined
-  signedCookies: string
+  signedCookies: Record<string, string>
 }
 
 export interface CustomRequestWithAllProps<T> extends CustomRequestWithContext<T> {
@@ -50,12 +85,12 @@ export interface CustomRequestWithAllProps<T> extends CustomRequestWithContext<T
 
   // credentials: RequestCredentials
   destination: RequestDestination
-  integrity: string
+  // integrity: string
   rawHeaders: string[]
   trailers: { [key: string]: string }
   [Symbol.iterator]?: () => IterableIterator<string>
   cookies: Record<string, string>
-  signedCookies: string
+  signedCookies: Record<string, string>
 
   get: {
     (name: string): string | undefined
@@ -68,11 +103,11 @@ export interface CustomRequestWithAllProps<T> extends CustomRequestWithContext<T
 
 // Middleware function to attach our custom context to the request object
 export const attachCustomContext = (): ((
-  req: CustomRequestWithAllProps<MyContext<{}>>,
+  req: YourRequestObject<MyContext<{}>>,
   res: Response,
   next: NextFunction,
 ) => void) => {
-  return (req: CustomRequestWithAllProps<MyContext<{}>>, res: Response, next: NextFunction) => {
+  return (req: YourRequestObject<MyContext<{}>>, res: Response, next: NextFunction) => {
     const customProp = 'example custom property'
     ;(req.customProp = customProp), next()
   }

@@ -1,5 +1,4 @@
 // src/utils/auth.ts
-
 import { User } from '@prisma/client'
 import { sign } from 'jsonwebtoken'
 

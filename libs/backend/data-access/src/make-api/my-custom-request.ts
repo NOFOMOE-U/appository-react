@@ -22,211 +22,41 @@
 import { Request } from 'express'
 import { Application, Dictionary, ParamsDictionary } from 'express-serve-static-core'
 import { Session } from 'express-session'
-import { IncomingHttpHeaders } from 'http'
 import { ParsedQs } from 'qs'
 
+import { UserRole } from '@prisma/client'
+import { SessionData } from 'express-session'
 import { Cookie } from 'tough-cookie'
-import { CustomHeaders } from '../context/create-nested-context'
+import { AppConfiguration } from '../context/app-configuration'
 import { CustomContextType } from '../context/custom-context-type'
-import { MyContext } from '../context/my-context'
+import { MyContext, UserWithAccessToken } from '../context/my-context'
 import prisma from '../lib/prisma/prisma'
 import errorMessages from '../middleware/permissions/error-messages'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-import { SessionData } from '../types/express'
-import { CustomContextHeaders, CustomRequestWithContext } from './custom-request-with-context'
 import { CustomRequestWithSession } from './custom-request-with-session'
 import { getDefaultAxiosOptions } from './default-options'; // Import the getDefaultAxiosOptions function
-import { CustomHeadersHandler } from './headers/custom-headers'
 import { CustomHeadersImpl } from './headers/custom-headers-impl'
+import { MyCustomHeaders } from './headers/my-custom-headers'
+import { CustomRequestInit } from './requests/custom-request-init'
+import { CustomContextHeaders, CustomRequestWithContext } from './requests/custom-request-with-context'
 import { socket } from './socket/socket'
 
 export type CustomSessionType = {
   userId: string
   username: string
   expires: number
-}
-export interface CustomRequestInit extends RequestInit {
-  url?: string
-  query?: ParsedQs
-  params?: { [key: string]: string }
-  get?: (name: string) => string | null | undefined
-  accepts: (types: string | string[]) => string[]
-  customCache?: RequestCache
-  session: CustomSessionType 
-  body?: BodyInit | undefined
-  signedCookies?: { [key: string]: string }
-  context?: CustomContextType
-}
-
-export interface CustomRequestInitWithGet extends CustomRequestInit {
-  get?: (name: string) => string | null | undefined
-}
-
-export interface MyHeaders extends CustomHeaders {
-  [key: string]:
-    | string
-    | string[]
-    | ((name: string, value: string) => void)
-    | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
-    | undefined
-}
-
-// Define a custom implementation of CustomHeaders that wraps Headers
-
-interface RequestCache {
-  // Define the properties and their types here
-  [key: string]: any
-}
-
-type CustomHeadersAndHeaders = CustomHeaders & IncomingHttpHeaders
-
-const customContextHeaders: CustomContextHeaders = {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer token',
-  'Custom-Header': ['value1', 'value2'],
-}
-
-customContextHeaders['Content-Type'] = 'application/json'
-customContextHeaders['Authorization'] = 'Bearer token'
-customContextHeaders['Custom-Header'] = 'value1'
-customContextHeaders['Custom-Header'] = 'value2'
-
-export type MyHeadersInit = {[key: string]: string | string[] };
-
-export class MyCustomHeaders extends CustomHeadersHandler {
-  constructor(headers?: MyHeadersInit | undefined) {
-    super(headers)
-    if (headers && typeof headers === 'object') {
-      //iterate over the object properties
-      for (const key in headers) {
-        if (Object.prototype.hasOwnProperty.call(headers, key)) {
-          const value = headers[key];
-
-          if (typeof value == 'string') {
-            this.set(key, value)
-          } else if (Array.isArray(value)) {
-            value.forEach((val) => this.append(key,val))
-          }
-        }
-      }
-    }
-  }
-
-    
-    setAuthorization(token: string) {
-    this.set('Authorization', `Bearer ${token}`)
-  }
-
-  setAcceptJson() {
-    this.set('Accept', 'application/json') // change ''application/json' with values
-  }
-
-  has(name: string): boolean {
-    return super.has(name)
-  }
-
-  get(name: string): string | null {
-    return super.get(name)
-  }
-
-  set(name: string, value: string | string[]): this {
-    if (typeof value === 'string') {
-      this.set(name, value)
-    } else if (Array.isArray(value)) {
-      value.forEach((val) => this.append(name, val))
-    }
-    return this
-  }
-
-  delete(name: string): boolean {
-    super.delete(name)
-    return true
-  }
-
-  getCustomHeader(): string | null {
-    return this.get('custom-header')
-  }
-
-  append(name: string, value?: string | undefined): CustomHeadersHandler {
-    return super.append(name, value);
-  }
-
-  keys(): IterableIterator<string> {
-    return this.keys()
-  }
-
-  entries(): IterableIterator<[string, string]> {
-    return this.entries()
-  }
-
-  values(): IterableIterator<string> {
-    return this.values()
-  }
-
-  getAll(name: string): string[] {
-    return this.getAll(name)
-  }
-
-  *[Symbol.iterator](): IterableIterator<[string, string]> {
-    const entries: [string, string][] = []
-    for (const key in Headers) {
-      if (Object.prototype.hasOwnProperty.call(this.headers, key)) {
-        entries.push([key, this.get(key) || ''])
-      }
-    }
-    return entries[Symbol.iterator]()
-  }
-
-  // [name: string]: 
-    // | string
-    // | string[]
-    // | ((name: string, value: string) => void)
-    // | ((callbackFn: (value: string, name: string, headers: CustomHeadersHandler) => void, thisArg?: any) => void)
-    // | undefined
+  user: UserWithAccessToken
 }
 
 export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   extends Request
   implements CustomRequestWithSession<MyContext>
 {
-
-  
   customHeaders: MyCustomHeaders = new MyCustomHeaders()
   headers: MyCustomHeaders = new MyCustomHeaders()
 
-  //error handling
-  handleError(errorCode: string, message: string, status: number) {
-    const errorMessage = errorMessages[errorCode] || message
 
-    if (this.headers instanceof Headers) {
-      const newHeaders = new Headers(this.headers)
-      newHeaders.set('Content-Type', 'application/json')
-      // (this.headers as CustomHeaders).set('Content-Type', 'application/json') // Set response content type
-    }
-    // You can customize the error response structure as needed
-    const errorResponse = {
-      error: {
-        code: errorCode,
-        message: errorMessage,
-      },
-    }
-
-    // Create a new response with the error details
-    const response = new Response(JSON.stringify(errorResponse), {
-      status,
-    })
-
-    // Throw the response as an error to be caught by the error handling middleware
-    throw response
-  }
-  // add the 'session' property
-  sessions: SessionData & { userId: string } = { userId: '' }
-  query: ParsedQs = {}
-  params: { [key: string]: string }
-  body: any
-  customCache: RequestCache = {}
-  customHeadersProperty: Headers
-
+  //Constructor
   constructor(options: CustomRequestInit & { body?: MyContext }) {
     if (!options.url) {
       throw new Error('URL is required')
@@ -234,13 +64,11 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     super(options.url, options)
 
     // Set the 'url' and 'method' properties
-    this.url = options.url;
-    this.method = options.method || 'GET'; // You can provide a default method if needed
+    this.url = options.url
+    this.method = options.method || 'GET' // You can provide a default method if needed
 
     this.headers = new CustomHeadersImpl({})
 
-
-    //set ur
     const customHeaderValues = ['value1', 'value2']
     this.customHeadersProperty = new Headers()
     // set custom headers as needed
@@ -249,6 +77,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     // Set custom headers as needed directly on the headers property
     this.customHeadersProperty.set('Content-Type', 'application/json')
     this.customHeadersProperty.set('Authorization', 'Bearer token')
+    
     for (const value of customHeaderValues) {
       this.customHeadersProperty.set('Custom-Header', value)
     }
@@ -276,46 +105,66 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       url: 'https://example.com',
     }
 
+    
     type LocalMyContext = MyContext
     const requestContext: CustomRequestWithContext<LocalMyContext> = {
       ...new Request(options.url),
       context: options.body as MyContext,
       method: 'GET',
       ...partialRequest,
-      id: '',
-      ctx: {},
+      headers: this.context.headers,
+      currentUser: this.context.currentUser,
+      config: this.context.config,
+      id: this.context.id,
+      ctx: this.context.ctx,
+      accessToken: this.context.accessToken,
       prisma: prisma,
       req: {
-        session: SessionData,
-        cache: {},
-        context: {},
-        get: function (name: string): undefined {
-          throw new Error('Function not implemented.')
-        },
-        cookies: undefined,
-        signedCookies: undefined,
+        headers: {} as CustomContextHeaders,
+        session: {} as Session & Partial<SessionData>,
+        cache: {} as RequestCache,
+        context: {} as CustomContextType,
+        get: (name: string): string | undefined => '',
+        signedCookies: {} as Record<string, string>,
+        method: '',
+        url: this.context.reqeuest.url,
+        baseUrl: '',
+        originalUrl: '',
+        params: {} as ParamsDictionary,
+        query: {} as ParsedQs,
+        body: {} as ParamsDictionary,
+        cookies: {} as { [key: string]: string },
+        ip: '',
+        ips: [''],
+        protocol: '',
+        hostname: '',
+        subdomains: [''],
+        secure: false,
+        stale: false,
+        fresh: false,
+        xhr: false,
       },
       token: '',
-      session: {} as Session & Partial<SessionData>,
+      session: {} as Session
+        & Partial<SessionData>
+        & { userId: string; },
       rawHeaders: [],
-      cookies: {},
-      userId: undefined,
+      cookies: this.context.cookiesArray,
+      userId: this.context.userId,
       request: {},
-      // get: function (name: string): string | undefined {
-      //   throw new Error('Function not implemented.')
-      // },
-      getAll: function (name: string): string[] | undefined {
-        throw new Error('Function not implemented.')
-      },
       signedCookies: {} as Record<string, string>,
-      [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
-        throw new Error('Function not implemented.')
-      },
+      
       getCustomHeader(): string | null {
         return this.customHeaders.getCustomHeader()
       },
-      
-      
+    
+      getAll: function (name: string): string[] | undefined {
+        throw new Error('Function not implemented.')
+      },
+      [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
+        throw new Error('Function not implemented.')
+      },
+
       accepted: [],
       param: function (name: string, defaultValue?: any): string {
         throw new Error('Function not implemented.')
@@ -415,7 +264,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       // myCustomRequest.addListener('close', () => {
       //   throw new Error('Function not implemented.')
       // }),
-     
+
       // emit: function (event: 'close'): boolean {
       //   throw new Error('Function not implemented.')
       // },
@@ -531,26 +380,101 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       Header1: 'Value1',
       Header2: 'Value2',
     })
-    const customRequest: CustomRequestWithSession<MyContext> = new MyCustomRequest<CustomRequestWithSession<MyContext<{}>>>(options)
+    const customRequest: CustomRequestWithSession<MyContext> = new MyCustomRequest<
+      CustomRequestWithSession<MyContext<{}>>
+    >(options) 
     customRequest.customHeaders = customHeaders
 
     // Assign it to the main headers
     this.headers = customHeaders
   }
 
-  session: SessionData & { userId: string } = { userId: '' }
+  //error handling
+  handleError(errorCode: string, message: string, status: number) {
+    const errorMessage = errorMessages[errorCode] || message
+
+    if (this.headers instanceof Headers) {
+      const newHeaders = new Headers(this.headers)
+      newHeaders.set('Content-Type', 'application/json')
+      // (this.headers as CustomHeaders).set('Content-Type', 'application/json') // Set response content type
+    }
+    // You can customize the error response structure as needed
+    const errorResponse = {
+      error: {
+        code: errorCode,
+        message: errorMessage,
+      },
+    }
+
+    // Create a new response with the error details
+    const response = new Response(JSON.stringify(errorResponse), {
+      status,
+    })
+
+    // Throw the response as an error to be caught by the error handling middleware
+    throw response
+  }
+  // add properties
+  config: AppConfiguration = {
+    defaultUserRole: UserRole.USER,
+    userRoles: [],
+    moderatorRoles: [],
+    allowedLocations: [],
+    maxFileSize: 1000, // todo figure out file size here
+    enableVideo: false,
+    enableAudio: false,
+    allowRegistration: false,
+    requireEmailVerification: false,
+    allowPublicRooms: false,
+    allowPrivateRooms: false,
+    enableModeration: false,
+    allowFileUploads: false,
+    enableNotifications: false,
+    restrictAccessByLocation: false,
+  }
+
+ 
+  accepts(type: string | string[]): string | false {
+    // Implement this method to handle the 'accepts' logic.
+    const acceptHeader = this.headers?.get('accept') || '';
+
+    if (!acceptHeader || acceptHeader === '*/*') {
+      if (typeof type === 'string') {
+        return type;
+      } else if (Array.isArray(type)) {
+        return type[0] || false;
+      }
+    }
+
+    if (typeof type === 'string') {
+      return this.acceptSingle(type, acceptHeader);
+    } else if (Array.isArray(type)) {
+      return this.acceptMultiple(type, acceptHeader);
+    }
+
+    return false;
+  }
+
+  currentUser?: UserWithoutSensitiveData | undefined | null 
+  // sessions: SessionData
+  query: ParsedQs = {}
+  params: { [key: string]: string }
+  body: any
+  //todo set up custom cache
+  customCache?: RequestCache
+  customHeadersProperty: Headers
+
+  
+
+  session?: Session & SessionData & { userId: string} 
   context?: any = {}
-  // headers: CustomHeaders = new CustomHeadersImpl({}) // initiaze with empty headers
   cookies: Record<string, string> = {}
   signedCookies: Record<string, string> = {}
-  // body: MyContext = {} as MyContext
   url: string = ''
   method: string = ''
-  // cache: Record<string, any> = {}
   ctx: any = {} // adjust the type as needed
   accessToken: string | undefined = undefined
 
-  // Add missing properties and methods
   rawHeaders: string[] = []
   push: (chunk: any, encoding?: BufferEncoding | undefined) => boolean = (
     chunk: any,
@@ -567,9 +491,10 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     }
     return fetch(this.url, fetchOptions)
   }
-
+  [Symbol.asyncDispose]!: () => Promise<void>;
+  header!: any; // Update the type as needed
+  acceptsCharsets!: any; // Update the type as needed
   get(name: string): undefined
-
   get(name: string, value?: string | string[] | undefined): string | undefined {
     if (value !== undefined) {
       if (name === 'set-cookie') {
@@ -627,23 +552,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     return false
   }
 
-  // accepts(typeOrTypes: string | string[]): string | false | string[]{
-  //   const acceptHeader = this.get('accept') || '*/*'
-
-  //   if (typeof typeOrTypes === 'string') {
-  //     if (acceptHeader.includes(typeOrTypes)) {
-  //       return typeOrTypes
-  //     } else {
-  //       return false
-  //     }
-  //   } else if (Array.isArray(typeOrTypes)) {
-  //     const results: string[] = typeOrTypes.filter((type) => acceptHeader.includes(type))
-  //     return results.length > 0 ? results : false
-  //   } else {
-  //     return false
-  //   }
-  // }
-
+  
   private acceptSingle(type: string, acceptHeader: string | null): string | false {
     if (acceptHeader && acceptHeader.includes(type)) {
       return type
@@ -660,9 +569,10 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     return false
   }
 
-  setAcceptJson() {
+  setAcceptJson(): void {
     this.customHeaders.set('Accept', 'application/json')
   }
+
   customHeadersMethod(name: string, value?: string | string[]): this | string[] {
     if (!name) {
       if (this.headers) {
@@ -701,6 +611,16 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     } else {
       return []
     }
+  }
+
+  // Add a function to set the authenticated user
+  setAuthenticatedUser(user: UserWithoutSensitiveData) {
+    this.currentUser = user;
+  }
+
+  // Add a function to clear the authenticated user (log out)
+  clearAuthenticatedUser() {
+    this.currentUser = null;
   }
 
   acceptsEncoding: (encodings: string | string[]) => string | false = (encodings: string | string[]) => {
@@ -751,7 +671,6 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     return false
   }
 
-  
   // #todo
   // redirect: (url: string, status?: number) => void = (url: string, status?: number) => {
   //   this.headers.set('location', url)

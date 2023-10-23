@@ -2,10 +2,9 @@
 import { User } from '@prisma/client'
 import { Request } from 'express'
 import { Session, SessionData } from 'express-session'
-import { IncomingHttpHeaders } from 'http'
-import { AppConfiguration } from '../../context/app-configuration'
 import { CustomRequestCommon } from '../../context/custom-common-request'
 import { MyContext } from '../../context/my-context'
+import { CustomContextHeaders } from '../../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
 // const prisma = new PrismaClient()
 
@@ -28,13 +27,7 @@ export interface CustomRequest<T = unknown> extends Request {
   query: any;
   params: any;
   body: T | undefined
-  headers: {
-    [key: string]
-    : string
-    | string[]
-    | undefined
-    authorization?: string
-  }
+  headers: CustomContextHeaders
   startTime?: number
   // prisma: PrismaClient
   currentUser?: UserWithoutSensitiveData | undefined | null
@@ -50,8 +43,9 @@ export interface ExtendedCustomRequest<T extends {} = {}> extends CustomRequestC
   destination?: string
   session: Session & Partial<SessionData> & {userId: string}
   integrity?: string
-  accessToken?: string
-  headers: IncomingHttpHeaders & {authorization?: string}
+  accessToken: string
+  
+  headers: CustomContextHeaders & {authorization?: string}
   get(name: string): string | undefined
   get(name: string | string[]): string[] | undefined
   get(name: 'set-cookie' | string): string | string | undefined
@@ -62,7 +56,7 @@ export interface ExtendedCustomRequest<T extends {} = {}> extends CustomRequestC
 }
 
 export const getHeaderValue = (
-  headers: IncomingHttpHeaders,
+  headers: CustomContextHeaders,
   name: 'set-cookie' | string,
 ): string | string[] | undefined => {
   const headerValue = headers[name]

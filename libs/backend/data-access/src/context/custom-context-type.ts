@@ -1,31 +1,33 @@
 import { PrismaClient, User } from '@prisma/client';
+import { Session, SessionData } from 'express-session';
 import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
-import { CustomRequestWithContext } from '../make-api/custom-request-with-context';
+import { CustomRequestInit } from '../make-api/requests/custom-request-init';
+import { CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context';
 import { UserWithoutSensitiveData } from '../modules/user/user';
 import { AppConfiguration } from './app-configuration';
 import { MyContext } from './my-context';
 
 export interface CustomContextType<T = MyContext<{}>> {
   ctx: any;
-  context: T;
+  context?: T;
   req: CustomRequestWithContext<T>;
-  request: CustomRequestWithContext<T>;
-  body?: any;
-  session: any;
-  cache: any;
+  request: YourRequestObject<CustomRequestInit>;
+  body?: CustomRequestWithContext<T>['body'];
+  session: Session & Partial<SessionData> & { userId: string} ;
+  cache: {};
   accessToken?: string;
-  credentials: any;
   prisma: PrismaClient;
   cookies: Record<string, string>;
   userId?: string;
   currentUser: UserWithoutSensitiveData | null;
   token: string;
-  signedCookies: string;
+  signedCookies: Record<string,string>;
   get: (name: string) => string | undefined;
   config: AppConfiguration
-  accepts: (types: string | string[]) => string[];
-}
+  accepts(type: string): string | false;
+  }
+
 
   
 

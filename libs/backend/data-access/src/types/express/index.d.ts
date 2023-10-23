@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import type { AuthenticatedUser } from '../../../../shared/interfaces/auth/authrequest';
 import { CustomContextType } from '../../context/custom-context-type';
 declare global {
@@ -11,17 +12,27 @@ declare global {
       userId: string
       user: AuthenticatedUser
       token?: string
-      [key: string]: any;
+      [key: string]: any
       session: string
+      username: string
     }
   }
 }
 declare module 'express-session' {
   interface Session {
-    yourSessionKey?: string
+    yourSessionKey: string
     user?: {
       id: string
+      name: string
+      createdAt: Date
+      updatedAt: Date
+      userProfileId: number
+      roles: UserRole[]
+      passwordHash: string
+      email: string
+      username: string
     }
+    expires: number
     currentUser: UserWithoutSensitiveData | UserWithAccessToken | null
   }
 }
