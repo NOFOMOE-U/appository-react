@@ -1,7 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
-import { Session, SessionData } from 'express-session';
 import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
+import { CustomSessionType } from '../make-api/my-custom-request';
 import { CustomRequestInit } from '../make-api/requests/custom-request-init';
 import { CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context';
 import { UserWithoutSensitiveData } from '../modules/user/user';
@@ -14,8 +14,9 @@ export interface CustomContextType<T = MyContext<{}>> {
   req: CustomRequestWithContext<T>;
   request: YourRequestObject<CustomRequestInit>;
   body?: CustomRequestWithContext<T>['body'];
-  session: Session & Partial<SessionData> & { userId: string} ;
+  session: CustomSessionType;
   cache: {};
+  cookie: Record<string, string>
   accessToken?: string;
   prisma: PrismaClient;
   cookies: Record<string, string>;
@@ -25,7 +26,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   signedCookies: Record<string,string>;
   get: (name: string) => string | undefined;
   config: AppConfiguration
-  accepts(type: string): string | false;
+  accepts(types: string): string | string[] | null | false | undefined;
   }
 
 

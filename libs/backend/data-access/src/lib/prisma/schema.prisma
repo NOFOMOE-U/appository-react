@@ -16,8 +16,8 @@ datasource db {
 
 model User {
   id                 String           @id @default(uuid())
-  email              String?          @unique
   name               String
+  email              String?          @unique
   passwordHash       String           @db.VarChar(255)
   roles              UserRole[]       @default([USER])
   posts              Post[]
@@ -33,7 +33,6 @@ model User {
   userProfile        UserProfile?     @relation("user_profile")
   userProfileId      Int?
   personas    Persona[]  @relation("user_personas")
-  
   password    Password?   @relation("password")
 }
 

@@ -28,7 +28,7 @@ declare module 'express-session' {
       updatedAt: Date
       userProfileId: number
       roles: UserRole[]
-      passwordHash: string
+      passwordHash: undefined
       email: string
       username: string
     }

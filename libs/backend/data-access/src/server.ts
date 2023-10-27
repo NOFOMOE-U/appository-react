@@ -12,7 +12,6 @@ import {
   PermissionsModule,
   PermissionsModuleOptions,
   UserWithAccessToken,
-  UserWithoutSensitiveData,
   YourRequestObject,
   getContext,
   makeRequest,
@@ -27,7 +26,6 @@ import { processRequest } from './make-api/default-options'
 import { makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
-import generateToken from './utils/generate-token.utils'
   require('dotenv').config()
   const json = require('body-parser')
   const cors = require('cors')
@@ -149,21 +147,21 @@ import generateToken from './utils/generate-token.utils'
     expressMiddleware(apolloServer),
   )
 
-  app.post('/login', ensureAuthenticated, async (req: MyContext<UserWithoutSensitiveData>, res: Response, next: NextFunction) => {
+  app.post('/login', ensureAuthenticated, async (req: MyContext<UserWithAccessToken>, res: Response, next: NextFunction) => {
     // Assuming user data is already stored in the session during authentication
     const user = req.session.user;
 
     if (user) {
-      const currentUser: UserWithAccessToken = {
+      const currentUser: UserWithAccessToken  = {
         id: user.id,
         name: user.name,
         email: user.email,
-        passwordHash: user.passwordHash,
+        passwordHash: user.passwordHash || undefined,
         roles: user.roles,
         createdAt: user.createdAt, 
         updatedAt: user.updatedAt, 
         userProfileId:  user.userProfileId,
-        accessToken: generateToken(user),
+        accessToken: user.accessToken,
         resetPasswordToken: undefined,
       };
 
@@ -235,6 +233,7 @@ import generateToken from './utils/generate-token.utils'
         customCache: {} as RequestCache, // Provide your customCache data here
         session: {} as CustomSessionType,
         accepts: req.accepts,
+        request: req.request as unknown as YourRequestObject<MyContext>
         // Add other required properties
       })
 

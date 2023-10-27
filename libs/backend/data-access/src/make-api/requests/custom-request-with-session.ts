@@ -34,9 +34,9 @@ export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'hea
   rawHeaders: string[] & readonly string[]
   headers: CustomHeaders
   
-  accepts(types: string[]): string | false;
-  accepts(type: string): string | false;
   accepts(): string[];
+  accepts(type: string): string | false;
+  accepts(types: string[]): string | false;
   ctx: {
     context: {}
     rawHeaders: string[] & readonly string[]

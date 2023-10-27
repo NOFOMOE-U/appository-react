@@ -2,15 +2,16 @@ import { AppConfiguration } from '../context/app-configuration'
 import { MyContext, UserWithAccessToken } from '../context/my-context'
 import prisma from '../lib/prisma/prisma'
 
-import { Session, SessionData } from 'express-session'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { myContext } from './default-options'
-import { MyCustomRequest } from './my-custom-request'
+import { CustomSessionType, MyCustomRequest } from './my-custom-request'
+import { CustomRequestInit } from './requests/custom-request-init'
 import { CustomRequestWithContext } from './requests/custom-request-with-context'
 
 
 
-type  LoginRequestSession = UserWithoutSensitiveData & UserWithAccessToken
+type UserLoginSessionType = CustomRequestWithContext<CustomRequestInit>
+  & UserWithAccessToken
 
 
 
@@ -24,13 +25,13 @@ const customHeaders: { [key: string]: string } = {}
 
 type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
   accepts: (types: string | string[]) => string[]
-  signedCookies: '' | undefined // Update this with the correct type for your signed cookies
+  signedCookies: Record<string, string> // Update this with the correct type for your signed cookies
   get?: (name: string) => string | undefined
 }
   
 const updateRequest = new MyCustomRequest<MyCustomContext>({
   body: {} as any,
-  request: {} as LoginRequestSession ,
+  request: {}as CustomRequestWithContext<CustomRequestInit>,
   url: 'https://jsonplaceholder.typicode.com/posts/1',
   method: 'GET',
   get: (name: string) => {
@@ -55,13 +56,15 @@ const updateRequest = new MyCustomRequest<MyCustomContext>({
     userId: '',
     username: '',
     expires: Date.now(),
-    user: {} as
+    user: {} as UserLoginSessionType,
+    yourSessionKey: 'yourSessions'
   },
   context: {
     ...myContext,
     signedCookies: {} as Record<string, string>,
     config: {} as AppConfiguration,
     req: {} as CustomRequestWithContext<MyContext<{}>>,
+    cookie: {} as Record<string, string>,
     cookies: {} as Record<string, string>,
     token: '',
     request: {} as CustomRequestWithContext<MyContext<{}>>,
@@ -69,12 +72,10 @@ const updateRequest = new MyCustomRequest<MyCustomContext>({
     context: {} as MyContext,
     currentUser: {} as UserWithoutSensitiveData,
     ctx: {},
-    session: {} as Session
-      & Partial<SessionData>
-      & { userId: string; },
+    session: {} as CustomSessionType,
     cache: {} as RequestCache,
     get: (name: string) => undefined,
-    accepts: (types: string | string[]) => false ,
+    accepts: (types: string | string[]) => [],
   },
   
   config: {} as AppConfiguration

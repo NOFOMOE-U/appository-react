@@ -1,5 +1,5 @@
 import { ExtendedCustomRequest } from '@appository/backend/data-access'
-import { PrismaClient, UserRole } from '@prisma/client'
+import { PrismaClient, User, UserRole } from '@prisma/client'
 import { compare, hash } from 'bcryptjs'
 import { AppConfiguration } from '../../context/app-configuration'
 import { CustomContextType } from '../../context/custom-context-type'
@@ -13,10 +13,34 @@ import { removeSensitiveData } from './remove-sensitive-data'
 import { UserWithPasswordHash } from './user-with-password-hash'
 
 
-type SessionRequestContext = CustomRequestWithContext<MyContext<CustomSessionType>>['req'] & ExtendedCustomRequest<MyContext<CustomSessionType>>
+export type SessionRequestContext = CustomRequestWithContext<MyContext<CustomSessionType>>['req'] & ExtendedCustomRequest<MyContext<CustomSessionType>>
 // Before calling any of these functions, ensure that context contains prisma
 const contextWithPrisma = createContextWithPrisma()
 
+
+
+function convertUserToUserWithAccessToken(user: User): UserWithAccessToken {
+  return {
+    ...user,
+    resetPasswordToken: '',
+    accessToken: generateToken(user),
+    userProfileId: user.id as unknown as number,
+    passwordHash: undefined, // Change the type to undefined
+  };
+}
+
+export const initalizeUser = (): User =>({
+  id: '1',
+  name: 'tom',
+  email: 'test@example.com',
+  roles: [UserRole.USER],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  passwordHash: `undefined`, // Replace with an actual hashed password
+  resetPasswordToken: `undefined`, // Replace with an actual reset token or use undefined
+})
+
+const user: User = initalizeUser()
 function createContextWithPrisma(): PrismaClient {
   const prisma = new PrismaClient()
   const context: MyContext = {
@@ -25,6 +49,8 @@ function createContextWithPrisma(): PrismaClient {
     currentUser: null,
     config: {} as AppConfiguration,
     accessToken: undefined,
+    session: {} as CustomSessionType,
+    signedCookies: {},
     context: {
       currentUser: {} as UserWithAccessToken,
       accessToken: undefined,
@@ -62,8 +88,8 @@ function createContextWithPrisma(): PrismaClient {
       session: {
         userId: '',
         username: '',
-        expires: 0,
-      },
+        expires: 15,
+      } as CustomSessionType,
       accepts: function (types: string | string[]): string[] {
         throw new Error('Function not implemented.')
       },
@@ -72,10 +98,8 @@ function createContextWithPrisma(): PrismaClient {
         throw new Error('Function not implemented.')
       },
     },
-    accepts: (types: string | string[]) => [],
-    session: {} as CustomSessionType,
-    signedCookies: {},
     get: () => '',
+    accepts: (types: string | string[]) => [],
   }
   context.context.accessToken = ''
   context.user = prisma.user

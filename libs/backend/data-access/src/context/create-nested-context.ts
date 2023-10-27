@@ -69,8 +69,8 @@ export interface MockExtendedCustomRequest<T extends {}> {
       rawHeaders: readonly string[]
       headers: HeadersWithIndexSignature
       getAll: (name: string) => undefined
-      cookies: any
-      signedCookies: any
+      cookies: any,
+      signedCookies: Record<string, string>
       [key: string]: any // allow any additional properties
     }
   }
@@ -93,11 +93,11 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
 
   const defaultMockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
     session: {
-      userId: '',
+      userId: context?.session.userId,
       yourSessionKey: '',
       username: context?.session.username,
       expires: 15,//todo update to accurate expiration
-    } as CustomSessionType | undefined,
+    } as  unknown as CustomSessionType & Session,
     cache: {},
     outerContext: {
       id: '',
@@ -168,7 +168,17 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
         return undefined
       }
     },
-    accepts: function(types: string | string[]): string[] | false {
+
+    accepts: function (types: string | []): string | string[] | false{
+      if (typeof types === 'string') {
+        return [types];
+      } else if (Array.isArray(types)) {
+        return types;
+      } else {
+        return false;
+      }
+    },
+    accepts: function(types: string | string[]): string[] | string | string[] |  undefined   {
       if (typeof types === 'string') {
         return [types];
       } else if (Array.isArray(types)) {

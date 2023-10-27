@@ -1,20 +1,16 @@
 //Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/main.ts
-import { CustomRequestWithContext, LoggingMiddleware, MyContext, MyCustomRequest, initContext } from '@appository/backend/data-access'
+import { CustomRequestWithContext, LoggingMiddleware, MyContext, MyCustomRequest, YourRequestObject, initContext } from '@appository/backend/data-access'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import { CustomContextType } from 'libs/backend/data-access/src/context/custom-context-type'
 import { AppModule } from './app/app.module'
-
-  // );
-// import { PermissionsController } from 'libs/backend/data-access/src/middleware/permissions/permissions.controller';
-// import { getUserId } from 'libs/backend/data-access/src/utils/backend-auth-utils';
-
 
 
 async function bootstrap() {
   const req = {} as CustomRequestWithContext<MyContext<unknown>>;
   const myContext = await initContext(req);
-  const myRequest = new MyCustomRequest<MyContext<MyContext<object>>>(myContext);
+  const myRequest = new MyCustomRequest<MyContext<YourRequestObject<CustomContextType>>>(myContext);
 
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);

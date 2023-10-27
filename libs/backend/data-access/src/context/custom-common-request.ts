@@ -8,8 +8,8 @@ import { HeadersWithIndexSignature } from './create-nested-context';
       readonly cache: {};
       readonly context: {};
       get: (name: string) => undefined;
-      cookies: any;
-      signedCookies: any;
+      cookies: Record<string,string>;
+      signedCookies: Record<string, string>;
       // Add any other properties that are common
     };  
   }

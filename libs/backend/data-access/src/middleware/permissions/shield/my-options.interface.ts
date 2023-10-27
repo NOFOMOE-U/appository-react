@@ -1,5 +1,5 @@
 import { UserWithoutSensitiveData } from '@appository/backend/data-access'
-import { PrismaClient, User, UserRole } from '@prisma/client'
+import { PrismaClient, UserRole } from '@prisma/client'
 import { IOptions, ShieldRule } from 'graphql-shield/typings/types'
 import { AppConfiguration } from '../../../context/app-configuration'
 import { MyContext, UserWithAccessToken } from '../../../context/my-context'
@@ -15,7 +15,7 @@ export interface MyOptions extends IOptions{
   prisma?: PrismaClient
 }
 
-const user: User = {
+const user: UserWithAccessToken = {
   id: '1',
   name: 'tom',
   email: 'test@example.com',
@@ -23,8 +23,9 @@ const user: User = {
   userProfileId: 2,
   createdAt: new Date(),
   updatedAt: new Date(),
-  passwordHash: '',
-  resetPasswordToken: '',
+  passwordHash: undefined,
+  resetPasswordToken: undefined,
+  accessToken: ''
   // add any additional fields as necessary
 }
 
@@ -34,8 +35,8 @@ const options: MyOptions= {
     currentUser: {} as UserWithAccessToken | null,
     config: {} as AppConfiguration,
     session: {} as CustomSessionType,
-    cookies: { key: '' },
-    userId: '',
+    cookies: { key: 'cookies-value' },
+    userId: 'user-id',
     get: (name: string) => undefined,
     context: {} as MyContext<{}>,
     ctx: {} as MyContext,
@@ -43,8 +44,8 @@ const options: MyOptions= {
     cache: {} as RequestCache,
     accessToken: '',
      request: {
-      id: '',
-      user: { id: '' } as UserWithoutSensitiveData,
+      id: 'user-id',
+      user: { id: 'user-id' } as UserWithoutSensitiveData,
       body: {},
       // #todo verify axiosRequest is accurately being used
       headers: axiosRequest,

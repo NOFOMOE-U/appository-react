@@ -35,3 +35,58 @@ logging settings
 feature toggles
 default configuration values
 Basically, anything that the module needs to configure itself or to operate correctly could be added as an option. It's up to you to decide what options are necessary for your specific use case.
+
+
+<!-- For a productivity and project management app that includes communication features such as chat, video, and audio, you may need various properties and methods for your SpecificSocketType to facilitate effective communication and collaboration. Here are some essential properties and methods to consider:
+
+Properties:
+
+id: A unique identifier for each user or team using the socket.
+
+username: The username or display name of the user or team associated with the socket.
+
+status: The online or offline status of the user or team.
+
+teams: An array of teams or projects the user is a member of.
+
+notifications: A list of notifications or unread messages for the user or team.
+
+preferences: User or team-specific preferences for the communication features (e.g., notification settings, theme preferences).
+
+lastActivity: A timestamp indicating the last activity or interaction using the socket.
+
+isTyping: A flag to indicate if the user or team is currently typing a message.
+
+Methods:
+
+connect: Establish a connection to the server when the app starts or when the user logs in.
+
+disconnect: Terminate the socket connection when the app is closed or when the user logs out.
+
+sendMessage(message: string): Send a text message to an individual or a team.
+
+sendFile(file: File): Send files or attachments to other users or teams.
+
+startVideoCall(): void: Initiate a video call with another user or within a team.
+
+startAudioCall(): void: Initiate an audio call with another user or within a team.
+
+joinTeam(teamId: string): void: Join a specific team or project group.
+
+leaveTeam(teamId: string): void: Leave a team or project group.
+
+setStatus(status: string): void: Update the online/offline status.
+
+setPreferences(preferences: object): void: Update user-specific preferences.
+
+getNotifications(): Notification[]: Retrieve a list of notifications.
+
+markNotificationAsRead(notificationId: string): void: Mark a notification as read.
+
+getChatHistory(withUserOrTeam: string): ChatMessage[]: Retrieve the chat history with a specific user or team.
+
+getTeamMembers(teamId: string): User[]: Retrieve a list of team members for a given team.
+
+setTypingStatus(isTyping: boolean): void: Update the typing status.
+
+ -->
