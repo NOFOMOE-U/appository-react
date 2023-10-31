@@ -3,23 +3,16 @@ import { Request } from 'express'
 import { Session } from 'express-session'
 import { jest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
-import { CustomContextHeaders } from '../make-api/requests/custom-request-with-context'
+import { CustomContextHeaders, CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { AppConfiguration } from './app-configuration'
 import { CustomContextType } from './custom-context-type'
 import { MyContext } from './my-context'
+import { boolean } from 'joi'
+import { CustomRequestInit } from '../make-api/requests/custom-request-init'
 export type HeadersWithIndexSignature = Record<
   string,
   string>
-  & {
-   
-[name:string]:string 
-| string[]
-| ((name: string, value: string) => void)
-| ((callbackFn: (value: string, name: string, headers: Headers) => void,
-  thisArg?: any) => void)
-| undefined;
-}
 
 export interface CustomHeaders {
   [key: string]:
@@ -97,7 +90,7 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
       yourSessionKey: '',
       username: context?.session.username,
       expires: 15,//todo update to accurate expiration
-    } as  unknown as CustomSessionType & Session,
+    } as unknown as CustomSessionType & Session,
     cache: {},
     outerContext: {
       id: '',
@@ -135,7 +128,7 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
     // ...
   }
 
-  const defaultHeaders: CustomContextHeaders ={}
+  const defaultHeaders: CustomContextHeaders = {}
 
   const mockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
     ...defaultMockRequest,
@@ -158,34 +151,34 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
     get: (name: string) => undefined,
     currentUser: mockRequest.outerContext.currentUser,
     session: {} as CustomSessionType & Session,
-    signedCookies: {} as Record<string,string>,
+    signedCookies: {} as Record<string, string>,
     config: {} as AppConfiguration,
+    request: {} as YourRequestObject<CustomRequestInit>,
+    req: {} as CustomRequestWithContext<T>,
+    prisma: mockRequest.outerContext.prisma,
+    cache: mockRequest.req.outerContext.cache,
+    cookie: mockRequest.req.outerContext.cookie, 
+    cookies: mockRequest.req.outerContext.cookies,
+    token: mockRequest.req.outerContext.accessToken,
+    accepts: mockRequest.req.outerContext.accepts,
     accessToken: undefined,
     ctx: {
       ...mockRequest.context,
-      req: mockRequest,
-      accepts: () => {
-        return undefined
-      }
-    },
-
-    accepts: function (types: string | []): string | string[] | false{
-      if (typeof types === 'string') {
-        return [types];
-      } else if (Array.isArray(types)) {
-        return types;
-      } else {
-        return false;
-      }
-    },
-    accepts: function(types: string | string[]): string[] | string | string[] |  undefined   {
-      if (typeof types === 'string') {
-        return [types];
-      } else if (Array.isArray(types)) {
-        return types;
-      } else {
-        return false;
-      }
+      req: mockRequest.req,
+      accepts: (types: string | string[] |
+       boolean) => {
+        if (types === 'string') {
+          return [types]
+        }
+        if (Array.isArray(types)) {
+          return types
+        }
+        if (types === true || types === false) {
+          return types
+        }
+        return []
+      },
+        
     }
   }
 

@@ -5,6 +5,7 @@ import { UserWithoutSensitiveData } from '../modules/user/user';
 import { createNestedContext } from './create-nested-context';
 import createCustomContext, { CustomContextProps, CustomContextType } from './custom-context-type';
 import { MyContext } from './my-context';
+import { CustomSessionType } from '../make-api/my-custom-request';
 
 export const createContext = async (
   prisma: PrismaClient,
@@ -35,7 +36,7 @@ export const createContext = async (
       token: '',
       cache: {},
       body: {},
-      session: req?.session as Session & Partial<SessionData>,
+      session: req?.session as CustomSessionType,
       // credentials: undefined,
       request: req,
     }),
@@ -46,6 +47,7 @@ export const createContext = async (
   const context: CustomContextType<MyContext> = {
     ...contextProps,
     req: customReq,
+    cookie: customReq.cookie,
     cookies: customReq.cookies,
     request: customReq,
     ctx: customReq.ctx,

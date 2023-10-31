@@ -21,23 +21,20 @@
 
 import { Request } from 'express'
 import { Application, Dictionary, ParamsDictionary } from 'express-serve-static-core'
-import { Session } from 'express-session'
 import { ParsedQs } from 'qs'
 
 import { UserRole } from '@prisma/client'
-import { SessionData } from 'express-session'
 import { Cookie } from 'tough-cookie'
 import { AppConfiguration } from '../context/app-configuration'
-import { CustomContextType } from '../context/custom-context-type'
 import { MyContext, UserWithAccessToken } from '../context/my-context'
 import prisma from '../lib/prisma/prisma'
 import errorMessages from '../middleware/permissions/error-messages'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-import { getDefaultAxiosOptions } from './default-options'; // Import the getDefaultAxiosOptions function
+import { MyCustomLogInSessionType, getDefaultAxiosOptions } from './default-options'; // Import the getDefaultAxiosOptions function
 import { CustomHeadersImpl } from './headers/custom-headers-impl'
 import { MyCustomHeaders } from './headers/my-custom-headers'
 import { CustomRequestInit } from './requests/custom-request-init'
-import { CustomContextHeaders, CustomRequestWithContext } from './requests/custom-request-with-context'
+import { CustomRequestWithContext } from './requests/custom-request-with-context'
 import { CustomRequestWithSession } from './requests/custom-request-with-session'
 import { socket } from './socket/socket'
 
@@ -46,6 +43,7 @@ export type CustomSessionType = {
   username: string
   expires: number
   user: UserWithAccessToken
+  yourSessionKey: string
 }
 
 export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
@@ -120,38 +118,36 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       accessToken: this.context.accessToken,
       prisma: prisma,
       req: {
-        headers: {} as CustomContextHeaders,
-        session: {} as Session & Partial<SessionData>,
-        cache: {} as RequestCache,
-        context: {} as CustomContextType,
-        get: (name: string): string | undefined => '',
-        signedCookies: {} as Record<string, string>,
-        method: '',
-        url: this.context.reqeuest.url,
-        baseUrl: '',
-        originalUrl: '',
-        params: {} as ParamsDictionary,
-        query: {} as ParsedQs,
-        body: {} as ParamsDictionary,
-        cookies: {} as { [key: string]: string },
-        ip: '',
-        ips: [''],
-        protocol: '',
-        hostname: '',
-        subdomains: [''],
-        secure: false,
-        stale: false,
-        fresh: false,
-        xhr: false,
+        headers: this.context.headers,
+        // session: this.context.session,
+        cache: this.context.cache,
+        // context: this.context.context,
+        // get: (name: string): string | undefined => '',
+        // signedCookies: {} as Record<string, string>,
+        method: 'GET',
+        url: this.context.request.url,
+        // baseUrl: this.context.baseUrl,
+        // originalUrl: this.context.originalUrl,
+        // params: this.context.params,
+        // query: this.context.query,
+        body: this.context.body,
+        // cookies: this.context.cookies,
+        // ip: this.context.ip,
+        // ips: [''], // Update ips with your desired value
+        // protocol: '', // Set your desired value
+        // hostname: '', // Set your desired value
+        // subdomains: [''], // Update subdomains with your desired value
+        // secure: false,
+        // stale: false,
+        // fresh: false,
+        // xhr: false,
       },
       token: '',
-      session: {} as Session
-        & Partial<SessionData>
-        & { userId: string; },
+      session: {} as CustomSessionType,
       rawHeaders: [],
       cookies: this.context.cookiesArray,
       userId: this.context.userId,
-      request: {},
+      request: {} as RequestCache,
       signedCookies: {} as Record<string, string>,
       
       getCustomHeader(): string | null {
@@ -292,18 +288,18 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
       //   throw new Error('Function not implemented.')
       // },
-      // removeListener: function (
-      //   event: 'close',
-      //   listener: () => void,
-      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      //   throw new Error('Function not implemented.')
-      // },
-      pipe: function <T extends NodeJS.WritableStream>(
-        destination: T,
-        options?: { end?: boolean | undefined } | undefined,
-      ): T {
+      removeListener: function (
+        event: 'close',
+        listener: () => void,
+      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
         throw new Error('Function not implemented.')
       },
+      // pipe: function <T extends NodeJS.WritableStream>(
+      //   destination: T,
+      //   options?: { end?: boolean | undefined } | undefined,
+      // ): T {
+      //   throw new Error('Function not implemented.')
+      // },
       off: function (
         eventName: string | symbol,
         listener: (...args: any[]) => void,
@@ -434,28 +430,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   }
 
  
-  
-  accepts(type: string | string[]): string | false {
-    // Implement this method to handle the 'accepts' logic.
-    const acceptHeader = this.headers.get('accept') || '';
-  
-    if (!acceptHeader || acceptHeader === '*/*') {
-      if (typeof type === 'string') {
-        return type;
-      } else if (Array.isArray(type)) {
-        return type[0] || false;
-      }
-    }
-  
-    if (typeof type === 'string') {
-      return this.acceptSingle(type, acceptHeader);
-    } else if (Array.isArray(type)) {
-      return this.acceptMultiple(type, acceptHeader);
-    }
-  
-    return false;
-  }
-  
+
 
   currentUser?: UserWithoutSensitiveData | undefined | null 
   // sessions: SessionData
@@ -468,7 +443,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
 
   
 
-  session?: Session & SessionData & { userId: string} 
+  session?: MyCustomLogInSessionType
   context?: any = {}
   cookies: Record<string, string> = {}
   signedCookies: Record<string, string> = {}
@@ -732,7 +707,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   //     // @param types - The content types to check.
   //     // @returns true if the request accepts the content type, false otherwise.
 
-  //     accepts(types: string | string[]): boolean {
+  //     accepts(types: string | string[]): boolean | string | false {
   //     const accept = this.headers.get('accept')
   //     if (!accept || accept === '/*') {
   //     return true

@@ -10,7 +10,7 @@ export interface CustomRequestInit extends RequestInit {
     params?: { [key: string]: string }
     get?: (name: string) => string | null | undefined
     accepts: (types: string | string[]) => string[]
-    customCache?: RequestCache
+     customCache?: RequestCache
     session?: CustomSessionType
     body?: BodyInit | undefined
     signedCookies?: { [key: string]: string }

@@ -8,9 +8,11 @@ import { AppModule } from './app/app.module'
 
 
 async function bootstrap() {
-  const req = {} as CustomRequestWithContext<MyContext<unknown>>;
+  const req = {} as CustomRequestWithContext<MyContext<YourRequestObject<CustomContextType>>>;
+  
+  //initia the context using init
   const myContext = await initContext(req);
-  const myRequest = new MyCustomRequest<MyContext<YourRequestObject<CustomContextType>>>(myContext);
+  const myRequest = new MyCustomRequest(myContext);
 
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);

@@ -29,7 +29,7 @@ export interface CustomRequest<T = unknown> extends Request {
   body: T | undefined
   headers: CustomContextHeaders
   startTime?: number
-  // prisma: PrismaClient
+  cache: RequestCache
   currentUser?: UserWithoutSensitiveData | undefined | null
   accessToken?: string | null
   context?: T
@@ -38,12 +38,12 @@ export interface CustomRequest<T = unknown> extends Request {
 // Define the ExtendedCustomRequest interface that extends CustomRequest with additional properties
 export interface ExtendedCustomRequest<T extends {} = {}> extends CustomRequestCommon, CustomRequest<T> {
   context?: T
-  cache?: {}
   credentials?: string
-  destination?: string
+  // destination?: string
   session: Session & Partial<SessionData> & {userId: string}
   integrity?: string
   accessToken: string
+  cache: RequestCache
   
   headers: CustomContextHeaders & {authorization?: string}
   get(name: string): string | undefined

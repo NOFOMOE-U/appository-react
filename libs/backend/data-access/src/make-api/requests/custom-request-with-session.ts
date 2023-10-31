@@ -1,5 +1,6 @@
 import { AppConfiguration } from '../../context/app-configuration';
 import { CustomHeaders, HeadersWithIndexSignature } from '../../context/create-nested-context';
+import { CustomContextType } from '../../context/custom-context-type';
 import { CustomRequest } from '../../interfaces/user/custom-request';
 import { UserWithoutSensitiveData } from '../../modules/user/user';
 import { SessionData } from '../../types/express';
@@ -38,7 +39,7 @@ export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'hea
   accepts(type: string): string | false;
   accepts(types: string[]): string | false;
   ctx: {
-    context: {}
+    context: CustomContextType
     rawHeaders: string[] & readonly string[]
     headers: HeadersWithIndexSignature
     getAll: (name: string) => undefined

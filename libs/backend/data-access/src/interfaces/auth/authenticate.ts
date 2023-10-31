@@ -19,7 +19,7 @@ const contextWithPrisma = createContextWithPrisma()
 
 
 
-function convertUserToUserWithAccessToken(user: User): UserWithAccessToken {
+export function convertUserToUserWithAccessToken(user: User): UserWithAccessToken {
   return {
     ...user,
     resetPasswordToken: '',

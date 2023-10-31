@@ -4,6 +4,7 @@ import { createContext } from '../../context/create-context';
 import { CustomContextType } from '../../context/custom-context-type';
 import { MyContext, UserWithAccessToken } from '../../context/my-context';
 import { CustomRequestWithContext } from '../../make-api/requests/custom-request-with-context';
+import { UserWithoutSensitiveData } from '../../modules/user/user';
 // Instantiate a new Prisma client
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ type AuthenticatedSession = AuthenticatedRequest & CustomRequestWithContext<MyCo
 
 export interface AuthenticatedRequest  {
   context: CustomContextType;
-  user: UserWithAccessToken
+  user: UserWithoutSensitiveData
 }  
 
 /**

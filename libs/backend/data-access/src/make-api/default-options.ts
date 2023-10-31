@@ -1,4 +1,4 @@
-import { UserWithoutSensitiveData } from '@appository/backend/data-access'
+import { User, UserWithoutSensitiveData } from '@appository/backend/data-access'
 import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { Session, SessionData } from 'express-session'
@@ -6,45 +6,70 @@ import { ParsedQs } from 'qs'
 import { Socket } from 'socket.io'
 import { AppConfiguration } from '../context/app-configuration'
 import { CustomContextType } from '../context/custom-context-type'
-import { MyContext } from '../context/my-context'
+import { MyContext, UserWithAccessToken } from '../context/my-context'
 import prisma, { CustomPrismaClient } from '../lib/prisma/prisma'
 import { authenticationMiddlware, socket } from '../server'
 import generateToken from '../utils/generate-token.utils'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
-import { CustomContextHeaders, CustomRequestWithContext, YourRequestObject } from './requests/custom-request-with-context'
+import {
+  CustomContextHeaders,
+  CustomRequestWithContext,
+  YourRequestObject,
+} from './requests/custom-request-with-context'
 import { specificSocket } from './socket/socket'
+import { generateRandomHash } from '../interfaces/auth/generate-random-hash'
 
-
-
-export type CustomLogInSessionType = CustomSessionType & Session & Partial<SessionData> & {
-  userId: string;
-  username: string
-}
-type CustomRequestType = CustomRequestWithContext<MyContext<{} | Request<ParamsDictionary,any,any, ParsedQs, Record<string, any>>>>
+export type MyCustomLogInSessionType = CustomSessionType &
+  Session &
+  Partial<SessionData> & {
+    userId: string
+    username: string
+  }
+type CustomRequestType = CustomRequestWithContext<
+  MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>>
+>
 // Define the RequestOptions type
 type RequestOptions = {
   headers: {
-    [key: string]: string | string[];
-  };
-  baseURL: string;
-  responseType: string;
-  id: string;
+    [key: string]: string | string[]
+  }
+  baseURL: string
+  responseType: string
+  id: string
   ctx: {
     headers: {
-      [key: string]: string | string[] | undefined;
-    };
-    accessToken?: string;
-  };
-  prisma: CustomPrismaClient;
-  req: Request;
+      [key: string]: string | string[] | undefined
+    }
+    accessToken?: string
+  }
+  prisma: CustomPrismaClient
+  req: Request
   // Add other properties you need
-};
+}
 
-
-
+type CustomRequestTypeOptions = CustomRequestType
+& Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 
 let myRequest: MyCustomRequest<MyContext> | null = null
-const currentUser.accessToken = generateToken(currentUser);
+let currentUser: UserWithAccessToken | null | undefined
+
+if (currentUser) {
+  const userWithPasswordHash: UserWithAccessToken = {
+    ...currentUser,
+    passwordHash: currentUser.passwordHash || generateRandomHash(),
+  }
+
+  // Verify that 'default-value' is not the actual password hash
+  if (userWithPasswordHash.passwordHash === 'default-value') {
+    throw new Error('Default password hash detected')
+  }
+  const token = generateToken(userWithPasswordHash)
+}
+
+if (currentUser) {
+  const userWithPasswordHash = currentUser as unknown as UserWithAccessToken
+  const token = generateToken(userWithPasswordHash)
+}
 
 function initializeCommonHeaders(socket: Socket): CustomContextHeaders {
   return {
@@ -63,9 +88,13 @@ function initializeCommonHeaders(socket: Socket): CustomContextHeaders {
   } as CustomContextHeaders
 }
 
-export let myContext: CustomContextType<MyContext<{}> & {
-  ctx: CustomContextType<MyContext<{}>>
-}> | undefined
+export let myContext:
+  | CustomContextType<
+      MyContext<{}> & {
+        ctx: CustomContextType<MyContext<{}>>
+      }
+    >
+  | undefined
 
 let commonHeaders: CustomContextHeaders = {}
 
@@ -87,7 +116,6 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
         // Access and use the available methods and properties:
         const authorizationHeader = myRequest?.headers?.get('Authorization') // Access a specific header
         myRequest?.accept('application/json') // Check accepted content types
-
         // const isUnauthenticated = myRequest.isUnauthenticated() // Check if the request is unauthenticated
         myRequest?.customHeadersMethod('Custom-Header', 'new-value') // Set a custom header
         const acceptedEncoding = myRequest?.acceptsEncoding('gzip') // Check accepted encodings
@@ -124,30 +152,30 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
     })
     myContext = {
       // Other properties in your context...
-      accessToken: accessToken,
+      accessToken: req.accessToken,
       config: {} as AppConfiguration,
       context: {} as MyContext<{}>,
       ctx: {},
-      session: {} as CustomLogInSessionType,
+      session: {} as MyCustomLogInSessionType,
       signedCookies: {} as Record<string, string>,
-      currentUser: {} as UserWithoutSensitiveData  | null,
+      currentUser: {} as UserWithoutSensitiveData | null,
 
       get: (name: string) => undefined,
       cache: {} as RequestCache,
       headers: {
         accept: '',
       },
-        
+
       connection: socket,
       socket: socket,
 
       // Implementation of the 'accepts' method
       accepts: (types: string | string[] | undefined) => {
         if (req.headers === undefined) {
-            
+          return undefined
         }
-        const acceptHeader = req.headers['accept'] as string || '*/*'
-            
+        const acceptHeader = (req.headers['accept'] as string) || '*/*'
+
         const results: string[] = []
 
         if (acceptHeader === '*/*') {
@@ -168,10 +196,10 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
           }
         }
         return results
-          
       },
-    }
+    } as unknown as CustomContextType<MyContext<{}> & { ctx: CustomContextType<MyContext<{}>> }>
   }
+
 }
 
 // Define a function to glenerate default Axios request options
@@ -182,19 +210,18 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
   // Retrieve accessToken from the request object
   const { accessToken } = req
 
-
   const commandHeaders = {
-    accept: ''
+    accept: '',
   }
 
   const filteredCommonHeaders: CustomContextHeaders = Object.fromEntries(
-    Object.entries(commonHeaders).filter(([_, value]) => typeof value === 'string')
+    Object.entries(commonHeaders).filter(([_, value]) => typeof value === 'string'),
   )
-  
+
   // Define the options object with the necessary headers
   const options: RequestOptions = {
     prisma,
-    req: {} as CustomRequestType,
+    req: {} as CustomRequestTypeOptions,
     baseURL: process.env.API_URL || '',
     responseType: 'json',
     id: '',
@@ -224,7 +251,11 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
       // Add the request-policy header if it is an API request
       ...(isApiRequest && { 'Referer-Policy': 'strict-origin-when-cross-origin' }),
       'set-cookie': [],
-      accept: '',
+      accept: (types: string | string[]) => {
+        // Updated accept function to match expected return type
+        const acceptHeader = req.headers?.accept as string | undefined
+        return acceptHeader?.split(',').filter(type => types?.includes(type))?.map(type => type.trim()) || []
+      },
       'accept-language': '',
       'accep-patch': '',
       'accept-range': '',
@@ -233,3 +264,4 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
 
   return options
 }
+

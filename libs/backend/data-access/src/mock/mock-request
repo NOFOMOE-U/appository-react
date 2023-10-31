@@ -1,68 +1,69 @@
-import { PrismaClient, UserRole } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { Request } from 'express'
 import { Application, Dictionary, ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { createNestedContext } from '../context/create-nested-context'
 import { MyContext, UserWithAccessToken } from '../context/my-context'
+import { convertUserToUserWithAccessToken, initalizeUser } from '../interfaces/auth/authenticate'
 import { getHeaderValue } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
 import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { socket } from '../server'
 
-const currentUser: UserWithAccessToken = {
-  id: '123',
-  email: 'test@example.com',
-  name: 'Test User',
-  roles: [UserRole.USER],
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  accessToken: 'undefined',
-  resetPasswordToken: '' || undefined,
-  userProfileId: null,
+const currentUser: UserWithAccessToken = convertUserToUserWithAccessToken(initalizeUser());
 
-}
+// const safeUser: UserWithAccessToken = convertUserToUserWithAccessToken(currentUser)
 
-const safeUser: UserWithoutSensitiveData = {
-  id: currentUser.id,
-  email: currentUser.email,
-  name: currentUser.name,
-  roles: currentUser.roles,
-  createdAt: currentUser.createdAt,
-  updatedAt: currentUser.updatedAt,
-  userProfileId: currentUser.userProfileId,
-  passwordHash: undefined,
-}
+// // Generate an access token using the generateToken() function
+// const accessToken = generateToken(currentUser);
+
+const customSessionType = {} as CustomSessionType  
 
 export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext<MyContext<MyContext<T>>> => {
   const nestedContext = createNestedContext(context || ({} as MyContext<T>))
   const request: CustomRequestWithContext<MyContext<MyContext<T>>> = {
-    id: 'test-id',
-    user: safeUser,
+    ...customSessionType,
+    id: currentUser.id,
+
+    user: currentUser,
     currentUser: currentUser,
     ctx: nestedContext.ctx,
     accessToken: 'test-token',
     prisma: {} as PrismaClient,
-    req: {} as Request & CustomRequestWithContext<MyContext<MyContext<T>>>,
+    req: {} as Request,
     body: {},
     token: 'test-token',
     session: {} as CustomSessionType,
     rawHeaders: [],
     cookies: {},
     cache: {} as RequestCache,
+    destination: {} as RequestDestination,
     headers: {
       authorization: 'Bearer test-token',
     },
-    get(name: string | string[]): string | string[] | undefined {
-      const headerNames = Array.isArray(name) ? name : [name];
-      const headers = headerNames.map((headerName) => getHeaderValue(request.headers, headerName)).filter(Boolean);
-      if(headers === undefined){
-        return undefined
+    get(...name: (string | string[])[]): string | string[] | undefined {
+      const headers = name.map((headerName) => {
+        if (Array.isArray(headerName)) {
+          return headerName.map((header) => getHeaderValue(request.headers, header)).filter(Boolean);
+        } else {
+          return getHeaderValue(request.headers, headerName);
+        }
+      }).filter(Boolean);
+    
+      if (headers.length === 0) {
+        return undefined;
       }
-      
-      return Array.isArray(name) ? headers : headers[0];
+    
+      if (headers.length === 1) {
+        // If there's only one header, return it as a string
+        return headers[0] as string;
+      }
+    
+      // If there are multiple headers, return them as an array of strings
+      return headers as string[];
     },
-
+  
     getAll(name: string | string[]): string[] | undefined {
       const headerNames = Array.isArray(name) ? name : [name]
       return headerNames.map((headerName) => getHeaderValue(request.headers, headerName)).filter(Boolean) as string[] |
@@ -85,9 +86,8 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
       restrictAccessByLocation: false,
       allowedLocations: []
     },
-    destination: '',
+    // destination: '',
     context: {} as MyContext<UserWithoutSensitiveData>,
-    userId: undefined,
     request: {} as RequestCache,
     signedCookies: {} as CustomRequestWithContext<MyContext<MyContext<T>>>,
     [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
@@ -182,9 +182,9 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
     isPaused: function (): boolean {
       throw new Error('Function not implemented.')
     },
-    unpipe: function (destination?: NodeJS.WritableStream | undefined): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-      throw new Error('Function not implemented.')
-    },
+    // unpipe: function (destination?: NodeJS.WritableStream | undefined): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+    //   throw new Error('Function not implemented.')
+    // },
     unshift: function (chunk: any, encoding?: BufferEncoding | undefined): void {
       throw new Error('Function not implemented.')
     },

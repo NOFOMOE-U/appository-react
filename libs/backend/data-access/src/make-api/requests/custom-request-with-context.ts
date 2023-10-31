@@ -6,10 +6,10 @@ import { createContext } from '../../context/create-context'
 import { MyContext, UserWithAccessToken } from '../../context/my-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
 import { CustomSessionType } from '../my-custom-request'
+import { CustomRequest, getHeaderValue } from '../../interfaces/user/custom-request'
 
 export type YourRequestObject<T> = CustomRequestWithContext<T>;
-;
-  
+ 
   export interface CustomContextHeaders extends IncomingHttpHeaders {
   [key: string]: string | string[] | undefined
 }
@@ -57,19 +57,45 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   prisma: PrismaClient
   destination: RequestDestination
   [key: string]: any // allow any additional properties
-  req: Request
+  req: CustomRequest
   context: MyContext<UserWithoutSensitiveData>
   body: any
   token: string
   session: CustomSessionType
   rawHeaders: string[]
   cookies: { [key: string]: string }
+  signedCookies: Record<string,string>
   cache: RequestCache
   // credentials: RequestCredentials
   headers: CustomContextHeaders
   // header(name: 'set-cookie'): string | undefined;
- 
-  request: RequestCache
+  request: Request
+  get(...headerNames: (string | string[])[]): string | string[] | undefined {
+    const headerNames = [] as string[]; 
+  if(!this.headers){
+    return undefined
+  }
+  const headers = headerNames.map((name) => {
+      if (Array.isArray(name)) {
+        return name
+          .map((header) => getHeaderValue(this.headers as CustomContextHeaders, header))
+          .filter((value) => value !== undefined && value !== null);
+      } else {
+        const value = getHeaderValue(this.headers as CustomContextHeaders, name);
+        return value !== undefined && value !== null ? value : [];
+      }
+    }).filter(Boolean);
+
+    if (headers.length === 0) {
+      return undefined;
+    }
+
+    return headers.length === 1 ? headers[0] : headers;
+  }
+
+  // ... other properties and methods ...
+}
+
   
   // accepts(): string[];
   // accepts(type: string): string | false;
@@ -93,8 +119,7 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   // acceptsLanguages(lang: string[]): string | false;
   // acceptsLanguages(...lang: string[]): string | false;
 
-  signedCookies: Record<string, string>
-}
+ }
 
 
 export interface CustomRequestWithAllProps<T> extends CustomRequestWithContext<T> {
@@ -105,7 +130,7 @@ export interface CustomRequestWithAllProps<T> extends CustomRequestWithContext<T
   headers: CustomContextHeaders
   // update the headers property
   // credentials: RequestCredentials
-  destination: RequestDestination
+  // destination: RequestDestination
   // integrity: string
   rawHeaders: string[]
   trailers: { [key: string]: string }
