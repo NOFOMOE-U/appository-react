@@ -31,6 +31,7 @@ declare module 'express-session' {
       passwordHash: undefined
       email: string
       username: string
+      resetPasswordToken?: string
     }
     expires: number
     currentUser: UserWithoutSensitiveData | UserWithAccessToken | null

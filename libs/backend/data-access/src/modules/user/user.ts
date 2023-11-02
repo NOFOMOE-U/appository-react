@@ -5,10 +5,7 @@ const prisma = new PrismaClient();
 export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
   password?: string;
   passwordHash?: never
-}
-
-interface UserCreateInputWithPassword extends Omit<Prisma.UserCreateInput, 'password'> {
-  password: string;
+  resetPasswordToken?: null | string
 }
 
 type UserWithoutPassword = Omit<User, 'passwordHash'>;
@@ -130,11 +127,6 @@ export const deleteUser = async (
 
   return { ...user };
 };
-
-
-
-
-
 
 
 export const getUserByEmail = async (

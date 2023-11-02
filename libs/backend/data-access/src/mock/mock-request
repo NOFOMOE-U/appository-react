@@ -5,15 +5,13 @@ import { ParsedQs } from 'qs'
 import { createNestedContext } from '../context/create-nested-context'
 import { MyContext, UserWithAccessToken } from '../context/my-context'
 import { convertUserToUserWithAccessToken, initalizeUser } from '../interfaces/auth/authenticate'
-import { getHeaderValue } from '../interfaces/user/custom-request'
+import { CustomRequest, getHeaderValue } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
 import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { socket } from '../server'
 
 const currentUser: UserWithAccessToken = convertUserToUserWithAccessToken(initalizeUser());
-
-// const safeUser: UserWithAccessToken = convertUserToUserWithAccessToken(currentUser)
 
 // // Generate an access token using the generateToken() function
 // const accessToken = generateToken(currentUser);
@@ -31,7 +29,7 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
     ctx: nestedContext.ctx,
     accessToken: 'test-token',
     prisma: {} as PrismaClient,
-    req: {} as Request,
+    req: {} as CustomRequest,
     body: {},
     token: 'test-token',
     session: {} as CustomSessionType,
@@ -88,7 +86,7 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
     },
     // destination: '',
     context: {} as MyContext<UserWithoutSensitiveData>,
-    request: {} as RequestCache,
+    request: {} as CustomRequest,
     signedCookies: {} as CustomRequestWithContext<MyContext<MyContext<T>>>,
     [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
       throw new Error('Function not implemented.')
@@ -110,7 +108,7 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
     acceptsLanguages: function (): string[] {
       throw new Error('Function not implemented.')
     },
-    // range(size: number, options?: RangeParserOptions.Options): RangeParserRanges.Options | RangeParserResult | undefined,
+    // range(size: number, options?: RangeParserOptions): RangeParserRanges.Options | RangeParserResult | undefined,
     accepted: [],
     param: function (name: string, defaultValue?: any): string {
       throw new Error('Function not implemented.')
@@ -182,9 +180,9 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
     isPaused: function (): boolean {
       throw new Error('Function not implemented.')
     },
-    // unpipe: function (destination?: NodeJS.WritableStream | undefined): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-    //   throw new Error('Function not implemented.')
-    // },
+    unpipe: function (destination?: NodeJS.WritableStream | undefined): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      throw new Error('Function not implemented.')
+    },
     unshift: function (chunk: any, encoding?: BufferEncoding | undefined): void {
       throw new Error('Function not implemented.')
     },

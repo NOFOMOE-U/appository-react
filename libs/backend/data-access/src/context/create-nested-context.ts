@@ -3,13 +3,12 @@ import { Request } from 'express'
 import { Session } from 'express-session'
 import { jest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
+import { CustomRequestInit } from '../make-api/requests/custom-request-init'
 import { CustomContextHeaders, CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { AppConfiguration } from './app-configuration'
 import { CustomContextType } from './custom-context-type'
 import { MyContext } from './my-context'
-import { boolean } from 'joi'
-import { CustomRequestInit } from '../make-api/requests/custom-request-init'
 export type HeadersWithIndexSignature = Record<
   string,
   string>

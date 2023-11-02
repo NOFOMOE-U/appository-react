@@ -26,7 +26,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   signedCookies: Record<string,string>;
   get: (name: string) => string | undefined;
   config: AppConfiguration
-  accepts(types: string): string | string[] | null | false | undefined;
+  accepts: (types: string | string[]) => string | string[] | null | false;
   }
 
 

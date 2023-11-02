@@ -1,8 +1,11 @@
+import { User } from '@prisma/client'
 import { AppConfiguration } from '../context/app-configuration'
 import { MyContext, UserWithAccessToken } from '../context/my-context'
+import { convertUserToUserWithAccessToken } from '../interfaces/auth/authenticate'
 import prisma from '../lib/prisma/prisma'
 
 import { UserWithoutSensitiveData } from '../modules/user/user'
+import { getUserId } from '../utils/backend-auth.utils'
 import { myContext } from './default-options'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
 import { CustomRequestInit } from './requests/custom-request-init'
@@ -29,7 +32,7 @@ type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
   get?: (name: string) => string | undefined
 }
   
-const updateRequest = new MyCustomRequest<MyCustomContext>({
+ const updateRequest = new MyCustomRequest<MyCustomContext>({
   body: {} as any,
   request: {}as CustomRequestWithContext<CustomRequestInit>,
   url: 'https://jsonplaceholder.typicode.com/posts/1',
@@ -42,7 +45,7 @@ const updateRequest = new MyCustomRequest<MyCustomContext>({
     return customHeaders[name] || undefined
   },
   headers: customHeaders,
-  accepts: (types: string | string[]) => {
+  accepts: (types: string | string[] | undefined) => {
     if (typeof types === 'string') {
       return [types]
     }
@@ -53,8 +56,9 @@ const updateRequest = new MyCustomRequest<MyCustomContext>({
     }
   },
   session:  {
-    userId: '',
-    username: '',
+    userId: getUserId() as unknown as string,
+    username: myContext?.session.username as string,
+    currentUser: convertUserToUserWithAccessToken({} as User),
     expires: Date.now(),
     user: {} as UserLoginSessionType,
     yourSessionKey: 'yourSessions'
@@ -70,16 +74,25 @@ const updateRequest = new MyCustomRequest<MyCustomContext>({
     request: {} as CustomRequestWithContext<MyContext<{}>>,
     prisma,
     context: {} as MyContext,
-    currentUser: {} as UserWithoutSensitiveData,
+    currentUser: {} as UserWithAccessToken,
     ctx: {},
     session: {} as CustomSessionType,
     cache: {} as RequestCache,
     get: (name: string) => undefined,
-    accepts: (types: string | string[]) => [],
+    accepts: (types: string | string[] | undefined) => {
+      if (typeof types === 'string') {
+        return [types];
+      }
+      if (Array.isArray(types)) {
+        return types; 
+      }
+      return [];
+    },
   },
   
   config: {} as AppConfiguration
-})
+}) 
+
 
 
 

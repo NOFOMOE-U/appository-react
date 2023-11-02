@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { Session, SessionData } from 'express-session'
+import { SessionData } from 'express-session'
 import { Headers } from 'node-fetch'
 import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
@@ -29,7 +29,7 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
 
   const context: MyContext = {
     config: {} as AppConfiguration,
-    session: req.session as Session & Partial<SessionData> & CustomSessionType,
+    session: req.session,
     cookies: {} as Record<string, string>, // Add your cookies data here if needed
     currentUser: req.session.currentUser || null,
     userId: req.session.userId || '', // Initialize with the user ID if available

@@ -7,11 +7,12 @@ import { AppConfiguration } from './app-configuration';
  
 
 
-export type UserWithAccessToken= UserWithoutSensitiveData &  {
+export type UserWithAccessToken = UserWithoutSensitiveData &  {
   accessToken: string 
-  passwordHash?: string | undefined;
+  passwordHash: string | undefined;
   resetPasswordToken: string | undefined;
   userProfileId?: number
+  username: string
   }
 
 export interface MyContext<T = {}> extends Record<string, unknown> {
@@ -19,9 +20,8 @@ export interface MyContext<T = {}> extends Record<string, unknown> {
   currentUser?: UserWithAccessToken | UserWithoutSensitiveData | null | undefined;
   ctx: any,
   req?: CustomRequestWithContext<MyContext<T>>['req'] & ExtendedCustomRequest<MyContext<T>>
-  userId?: string | undefined
+  userId?: string | undefined | null
   accessToken: string | undefined
-  token?: string | null
   request?: Request | undefined
   prisma?: PrismaClient
   body?: any
@@ -30,8 +30,9 @@ export interface MyContext<T = {}> extends Record<string, unknown> {
   cache?: RequestCache
   id?: string
   cookie?: string
+  token?: string
   cookies?: Record<string, string>
   signedCookies: Record<string, string>,
   get: (name: string) => string | undefined
-    accepts: (types: string | string[]) => string[]
+  accepts: (types: string | string[]) => string[]
 }  

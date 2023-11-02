@@ -37,10 +37,13 @@ import { CustomRequestInit } from './requests/custom-request-init'
 import { CustomRequestWithContext } from './requests/custom-request-with-context'
 import { CustomRequestWithSession } from './requests/custom-request-with-session'
 import { socket } from './socket/socket'
+import { CustomRequest } from '../interfaces/user/custom-request'
+import { accepts } from './headers/accepts-function';
 
 export type CustomSessionType = {
   userId: string
   username: string
+  currentUser: UserWithAccessToken 
   expires: number
   user: UserWithAccessToken
   yourSessionKey: string
@@ -51,7 +54,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   implements CustomRequestWithSession<MyContext>
 {
   customHeaders: MyCustomHeaders = new MyCustomHeaders()
-  headers: MyCustomHeaders = new MyCustomHeaders()
+  customRequestHeaders: Headers = new Headers()
 
 
   //Constructor
@@ -64,20 +67,20 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     // Set the 'url' and 'method' properties
     this.url = options.url
     this.method = options.method || 'GET' // You can provide a default method if needed
-
-    this.headers = new CustomHeadersImpl({})
-
+    this.context = options.body || ({} as T)
+    this.customRequestHeaders = new CustomHeadersImpl({})
+    
     const customHeaderValues = ['value1', 'value2']
-    this.customHeadersProperty = new Headers()
+    this.customRequestHeaders = new Headers()
     // set custom headers as needed
     this.customHeaders.setAuthorization('your-token') // change to auth token
     this.customHeaders.setAcceptJson()
     // Set custom headers as needed directly on the headers property
-    this.customHeadersProperty.set('Content-Type', 'application/json')
-    this.customHeadersProperty.set('Authorization', 'Bearer token')
+    this.customRequestHeaders.set('Content-Type', 'application/json')
+    this.customRequestHeaders.set('Authorization', 'Bearer token')
     
     for (const value of customHeaderValues) {
-      this.customHeadersProperty.set('Custom-Header', value)
+      this.customRequestHeaders.set('Custom-Header', value)
     }
 
     const headers = new Headers()
@@ -110,6 +113,10 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       context: options.body as MyContext,
       method: 'GET',
       ...partialRequest,
+      user: this.context.user,
+      username: this.context.username,
+      expires: this.context.expires,
+      yourSessionKey: this.context.yourSessionKey,
       headers: this.context.headers,
       currentUser: this.context.currentUser,
       config: this.context.config,
@@ -117,46 +124,27 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       ctx: this.context.ctx,
       accessToken: this.context.accessToken,
       prisma: prisma,
-      req: {
-        headers: this.context.headers,
-        // session: this.context.session,
-        cache: this.context.cache,
-        // context: this.context.context,
-        // get: (name: string): string | undefined => '',
-        // signedCookies: {} as Record<string, string>,
-        method: 'GET',
-        url: this.context.request.url,
-        // baseUrl: this.context.baseUrl,
-        // originalUrl: this.context.originalUrl,
-        // params: this.context.params,
-        // query: this.context.query,
-        body: this.context.body,
-        // cookies: this.context.cookies,
-        // ip: this.context.ip,
-        // ips: [''], // Update ips with your desired value
-        // protocol: '', // Set your desired value
-        // hostname: '', // Set your desired value
-        // subdomains: [''], // Update subdomains with your desired value
-        // secure: false,
-        // stale: false,
-        // fresh: false,
-        // xhr: false,
-      },
-      token: '',
+      req: {} as CustomRequest,
       session: {} as CustomSessionType,
       rawHeaders: [],
+      token: this.context.token,
       cookies: this.context.cookiesArray,
       userId: this.context.userId,
-      request: {} as RequestCache,
+      request: this.context.request,
       signedCookies: {} as Record<string, string>,
-      
+      accepts: this.context.accept,
       getCustomHeader(): string | null {
         return this.customHeaders.getCustomHeader()
+      },
+
+      get(name: string): string | undefined {
+        return this.customHeaders.get(name) ?? undefined
       },
     
       getAll: function (name: string): string[] | undefined {
         throw new Error('Function not implemented.')
       },
+      
       [Symbol.asyncIterator]: function (): AsyncIterableIterator<any> {
         throw new Error('Function not implemented.')
       },
@@ -218,48 +206,49 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       destroyed: false,
       closed: false,
       errored: null,
-      _read: function (size: number): void {
-        throw new Error('Function not implemented.')
-      },
-      read: function (size?: number | undefined) {
-        throw new Error('Function not implemented.')
-      },
-      setEncoding: function (
-        encoding: BufferEncoding,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      pause: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      resume: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      isPaused: function (): boolean {
-        throw new Error('Function not implemented.')
-      },
-      unpipe: function (
-        destination?: NodeJS.WritableStream | undefined,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      unshift: function (chunk: any, encoding?: BufferEncoding | undefined): void {
-        throw new Error('Function not implemented.')
-      },
-      wrap: function (
-        stream: NodeJS.ReadableStream,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      push: function (chunk: any, encoding?: BufferEncoding | undefined): boolean {
-        throw new Error('Function not implemented.')
-      },
-      _destroy: function (error: Error | null, callback: (error?: Error | null | undefined) => void): void {
-        throw new Error('Function not implemented.')
-      },
-      // myCustomRequest.addListener('close', () => {
+      // _read: function (size: number): void {
       //   throw new Error('Function not implemented.')
-      // }),
+      // },
+      // read: function (size?: number | undefined) {
+      //   throw new Error('Function not implemented.')
+      // },
+      // setEncoding: function (
+      //   encoding: BufferEncoding,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // pause: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // resume: function (): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // isPaused: function (): boolean {
+      //   throw new Error('Function not implemented.')
+      // },
+      // unpipe: function (
+      //   destination?: NodeJS.WritableStream | undefined,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // unshift: function (chunk: any, encoding?: BufferEncoding | undefined): void {
+      //   throw new Error('Function not implemented.')
+      // },
+      // wrap: function (
+      //   stream: NodeJS.ReadableStream,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // push: function (chunk: any, encoding?: BufferEncoding | undefined): boolean {
+      //   throw new Error('Function not implemented.')
+      // },
+      // _destroy: function (error: Error | null, callback: (error?: Error | null | undefined) => void): void {
+      //   throw new Error('Function not implemented.')
+      // },
+
+      // addListener: function (event: 'close'): boolean {
+      //   throw new Error('Function not implemented.')
+      // },
 
       // emit: function (event: 'close'): boolean {
       //   throw new Error('Function not implemented.')
@@ -288,47 +277,47 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
       // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
       //   throw new Error('Function not implemented.')
       // },
-      removeListener: function (
-        event: 'close',
-        listener: () => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
+      // removeListener: function (
+      //   event: 'close',
+      //   listener: () => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
       // pipe: function <T extends NodeJS.WritableStream>(
       //   destination: T,
       //   options?: { end?: boolean | undefined } | undefined,
       // ): T {
       //   throw new Error('Function not implemented.')
       // },
-      off: function (
-        eventName: string | symbol,
-        listener: (...args: any[]) => void,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      removeAllListeners: function (
-        event?: string | symbol | undefined,
-      ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      setMaxListeners: function (n: number): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
-        throw new Error('Function not implemented.')
-      },
-      getMaxListeners: function (): number {
-        throw new Error('Function not implemented.')
-      },
-      listeners: function (eventName: string | symbol): Function[] {
-        throw new Error('Function not implemented.')
-      },
-      rawListeners: function (eventName: string | symbol): Function[] {
-        throw new Error('Function not implemented.')
-      },
-      listenerCount: function (eventName: string | symbol): number {
-        throw new Error('Function not implemented.')
-      },
-      eventNames: function (): (string | symbol)[] {
-        throw new Error('Function not implemented.')
-      },
+      // off: function (
+      //   eventName: string | symbol,
+      //   listener: (...args: any[]) => void,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // removeAllListeners: function (
+      //   event?: string | symbol | undefined,
+      // ): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // setMaxListeners: function (n: number): Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> {
+      //   throw new Error('Function not implemented.')
+      // },
+      // getMaxListeners: function (): number {
+      //   throw new Error('Function not implemented.')
+      // },
+      // listeners: function (eventName: string | symbol): Function[] {
+      //   throw new Error('Function not implemented.')
+      // },
+      // rawListeners: function (eventName: string | symbol): Function[] {
+      //   throw new Error('Function not implemented.')
+      // },
+      // listenerCount: function (eventName: string | symbol): number {
+      //   throw new Error('Function not implemented.')
+      // },
+      // eventNames: function (): (string | symbol)[] {
+      //   throw new Error('Function not implemented.')
+      // },
       sessionID: '',
       sessionStore: sessionStorage.Store,
     }
@@ -382,14 +371,14 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     customRequest.customHeaders = customHeaders
 
     // Assign it to the main headers
-    this.headers = customHeaders
+    this.customRequestHeaders = customHeaders
   }
 
   //error handling
   handleError(errorCode: string, message: string, status: number) {
     const errorMessage = errorMessages[errorCode] || message
 
-    if (this.headers instanceof Headers) {
+    if (this.customRequestHeaders instanceof Headers) {
       const newHeaders = new Headers(this.headers)
       newHeaders.set('Content-Type', 'application/json')
       // (this.headers as CustomHeaders).set('Content-Type', 'application/json') // Set response content type
@@ -439,7 +428,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   body: any
   //todo set up custom cache
   customCache?: RequestCache
-  customHeadersProperty: Headers
+  customHeadersProperty!: Headers
 
   
 
@@ -447,8 +436,9 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   context?: any = {}
   cookies: Record<string, string> = {}
   signedCookies: Record<string, string> = {}
-  url: string = ''
-  method: string = ''
+  //todo update to correct url
+  url: string = 'https://example.com/api'; // Replace with your default URL
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | string = 'GET';
   ctx: any = {} // adjust the type as needed
   accessToken: string | undefined = undefined
 
@@ -463,7 +453,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   async fetch(): Promise<Response> {
     const fetchOptions: RequestInit = {
       method: this.method,
-      headers: this.headers as unknown as HeadersInit,
+      headers: this.customRequestHeaders as unknown as HeadersInit,
       body: this.body ? JSON.stringify(this.body) : null,
     }
     return fetch(this.url, fetchOptions)
@@ -471,7 +461,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
   [Symbol.asyncDispose]!: () => Promise<void>;
   header!: any; // Update the type as needed
   acceptsCharsets!: any; // Update the type as needed
-  get(name: string): undefined
+  // get(name: string): undefined
   get(name: string, value?: string | string[] | undefined): string | undefined {
     if (value !== undefined) {
       if (name === 'set-cookie') {
@@ -510,10 +500,10 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     return this
   }
 
-  accept(typeOrTypes: string | string[]): string | false {
-    const accept = this.headers?.get('accept') ?? ''
+  accepts(typeOrTypes: string | string[]): string | false {
+    const accepts = this.headers?.get('accept') ?? ''
 
-    if (!accept || accept === '*/*') {
+    if (!accepts || accepts === '*/*') {
       if (typeof typeOrTypes === 'string') {
         return typeOrTypes
       } else if (Array.isArray(typeOrTypes)) {
@@ -522,9 +512,9 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     }
 
     if (typeof typeOrTypes === 'string') {
-      return this.acceptSingle(typeOrTypes, accept)
+      return this.acceptSingle(typeOrTypes, accepts)
     } else if (Array.isArray(typeOrTypes)) {
-      return this.acceptMultiple(typeOrTypes, accept)
+      return this.acceptMultiple(typeOrTypes, accepts)
     }
     return false
   }
@@ -648,7 +638,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>>
     return false
   }
 
-  // #todo
+  // // #todo
   // redirect: (url: string, status?: number) => void = (url: string, status?: number) => {
   //   this.headers.set('location', url)
   //   if (status) {
