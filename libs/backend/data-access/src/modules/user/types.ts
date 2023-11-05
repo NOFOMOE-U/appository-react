@@ -17,6 +17,7 @@ export const UserType = objectType({
     t.id('id')
     t.string('name')
     t.string('email')
+    t.string('username')
   //   t.nonNull.field('userProfile', {
   //     type: 'UserProfile',
   //     resolve: async (parent: UserWithoutSensitiveData, _args, ctx: Context) => {
@@ -40,6 +41,7 @@ const User = objectType({
     t.nonNull.string('id')
     t.nonNull.string('name')
     t.nonNull.string('email')
+    t.nonNull.string('username')
     t.list.field('posts', { type: 'Post' })
     t.field('role', {
       type: 'UserRoleEnum',

@@ -1,5 +1,5 @@
 import { UserWithoutSensitiveData } from '@appository/backend/data-access'
-import { PrismaClient, UserRole } from '@prisma/client'
+import { PrismaClient, User, UserRole } from '@prisma/client'
 import { IOptions, ShieldRule } from 'graphql-shield/typings/types'
 import { AppConfiguration } from '../../../context/app-configuration'
 import { MyContext, UserWithAccessToken } from '../../../context/my-context'
@@ -15,17 +15,20 @@ export interface MyOptions extends IOptions{
   prisma?: PrismaClient
 }
 
-const user: UserWithAccessToken = {
+const currentUserRequestsPasswordHash = true; // Replace with your logic to determine if passwordHash should be included
+let user: User
+
+user = {
   id: '1',
   name: 'tom',
   email: 'test@example.com',
   roles: [UserRole.USER],
+  username: 'WhoAmI',
   userProfileId: 2,
   createdAt: new Date(),
   updatedAt: new Date(),
-  passwordHash: undefined,
-  resetPasswordToken: undefined,
-  accessToken: ''
+  passwordHash: `undefined`,
+  resetPasswordToken: null,
   // add any additional fields as necessary
 }
 

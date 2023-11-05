@@ -23,7 +23,8 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
   const request: CustomRequestWithContext<MyContext<MyContext<T>>> = {
     ...customSessionType,
     id: currentUser.id,
-
+    customProp: currentUser.customProp,
+    prismaService: currentUser.prismaService,
     user: currentUser,
     currentUser: currentUser,
     ctx: nestedContext.ctx,

@@ -1,8 +1,9 @@
+import { Socket } from "socket.io";
 
 export let specificSocket: SpecificSocketType | null = null;
 
 // Define a SpecificSocketType
-type SpecificSocketType = {
+export type SpecificSocketType = Socket & {
     id: string;
     connect: () => void;
     send: (data: string) => void;
@@ -11,6 +12,7 @@ type SpecificSocketType = {
         address: string;
     }
     // Add other properties and methods specific to your socket
+    remoteAddress: string
 }
 
 export const connection: SpecificSocketType | null = specificSocket

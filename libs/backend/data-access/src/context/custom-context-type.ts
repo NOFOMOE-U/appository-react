@@ -11,26 +11,24 @@ import { MyContext } from './my-context';
 export interface CustomContextType<T = MyContext<{}>> {
   ctx: any;
   context?: T;
-  req: CustomRequestWithContext<T>;
+  req: YourRequestObject<CustomRequestInit>;
   request: YourRequestObject<CustomRequestInit>;
   body?: CustomRequestWithContext<T>['body'];
-  session: CustomSessionType;
-  cache: {};
-  cookie: Record<string, string>
-  accessToken?: string;
+  session: CustomSessionType
+  cache?: RequestCache
+  cookie?: string | undefined
+  accessToken: string | null;
   prisma: PrismaClient;
   cookies: Record<string, string>;
   userId?: string;
-  currentUser: UserWithoutSensitiveData | null;
-  token: string;
+  currentUser: UserWithoutSensitiveData | undefined | null;
+  token?: string;
   signedCookies: Record<string,string>;
   get: (name: string) => string | undefined;
-  config: AppConfiguration
+  config?: AppConfiguration
   accepts: (types: string | string[]) => string | string[] | null | false;
   }
 
-
-  
 
 export interface CustomContextProps {
   id: string;

@@ -1,4 +1,4 @@
-import { User, UserRole, UserWithoutSensitiveData } from '@appository/backend/data-access'
+import { User, UserRole, UserService, UserWithoutSensitiveData } from '@appository/backend/data-access'
 import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
@@ -8,8 +8,10 @@ import { CustomContextType } from '../context/custom-context-type'
 import { MyContext } from '../context/my-context'
 import prisma, { CustomPrismaClient } from '../lib/prisma/prisma'
 import { authenticationMiddlware, socket } from '../server'
+import { SessionData } from '../types/express'
 import generateToken from '../utils/generate-token.utils'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
+import { CustomRequestInit } from './requests/custom-request-init'
 import {
   CustomContextHeaders,
   CustomRequestWithContext,
@@ -17,12 +19,7 @@ import {
 } from './requests/custom-request-with-context'
 import { specificSocket } from './socket/socket'
 
-// export type MyCustomLogInSessionType = CustomSessionType &
-//   Session &
-//   Partial<SessionData> & {
-//     userId: string
-//     username: string
-//   }
+ 
 type CustomRequestType = CustomRequestWithContext<
   MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>>
 >
@@ -54,7 +51,9 @@ interface CommonUserProperties {
   name: string,
   roles: UserRole[],
   createdAt: Date,
-  updatedAt: Date
+  updatedAt: Date,
+  userProfileId: number,
+  resetPasswordToken: string
 }
 
 type CustomRequestTypeOptions = CustomRequestType
@@ -75,7 +74,9 @@ if (currentUser) {
     throw new Error('Default password hash detected')
   }
 
-  const token = generateToken(userWithPasswordHash)
+  if (userWithPasswordHash !== undefined) {
+    const token = generateToken(userWithPasswordHash)
+  }
 }
 
 
@@ -115,6 +116,7 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
   const socketId = 'yourSocketId'
   let specificSocket
 
+  let userService: UserService
   if (req) {
     // Initialize common headers
     specificSocket = socket.sockets.sockets.get(socketId)
@@ -125,7 +127,7 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
 
     authenticationMiddlware(req, res, () => {
       if (myContext) {
-        const myRequest = new MyCustomRequest<MyContext>(myContext)
+        const myRequest = new MyCustomRequest<MyContext>(myContext, userService)
         // Access and use the available methods and properties:
         const authorizationHeader = myRequest?.headers?.get('Authorization') // Access a specific header
         myRequest?.accepts('application/json') // Check accepted content types
@@ -163,12 +165,17 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
         next(new Error('myContext is null'))
       }
     })
-    myContext = {
+
+     const myContext = {
+      // Initialize common properties
+
       // Other properties in your context...
-      accessToken: req.accessToken,
+      user: {} as CommonUserProperties,
+      accessToken: SessionData.setAccessToken,
       config: {} as AppConfiguration,
-      context: {} as MyContext<{}>,
-      ctx: {},
+      context: {} as CustomContextType<MyContext<{}>>,
+      ctx: {} as MyContext<{}>,
+      request: {} as YourRequestObject<CustomRequestInit>,
       session: {} as CustomSessionType,
       signedCookies: {} as Record<string, string>,
       currentUser: {} as UserWithoutSensitiveData | null,
@@ -183,36 +190,15 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
       socket: socket,
 
       // Implementation of the 'accepts' method
-      accepts: (types: string | string[]) => {
+      accepts: (types: string | string[] | undefined) => {
         if (req.headers === undefined) {
-          return undefined;
+          return undefined
         }
-        const acceptHeader = (req.headers['accepts'] as string) || '*/*';
-    
-        const results: string[] = [];
-    
-        if (acceptHeader === '*/*') {
-          if (typeof types === 'string') {
-            results.push(types);
-          } else if (Array.isArray(types)) {
-            results.push(...types);
-          }
-        } else {
-          if (typeof types === 'string' && acceptHeader.includes(types)) {
-            results.push(types);
-          } else if (Array.isArray(types)) {
-            for (const type of types) {
-              if (acceptHeader?.includes(type)) {
-                results.push(type);
-              }
-            }
-          }
-        }
-        return results;
-      },
-    } as unknown as CustomContextType<MyContext<{}> & { ctx: CustomContextType<MyContext<{}>> }>
-  }
 
+        // Rest of implementation
+      },
+    }
+  }
 }
 
 // Define a function to glenerate default Axios request options

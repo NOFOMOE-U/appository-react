@@ -4,13 +4,13 @@ import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import {
   CustomRequestWithContext,
-  CustomSessionType,
   LoggingMiddleware,
   MyContext,
   MyCustomRequest,
   PermissionsMiddleware,
   PermissionsModule,
   PermissionsModuleOptions,
+  UserService,
   UserWithAccessToken,
   YourRequestObject,
   getContext,
@@ -43,6 +43,7 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
     }),
   )
 
+  let userService: UserService
   const httpServer = http.createServer(app) // Create an HTTP server for your Express app
 
   const io = new Server(httpServer) // Create a Socket.IO server instance
@@ -59,6 +60,7 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
   //Get the client with the specifiedd socked ID
   const socketId = 'yourSocketId'
   const client = clients.get(socketId)
+
 
   if (client) {
     // Define the auth object (provide appropriate values)
@@ -129,6 +131,7 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
     context: async ({ req }: { req: Request }) => {
       return {
         request: req,
+        user: req.session.user
       }
     },
   } as ApolloServerOptionsWithSchema<BaseContext>)
@@ -156,6 +159,7 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
         id: user.id,
         name: user.name,
         email: user.email,
+        username: user.username,
         passwordHash: user.passwordHash || undefined,
         roles: user.roles,
         createdAt: user.createdAt, 
@@ -183,15 +187,22 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
     if (!req.session.yourSessionKey) {
       return res.status(401).send('Unauthorized')
     } else {
-      //store user informatin in the session
-      const user = req.session.user
 
-      if (user) {
-        req.user = user
+
+      if(!req.session.yourSessionKey){
+        return res.status(401).send('Unauthorized')
+      } else {
+
+        // verify if a user is stored in the session
+        const user: UserWithAccessToken | undefined = req.session.user
+        
+        if (user) {
+          //if user found, set it in the req.user property
+          req.user = user
+        }
+        // authentication success,
         next()
       }
-      // authentication success,
-      next()
     }
   }
 
@@ -225,17 +236,20 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
 
   app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
     processRequest(req, res, next)
+    
     // Create an instance of MyCustomRequest and provide the required properties
     try {
       const myCustomReq: MyCustomRequest<MyContext> = new MyCustomRequest({
         query: req.query as Record<string, any>,
         params: req.params as Record<string, any>,
-        customCache: {} as RequestCache, // Provide your customCache data here
-        session: {} as CustomSessionType,
+        customCache: req.customCache, // Provide your customCache data here
+        session: req.session,
         accepts: req.accepts,
         request: req.request as unknown as YourRequestObject<MyContext>
         // Add other required properties
-      })
+      },
+      userService // pass userService instance
+      )
 
       await makeRequest(myCustomReq)
       // Handle success or response from makeRequest if needed

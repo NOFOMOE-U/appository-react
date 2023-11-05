@@ -1,5 +1,5 @@
 //Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/main.ts
-import { CustomRequestWithContext, LoggingMiddleware, MyContext, MyCustomRequest, YourRequestObject, initContext } from '@appository/backend/data-access'
+import { CustomRequestWithContext, LoggingMiddleware, MyContext, MyCustomRequest, UserService, YourRequestObject, initContext } from '@appository/backend/data-access'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
@@ -10,9 +10,10 @@ import { AppModule } from './app/app.module'
 async function bootstrap() {
   const req = {} as CustomRequestWithContext<MyContext<YourRequestObject<CustomContextType>>>;
   
-  //initia the context using init
+  //initial the context using init
+  let userService: UserService
   const myContext = await initContext(req);
-  const myRequest = new MyCustomRequest(myContext);
+  const myRequest = new MyCustomRequest(myContext, userService);
 
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);

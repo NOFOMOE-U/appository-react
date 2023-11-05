@@ -4,19 +4,21 @@ import { MyContext, UserWithAccessToken } from '../context/my-context'
 import { convertUserToUserWithAccessToken } from '../interfaces/auth/authenticate'
 import prisma from '../lib/prisma/prisma'
 
+import { PrismaService } from '../lib/prisma/prisma.service'
 import { UserWithoutSensitiveData } from '../modules/user/user'
+import { UserService } from '../modules/user/user.service'
 import { getUserId } from '../utils/backend-auth.utils'
 import { myContext } from './default-options'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
 import { CustomRequestInit } from './requests/custom-request-init'
-import { CustomRequestWithContext } from './requests/custom-request-with-context'
-
+import { CustomRequestWithContext, YourRequestObject } from './requests/custom-request-with-context'
 
 
 type UserLoginSessionType = CustomRequestWithContext<CustomRequestInit>
   & UserWithAccessToken
 
-
+let userService: UserService
+let prismaService: PrismaService = new PrismaService()
 
 
 
@@ -32,9 +34,14 @@ type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
   get?: (name: string) => string | undefined
 }
   
- const updateRequest = new MyCustomRequest<MyCustomContext>({
+const updateRequest = new MyCustomRequest<MyCustomContext>(
+ 
+  {
+    user: {
+    passwordHash: null
+  } as User,  
   body: {} as any,
-  request: {}as CustomRequestWithContext<CustomRequestInit>,
+  request: {}as YourRequestObject<CustomRequestInit>,
   url: 'https://jsonplaceholder.typicode.com/posts/1',
   method: 'GET',
   get: (name: string) => {
@@ -67,15 +74,16 @@ type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
     ...myContext,
     signedCookies: {} as Record<string, string>,
     config: {} as AppConfiguration,
-    req: {} as CustomRequestWithContext<MyContext<{}>>,
-    cookie: {} as Record<string, string>,
+    req: {} as YourRequestObject<CustomRequestInit>,
+    cookie: {} as string | undefined,
     cookies: {} as Record<string, string>,
-    token: '',
-    request: {} as CustomRequestWithContext<MyContext<{}>>,
-    prisma,
+    token: undefined,
+    accessToken: null,
+    request: {} as YourRequestObject<MyContext<{}>>,
+    prisma ,
     context: {} as MyContext,
     currentUser: {} as UserWithAccessToken,
-    ctx: {},
+    ctx:  {} as UserWithAccessToken,
     session: {} as CustomSessionType,
     cache: {} as RequestCache,
     get: (name: string) => undefined,
@@ -89,9 +97,10 @@ type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
       return [];
     },
   },
-  
   config: {} as AppConfiguration
-}) 
+  },
+  userService = new UserService(prismaService),
+) 
 
 
 

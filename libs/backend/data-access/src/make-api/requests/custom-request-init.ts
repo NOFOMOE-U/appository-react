@@ -1,3 +1,4 @@
+import { User } from "@prisma/client"
 import { ParsedQs } from "qs"
 import { AppConfiguration } from "../../context/app-configuration"
 import { CustomContextType } from "../../context/custom-context-type"
@@ -5,6 +6,7 @@ import { CustomSessionType } from "../my-custom-request"
 import { YourRequestObject } from "./custom-request-with-context"
 
 export interface CustomRequestInit extends RequestInit {
+    user: User | null
     url?: string
     query?: ParsedQs
     params?: { [key: string]: string }

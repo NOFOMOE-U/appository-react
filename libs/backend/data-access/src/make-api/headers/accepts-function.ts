@@ -1,5 +1,5 @@
-type AcceptsFunction = (type: string | string[]) => string | string[] | false;
-type NoArgsFunction = () => string[] | false;
+export type AcceptsFunction = (type: string | string[]) => string | string[] | false;
+export type NoArgsFunction = () => string[] | false;
 
 export function accepts(types: string | string[] | undefined): AcceptsFunction | NoArgsFunction {
   if (typeof types === 'string') {

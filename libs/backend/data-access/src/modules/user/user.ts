@@ -3,22 +3,22 @@ import { verifyPassword } from '../../interfaces/auth/user-with-password-hash';
 const prisma = new PrismaClient();
 
 export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
-  password?: string;
+  password?: string
   passwordHash?: never
   resetPasswordToken?: null | string
+  // username: string 
 }
-
 type UserWithoutPassword = Omit<User, 'passwordHash'>;
-
 
 const userSelect = {
   id: true,
   name: true,
   email: true,
   roles: true,
-  userProfileId: true,
+  username: true,
   createdAt: true,
   updatedAt: true,
+  userProfileId: true
 };
 
 export const getAllUsers = async (): Promise<UserWithoutSensitiveData[]> => {

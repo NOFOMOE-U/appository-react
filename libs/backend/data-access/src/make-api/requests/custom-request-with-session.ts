@@ -21,10 +21,6 @@ export interface SharedHeaders<T extends SharedHeaders<T>> extends Headers{
   getSetCookie(): string[]
 }
 
-export type CustomRequestSessionHeaders = ()=>{} & {
-  set: (name: string, value: string) => CustomRequestSessionHeaders;
-}
-
 export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'headers'> {
   [key: string]: any
   customHeaders: CustomHeadersImpl;
@@ -47,6 +43,6 @@ export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'hea
   get: (name: string) => undefined
   cookies: any
   signedCookies: Record<string, string>
-  accessToken: string | undefined
+  accessToken: string | null
   currentUser?: UserWithoutSensitiveData | undefined | null
 }

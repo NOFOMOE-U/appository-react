@@ -1,13 +1,11 @@
 //4. create a request when a client makes a request to the server
-import { User } from '@prisma/client'
 import { Request } from 'express'
-import { Session, SessionData } from 'express-session'
+import { Session } from 'express-session'
+import { AppConfiguration } from '../../context/app-configuration'
 import { CustomRequestCommon } from '../../context/custom-common-request'
-import { MyContext } from '../../context/my-context'
+import { CustomSessionType } from '../../make-api/my-custom-request'
 import { CustomContextHeaders } from '../../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
-import { AppConfiguration } from '../../context/app-configuration'
-import { CustomSessionType } from '../../make-api/my-custom-request'
 // const prisma = new PrismaClient()
 
 export declare const jest: {
@@ -18,7 +16,7 @@ export declare const jest: {
 //using the generate Type parameter of T allows us to be able to add
 // additional properities to the reqquest object as needed.
 export interface CustomRequest<T = unknown> extends Request {
-  id?: string
+  id: string
   config: AppConfiguration
   user?: UserWithoutSensitiveData | null
   userId?: string
@@ -26,6 +24,11 @@ export interface CustomRequest<T = unknown> extends Request {
   params: any;
   token: string
   body: T | undefined
+  destination: RequestDestination
+  request: CustomRequest
+  username: string 
+  expires: string
+  yourSessionKey: string
   headers: CustomContextHeaders
   startTime?: number
   cache: RequestCache

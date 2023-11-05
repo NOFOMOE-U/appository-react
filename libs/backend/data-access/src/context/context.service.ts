@@ -1,7 +1,8 @@
-import { CustomRequest, UserWithoutSensitiveData, getUserById } from '@appository/backend/data-access'
+import { CustomRequest, UserWithoutSensitiveData, YourRequestObject, getUserById } from '@appository/backend/data-access'
 import { Injectable } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import type { Request } from 'express'
+import { CustomRequestInit } from '../make-api/requests/custom-request-init'
 import { MyContext, UserWithAccessToken } from './my-context'
 @Injectable()
 export class ContextService {
@@ -14,6 +15,9 @@ export class ContextService {
 
     const context: MyContext<{}> = {
       prisma,
+      request: {} as YourRequestObject<CustomRequestInit>,
+      url: '',
+      user: {} as UserWithAccessToken,
       currentUser:
         this.req.currentUser && 'accessToken' in this.req.currentUser
           ? (this.req.currentUser as unknown as UserWithAccessToken)
@@ -24,10 +28,12 @@ export class ContextService {
       token: this.req.token,
       userId: this.req.userId,
       context: this.req.context,
+      ctx: this.req.context.ctx,
       session: this.req.session,
       cookies: this.req.cookies,
       accessToken: this.req.accessToken as string,
       signedCookies: this.req.signedCookies as unknown as Record<string, string>,
+      config: this.req.config,
       accepts: (types: string | string[]) => {
         if (typeof types === 'string') {
           return [types]
@@ -37,7 +43,6 @@ export class ContextService {
           return []
         }
       },
-      config: this.req.config,
     }
     return context
   }
