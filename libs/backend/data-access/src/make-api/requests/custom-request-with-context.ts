@@ -8,12 +8,12 @@ import { CustomRequest } from '../../interfaces/user/custom-request'
 import { PrismaService } from '../../lib/prisma/prisma.service'
 import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
 import { CustomSessionType } from '../my-custom-request'
-import { CustomRequestInit } from './custom-request-init'
+import { BodyContent, CustomRequestInit } from './custom-request-init'
 
 export class YourRequestObject<T> {
   private readonly prismaService: PrismaService
-  private readonly request: CustomRequestWithContext<CustomRequestInit>
-  private readonly requestBody: CustomSessionType
+  private readonly request: BodyInit | null | undefined
+  private readonly requestBody: BodyContent | null | undefined
 
   customProp: string
   headers: CustomContextHeaders
@@ -28,7 +28,7 @@ export class YourRequestObject<T> {
 
   constructor() {
     this.prismaService = prismaService
-    this.request = {} as CustomRequestWithContext<CustomRequestInit>
+    this.request = {} as BodyInit | null | undefined
     this.customProp = ''
     this.headers = {} // Initialize headers if necessary
     this.user = null
@@ -37,9 +37,9 @@ export class YourRequestObject<T> {
     this.customCache = {} as CustomSessionType
     this.session = {} as CustomSessionType
     this.accepts = {} as CustomSessionType
-    this.request = {} as CustomRequestWithContext<CustomRequestInit>
+    this.request = {} as BodyInit | null | undefined
     this.body = {} as CustomSessionType
-    this.requestBody = {} as CustomSessionType
+    this.requestBody = {} as BodyContent | null | undefined
     this.URLSearchParams = {} as CustomURLSearchParams
   }
 }

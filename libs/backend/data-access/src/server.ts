@@ -26,7 +26,8 @@ import { processRequest } from './make-api/default-options'
 import { makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
-import { userRegistrationSchema } from './middleware/validation-yup-schemas/validate-email'
+import userRegistrationSchema from './middleware/validation-yup-schemas/validate-registration'
+ 
 
   require('dotenv').config()
   const json = require('body-parser')
@@ -271,7 +272,8 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
         request: req.session.request,
         body: req.session.body,
         requestBody: req.session.requestBody,
-        URLSearchParams: req.URLSearchParams
+        URLSearchParams: req.URLSearchParams,
+        userService: req.session.userServicce, // pass user service instance
         // Add other required properties
       },
       context,

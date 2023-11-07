@@ -2,7 +2,8 @@
 import { Module } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CustomRequest } from '../interfaces/user/custom-request';
-import { UserWithoutSensitiveData, getUserById } from '../modules/user/user';
+import { UserWithoutSensitiveData } from '../modules/user/user';
+import { getUserById } from '../modules/user/user-queries/get-user-by-id';
 import { getUserId } from '../utils/backend-auth.utils';
 import { createContext } from './create-context';
 import { MyContext } from './my-context';

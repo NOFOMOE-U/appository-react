@@ -18,7 +18,7 @@ export interface ParsedUrl {
   href: string
 }
 let userService: UserService
-let requestBody: any;
+let requestBody: BodyContent | null | undefined;
 
   
 export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {

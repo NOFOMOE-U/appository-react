@@ -23,7 +23,7 @@ export class ContextService {
         ? (this.req.currentUser as unknown as UserWithAccessToken)
         : (this.req.currentUser as UserWithoutSensitiveData),
         userId: this.req.userId,
-        
+        userService: this.req.userService,
         get: this.req.get,
         body: this.req.body,
         requestBody: this.req.requestBody,
@@ -37,7 +37,7 @@ export class ContextService {
         signedCookies: this.req.signedCookies as unknown as Record<string, string>,
         accessToken: this.req.accessToken as string,
         size: 0,
-        accepts: (types: string | string[]) => {
+        accepts: (types: string | string[] | undefined) => {
           if (typeof types === 'string') {
             return [types]
           } else if (Array.isArray(types)) {

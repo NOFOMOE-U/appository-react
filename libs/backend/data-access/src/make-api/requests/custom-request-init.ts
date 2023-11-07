@@ -3,7 +3,9 @@ import { ParsedQs } from 'qs'
 import { AppConfiguration } from '../../context/app-configuration'
 import { CustomContextType } from '../../context/custom-context-type'
 import { CustomURLSearchParams } from '../../context/my-context'
+import { PrismaService } from '../../lib/prisma/prisma.service'
 import { UserWithAccessToken } from '../../modules/user/user'
+import { UserService } from '../../modules/user/user.service'
 import { CustomSessionType } from '../my-custom-request'
 import { YourRequestObject } from './custom-request-with-context'
 
@@ -28,6 +30,21 @@ export interface CustomRequestInit extends RequestInit {
   URLSearchParams: CustomURLSearchParams
   request: YourRequestObject<CustomRequestInit>
   req?: IncomingMessage
+}
+const prismaService = new PrismaService();
+const userService = new UserService(prismaService);
+export interface CustomRequestOptions extends CustomRequestInit {
+    userService: UserService
+}
+
+const customRequestOptions: CustomRequestOptions = {
+  userService: userService,
+  user: null,
+  accepts: () => ['json'],
+  body: {} as BodyInit | null | undefined,
+  request: {} as YourRequestObject<CustomRequestInit>,
+  requestBody: {} as BodyContent | null | undefined,
+  URLSearchParams: {} as CustomURLSearchParams,
 }
 
 export interface CustomRequestInitWithGet extends CustomRequestInit {

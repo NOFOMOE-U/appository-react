@@ -5,6 +5,7 @@ import { CustomSessionType } from '../make-api/my-custom-request';
 import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init';
 import { YourRequestObject } from '../make-api/requests/custom-request-with-context';
 import { UserWithAccessToken, UserWithoutSensitiveData } from '../modules/user/user';
+import { UserService } from '../modules/user/user.service';
 import { AppConfiguration } from './app-configuration';
 import { CustomURLSearchParams, MyContext } from './my-context';
 
@@ -16,6 +17,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   req: YourRequestObject<CustomRequestInit>
   request: CustomRequest<{}>
   body?: BodyInit | null | undefined
+  userService: UserService
   requestBody?: BodyContent | null | undefined
   session: CustomSessionType
   cache?: RequestCache
@@ -33,7 +35,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   url: string
   URLSearchParams: CustomURLSearchParams
   get: (name: string) => string | undefined
-  accepts: (types: string | string[]) => string | string[] | null | false
+  accepts: (types: string | string[] | undefined) => (string | false | null)[] | undefined
   }
 
 

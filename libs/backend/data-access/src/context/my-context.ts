@@ -5,6 +5,7 @@ import { CustomSessionType } from '../make-api/my-custom-request';
 import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init';
 import { YourRequestObject } from '../make-api/requests/custom-request-with-context';
 import { UserWithAccessToken, UserWithoutSensitiveData } from '../modules/user/user';
+import { UserService } from '../modules/user/user.service';
 import { AppConfiguration } from './app-configuration';
 import { CustomContextType } from './custom-context-type';
 
@@ -32,6 +33,7 @@ export interface MyContext<T = {}> extends Record<string, unknown> {
   ctx: CustomContextType;
   user: UserWithAccessToken
   req?: IncomingMessage
+  userService: UserService
   request: YourRequestObject<CustomRequestInit>
   body: BodyInit | null | undefined;
   requestBody: BodyContent | null | undefined 

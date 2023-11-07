@@ -36,7 +36,7 @@ import { UserService } from '../modules/user/user.service'
 import { getDefaultAxiosOptions } from './default-options'; // Import the getDefaultAxiosOptions function
 import { CustomHeadersImpl } from './headers/custom-headers-impl'
 import { MyCustomHeaders } from './headers/my-custom-headers'
-import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
+import { BodyContent, CustomRequestOptions } from './requests/custom-request-init'
 import { CustomRequestWithContext, YourRequestObject } from './requests/custom-request-with-context'
 import { CustomSocketType, SpecificSocketType, socket } from './socket/socket'
 
@@ -64,7 +64,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
   user: UserWithoutSensitiveData | null
   //Constructor
   constructor(
-    options: CustomRequestInit & { body?: BodyContent },
+    options: CustomRequestOptions,
     requestBody: BodyContent | null | undefined,
     userService: UserService,
   ) {
@@ -79,8 +79,8 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
       this.req = {...this.req, socket: options.req.socket as unknown} as typeof this.req
     }
     ;(this.body = options.body),
-      (this.userService = userService),
-      (this.requestBody = requestBody),
+      (this.userService = options.userService),
+      (this.requestBody = options.requestBody),
       (this.user = options.user),
       (this.params = options.params),
       (this.request = options.request),
@@ -386,7 +386,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
       Header1: 'Value1',
       Header2: 'Value2',
     })
-    const customRequest: MyCustomRequest<MyContext> = new MyCustomRequest<MyContext<UserWithoutSensitiveData>>(
+      const customRequest: MyCustomRequest<MyContext> = new MyCustomRequest<MyContext<UserWithoutSensitiveData>>(
       options,
       requestBody,
       userService

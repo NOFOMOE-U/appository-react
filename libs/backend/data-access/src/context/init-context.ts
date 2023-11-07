@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client'
 import { Headers } from 'node-fetch'
-import { CustomRequestInit } from '../make-api/requests/custom-request-init'
+import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init'
 import { CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context'
 import { UserWithAccessToken } from '../modules/user/user'
+import { UserService } from '../modules/user/user.service'
 import { AppConfiguration } from './app-configuration'
 import { CustomContextType } from './custom-context-type'
 import { CustomURLSearchParams, MyContext } from './my-context'
@@ -27,7 +28,9 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
   }
 
   const context: MyContext = {
+    userService: {} as UserService,
     URLSearchParams: {
+      size: 0,
       keys: (): IterableIterator<string> => {
         return headers.keys()
       },
@@ -62,7 +65,6 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
       sort: () => [],
       getSetCookie: () => [],
 
-      size: 0,
       getAll(name: string): string[] {
         return []
       },
@@ -80,8 +82,8 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
     ctx: {} as CustomContextType,
     user: {} as UserWithAccessToken,
     request: {} as YourRequestObject<CustomRequestInit>,
-    body: null,
-    requestBody: undefined,
+    body: 'initaial-body',
+    requestBody: {} as BodyContent | null | undefined,
     accessToken: null,
     url: 'url',
     session: {
@@ -126,7 +128,7 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
     getAll: function (names: string[]): string[] {
       throw new Error('Function not implemented.')
     },
-    accepts: function (types: string | string[]): string[] {
+    accepts: function (types: string | string[] | undefined): string[] {
       throw new Error('Function not implemented.')
     },
     [Symbol.iterator]: function (): IterableIterator<[string, string]> {

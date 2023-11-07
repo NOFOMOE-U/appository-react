@@ -1,4 +1,5 @@
 import { CustomURLSearchParams, MyContext } from '../context/my-context'
+import { PrismaService } from '../lib/prisma/prisma.service'
 import { UserWithAccessToken } from '../modules/user/user'
 import { UserService } from '../modules/user/user.service'
 import { apiConfig } from './api-config/api-config'
@@ -16,7 +17,8 @@ type ApiEndpoint = keyof typeof apiConfig
 //createRequest accepts additional argument for the API type
 type ApiType = 'isInternal' | 'isExternal'
 
-let userService: UserService
+let prismaService = new PrismaService()
+let userService=  new UserService(prismaService)
 let requestBody: BodyContent | null = null
 
 export function createRequest(
@@ -50,7 +52,7 @@ export function createRequest(
     body: JSON.stringify(context),
   }
   const requestBody = JSON.stringify(context); // Convert the context to JSON
-  return new MyCustomRequest({...customRequestInit, body: requestBody}, undefined, userService)
+  return new MyCustomRequest({...customRequestInit, body: requestBody, userService}, undefined, userService)
 }
 
 export function generateUrl(endpoint: string, id = '', secondValue = '', type: ApiType = 'isInternal'): string {

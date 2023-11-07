@@ -1,4 +1,4 @@
-import { User, UserRole, UserService, UserWithoutSensitiveData } from '@appository/backend/data-access'
+import { User, UserRole, UserService, UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/data-access'
 import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
@@ -18,7 +18,7 @@ import {
   YourRequestObject,
 } from './requests/custom-request-with-context'
 import { specificSocket } from './socket/socket'
-
+ 
 type CustomRequestType = CustomRequestWithContext<
   MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>>
 >
@@ -55,6 +55,10 @@ interface CommonUserProperties {
   userProfileId: number
   resetPasswordToken: string
 }
+type CommonUserType = Omit<CommonUserProperties, 'passwordHash'>
+{
+  
+  };
 
 type CustomRequestTypeOptions = CustomRequestType & Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 
@@ -74,12 +78,13 @@ if (currentUser) {
   }
 
   if (userWithPasswordHash !== undefined) {
+    const userWithPasswordHash: User = currentUser
     const token = generateToken(userWithPasswordHash)
   }
 }
 
 if (currentUser) {
-  const userWithPasswordHash = currentUser as unknown as User
+  const userWithPasswordHash: User = currentUser
   const token = generateToken(userWithPasswordHash)
 }
 
@@ -110,11 +115,11 @@ export let myContext:
 
 let commonHeaders: CustomContextHeaders = {}
 
-export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
+ export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
   const socketId = 'yourSocketId'
   let specificSocket
   let userService: UserService
-  let requestBody: BodyContent | null | undefined
+  let requestBody: BodyContent | null 
 
   if (req) {
     // Initialize common headers
@@ -173,7 +178,7 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
       // Initialize common properties
 
       // Other properties in your context...
-      user: {} as CommonUserProperties,
+      user: {} as UserWithAccessToken, // Changed type to UserWithAccessToken
       accessToken: SessionData.setAccessToken,
       config: {} as AppConfiguration,
       context: {} as CustomContextType<MyContext<{}>>,
@@ -231,43 +236,44 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
     responseType: 'json',
     id: '',
     ctx: {
-      headers: { ...filteredCommonHeaders },
+      headers: {
+        // Spread the properties of common headers
+        ...commonHeaders,
+        // Add the x-poser-by header
+        'x-powered-by': 'test-server',
+        // Add the x-test-header header
+        'x-test-header': 'true',
+        // Add the access-control-allow-origin header
+        'Access-Control-Allow-Origin': '*',
+        // Add the authorization header
+        Authorization: `Bearer ${accessToken || ''}`,
+        // Add the content-type header
+        'Content-Type': 'application/json',
+        // Define default options for the range parser
+        'Client-IP': specificSocket?.handshake?.address || '',
+        // Define session storage for user session information
+        sessionStore: sessionStorage.Store,
+        // Add the referer header if it is an API request
+        ...(isApiRequest && { Referer: req.headers?.referer }),
+        // Add the request-policy header if it is an API request
+        ...(isApiRequest && { 'Referer-Policy': 'strict-origin-when-cross-origin' }),
+        'set-cookie': [],
+        accepts(types: string | string[] | undefined) {
+          if (typeof myContext?.accepts === 'undefined') {
+            return undefined;
+          } else {
+            const result = myContext.accepts(Array.isArray(types) ? types : [types] as unknown as string);
+            return Array.isArray(result) ? result : [result];
+          }
+        }
+        ,
+        'accept-language': '',
+        'accep-patch': '',
+        'accept-range': '',
+      },  
       accessToken: accessToken,
     },
-    headers: {
-      // Spread the properties of common headers
-      ...commonHeaders,
-      // Add the x-poser-by header
-      'x-powered-by': 'test-server',
-      // Add the x-test-header header
-      'x-test-header': 'true',
-      // Add the access-control-allow-origin header
-      'Access-Control-Allow-Origin': '*',
-      // Add the authorization header
-      Authorization: `Bearer ${accessToken || ''}`,
-      // Add the content-type header
-      'Content-Type': 'application/json',
-      // Define default options for the range parser
-      'Client-IP': specificSocket?.handshake?.address || '',
-      // Define session storage for user session information
-      sessionStore: sessionStorage.Store,
-      // Add the referer header if it is an API request
-      ...(isApiRequest && { Referer: req.headers?.referer }),
-      // Add the request-policy header if it is an API request
-      ...(isApiRequest && { 'Referer-Policy': 'strict-origin-when-cross-origin' }),
-      'set-cookie': [],
-      // accepts: (types: string | string[] | undefined) => {
-      //   if (typeof myContext?.accepts === 'undefined') {
-      //     return undefined
-      //   } else {
-      //     const result = myContext.accepts(Array.isArray(types) ? types : [types]  as unknown as string);
-      //     return Array.isArray(result) ? result : [result]
-      //   }
-      // },
-      'accept-language': '',
-      'accep-patch': '',
-      'accept-range': '',
-    },
+    headers: { ...filteredCommonHeaders },
   }
 
   return options

@@ -1,4 +1,4 @@
-import { UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/data-access'
+import { UserService, UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/data-access'
 import { PrismaClient, User, UserRole } from '@prisma/client'
 import { IOptions, ShieldRule } from 'graphql-shield/typings/types'
 import { AppConfiguration } from '../../../context/app-configuration'
@@ -49,6 +49,7 @@ const options: MyOptions= {
     cookies: { key: 'cookies-value' },
     userId: 'user-id',
     get: (name: string) => undefined,
+    userService: {} as UserService,
     context: {} as MyContext<{}>,
     ctx: {} as CustomContextType<MyContext<{}>>,
     body: {} as BodyInit | null,
