@@ -199,6 +199,7 @@ model Persona {
   profiles  UserProfile[] @relation("profile_personas")
   users     User[]       @relation("user_personas")
 }
+
 model UserSettings {
   id                   String   @id @default(uuid())
   language             String?  @default("en")

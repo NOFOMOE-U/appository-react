@@ -1,5 +1,5 @@
-import { Socket } from "socket.io";
-
+import { Namespace, Socket } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 // Define a SpecificSocketType
 export type SpecificSocketType = Socket & {
@@ -7,35 +7,58 @@ export type SpecificSocketType = Socket & {
     connect: () => void;
     send: (data: string) => void;
     on: (event: string, callback: (data: any) => void) => void;
-    handshake:{
+    handshake: {
         address: string;
-    }
+    };
     // Add other properties and methods specific to your socket
-    remoteAddress: string
+    remoteAddress: string;
+};
+
+// Define the correct types for CustomSocketType
+export type CustomSocketType = Omit<Socket, 'adapter'> & {
+    nsp: Namespace<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+    client: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+    id: Socket['id'];
+    recovered: boolean;
+
+    emit: typeof Socket.prototype.emit,
+    emitWithAck: typeof Socket.prototype.emitWithAck,
+    // Add other properties as needed
+};
+
+function convertSocket(socket: Socket): CustomSocketType {
+  return {
+    ...socket,
+    nsp: socket.nsp,
+    id: socket.id,
+    recovered: false,
+    emit: socket.emit,
+    emitWithAck: socket.emitWithAck,
+    to: socket.to,
+    in: socket.in,
+    // Add remaining missing properties from Socket type
+  } as CustomSocketType
 }
 
-
-export type CustomSocketType = SpecificSocketType & {
-    nsp: any; // Define the correct type for nsp
-    client: any; // Define the correct type for client
-    id: any; // Define the correct type for id
-    recovered: any; // Define the correct type for recovered
-    // Add other properties as needed
-  };
-
+// Initialize specificSocket with its type
 export let specificSocket: SpecificSocketType | null = null;
 
-export const connection: SpecificSocketType | null = specificSocket
-export const socket: SpecificSocketType | null = specificSocket
+// Create connections with the specific type
+export const connection: SpecificSocketType | null = specificSocket;
+export const socket: SpecificSocketType | null = specificSocket;
 
 
+// Assign a value to specificSocket (e.g., a specific socket instance)
+specificSocket = socket;
 
-
-
-
-
-
-
+// Now you can use customSocket for working with the socket-specific properties and methods
+if (specificSocket !== null) {
+    const customSocket: CustomSocketType =  convertSocket(specificSocket)
+    
+    customSocket.emit('customEvent', 'Custom data')
+} else {
+  throw new Error('Socket is null');
+}
 
 
 

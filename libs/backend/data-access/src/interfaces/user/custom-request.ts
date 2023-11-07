@@ -4,6 +4,7 @@ import { Session } from 'express-session'
 import { AppConfiguration } from '../../context/app-configuration'
 import { CustomRequestCommon } from '../../context/custom-common-request'
 import { CustomSessionType } from '../../make-api/my-custom-request'
+import { BodyContent } from '../../make-api/requests/custom-request-init'
 import { CustomContextHeaders } from '../../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
 // const prisma = new PrismaClient()
@@ -23,7 +24,8 @@ export interface CustomRequest<T = unknown> extends Request {
   query: any;
   params: any;
   token: string
-  body: T | undefined
+  body: BodyInit | null | undefined
+  requestBody: BodyContent | null | undefined
   destination: RequestDestination
   request: CustomRequest
   username: string 

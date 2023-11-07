@@ -1,17 +1,10 @@
-import { PrismaClient } from '@prisma/client';
 import yup from 'yup';
 
+export const emailSchema = yup.string().required().matches(
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+  'Invalid email address'
+);
 
-// Define a Yup validation rule for email uniqueness
-const emailUniquenessRule = (prisma: PrismaClient) =>
-  function (this: yup.TestContext) {
-    // Get the value of the email field
-    const value = this.parent.email
-    // Check if the email is already registered
-    return validateEmailUniqueness(prisma)(value, this)
-  }
+export const isValid = await emailSchema.isValid('test@example.com'); // true
+export const isValid2 = await emailSchema.isValid('invalid-email'); // false
 
-const validateEmailUniqueness = (prisma: PrismaClient) => async (value: string, context: any) => {
-  const user = await context.prisma.user.findUnique({ where: { email: value } });
-  return !user || context.createError({ message: 'Email is already registered' });
-};

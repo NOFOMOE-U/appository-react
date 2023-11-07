@@ -134,7 +134,7 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
         delete context[key];
       }
     },
-    getAll: (name: string[]) => {
+    getAll: (names: string[]) => {
       // Implement the 'getAll' method logic here
       const values: string[] = [];
       for (const name of names) {

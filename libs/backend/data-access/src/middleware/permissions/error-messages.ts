@@ -67,6 +67,24 @@ export default {
    customUserError1: 'A custom user management error message to handle unique situations.',
    customUserError2: 'Another custom user management error message for specific scenarios.',
    
+
+   // Header issues
+  missingContentTypeHeader: 'The "Content-Type" header is missing in the request.',
+  unsupportedContentType: 'The provided "Content-Type" is not supported for this request.',
+  missingAuthorizationHeader: 'The "Authorization" header is missing in the request.',
+  invalidAuthorizationHeader: 'Invalid "Authorization" header format.',
+
+  // Socket issues
+  socketConnectionError: 'Error connecting to the socket server.',
+  socketAuthenticationFailed: 'Failed to authenticate with the socket server.',
+  socketTimeout: 'The socket connection timed out.',
+  socketDisconnected: 'The socket connection was unexpectedly disconnected.',
+
+  // Request issues
+  invalidRequestBody: 'The request body is invalid or missing.',
+  invalidQueryParam: 'Invalid query parameter in the request.',
+  requestValidationFailed: 'Request validation failed. Please check the provided data.',
+  resourceConflict: 'The resource is in conflict with another request or resource.',
   
 } as { [key: string]: string }
  

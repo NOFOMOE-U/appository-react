@@ -17,7 +17,7 @@ type ApiEndpoint = keyof typeof apiConfig
 type ApiType = 'isInternal' | 'isExternal'
 
 let userService: UserService
-let requestBody: BodyContent | null | undefined
+let requestBody: BodyContent | null = null
 
 export function createRequest(
   context: MyContext,

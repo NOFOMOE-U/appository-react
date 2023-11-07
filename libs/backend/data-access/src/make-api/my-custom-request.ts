@@ -38,7 +38,7 @@ import { CustomHeadersImpl } from './headers/custom-headers-impl'
 import { MyCustomHeaders } from './headers/my-custom-headers'
 import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
 import { CustomRequestWithContext, YourRequestObject } from './requests/custom-request-with-context'
-import { CustomSocketType, socket } from './socket/socket'
+import { CustomSocketType, SpecificSocketType, socket } from './socket/socket'
 
 export type CustomSessionType = {
   userId: string
@@ -50,12 +50,6 @@ export type CustomSessionType = {
   [key: string]: any
 }
 
-type MergedSocket = {
-  nsp: any
-  // client: any
-  // id: any
-  // recovered: any
-}
 
 export type RequestCache = {
   req?: http.IncomingMessage
@@ -82,10 +76,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
     const customHeaderValues = ['value1', 'value2']
     // this.customHeaders.setCustomHeaders(customHeaderValues)
     if (options.req) {
-      this.req = options.req
-      if (this.req !== undefined) {
-        this.req.socket = options.req.socket
-      }
+      this.req = {...this.req, socket: options.req.socket as unknown} as typeof this.req
     }
     ;(this.body = options.body),
       (this.userService = userService),
@@ -95,6 +86,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
       (this.request = options.request),
       // Set the 'url' and 'method' properties
       (this.url = options.url)
+    
     this.method = options.method || 'GET' // You can provide a default method if needed
     this.context = options.body || ({} as T)
     this.customRequestHeaders = new CustomHeadersImpl({})
@@ -154,13 +146,14 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
       prisma: this.context.prisma,
       req: this.context.req,
       session: this.context.session,
-      rawHeaders: [],
       token: this.context.token,
       cookies: this.context.cookiesArray,
       userId: this.context.userId,
       request: this.context.request,
       signedCookies: this.context.signedCookies,
       accepts: this.context.accept,
+      accepted: [],
+      rawHeaders: [],
 
       getCustomHeader(): string | null {
         return this.customHeaders.getCustomHeader()
@@ -178,7 +171,6 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
         throw new Error('Function not implemented.')
       },
 
-      accepted: [],
       param: function (name: string, defaultValue?: any): string {
         throw new Error('Function not implemented.')
       },
@@ -396,9 +388,9 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
     })
     const customRequest: MyCustomRequest<MyContext> = new MyCustomRequest<MyContext<UserWithoutSensitiveData>>(
       options,
-      userService,
       requestBody,
-    )
+      userService
+     )
     customRequest.customHeaders = customHeaders
 
     // Assign it to the main headers
@@ -781,11 +773,12 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
 
   getRemoteAddress(): string | undefined {
     if (this.req?.socket) {
-      const remoteAddress = this.req.socket.remoteAddress
+      const { remoteAddress } = this.req.socket as unknown as SpecificSocketType
       return remoteAddress
     }
     return undefined
   }
+
   //     /**
 
   //     Get the session associated with the request.

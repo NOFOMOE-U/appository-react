@@ -20,7 +20,6 @@ export interface CustomRequestInit extends RequestInit {
   session?: CustomSessionType
   ///used for making HTTP Request to adhere to RequestInit
   body: BodyInit | null | undefined
-
   // used to set and managing request body content
   requestBody: BodyContent | null | undefined
   signedCookies?: { [key: string]: string }
