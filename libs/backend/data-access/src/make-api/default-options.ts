@@ -5,13 +5,13 @@ import { ParsedQs } from 'qs'
 import { Socket } from 'socket.io'
 import { AppConfiguration } from '../context/app-configuration'
 import { CustomContextType } from '../context/custom-context-type'
-import { MyContext } from '../context/my-context'
+import { CustomURLSearchParams, MyContext } from '../context/my-context'
 import prisma, { CustomPrismaClient } from '../lib/prisma/prisma'
 import { authenticationMiddlware, socket } from '../server'
 import { SessionData } from '../types/express'
 import generateToken from '../utils/generate-token.utils'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
-import { CustomRequestInit } from './requests/custom-request-init'
+import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
 import {
   CustomContextHeaders,
   CustomRequestWithContext,
@@ -19,7 +19,6 @@ import {
 } from './requests/custom-request-with-context'
 import { specificSocket } from './socket/socket'
 
- 
 type CustomRequestType = CustomRequestWithContext<
   MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>>
 >
@@ -44,20 +43,20 @@ type RequestOptions = {
 
 interface CommonUserProperties {
   id: string
+  user: string
   username: string
-  passwordHash: string
+  passwordHash: string | null
   accessToken: string
-  email: string,
-  name: string,
-  roles: UserRole[],
-  createdAt: Date,
-  updatedAt: Date,
-  userProfileId: number,
+  email: string
+  name: string
+  roles: UserRole[]
+  createdAt: Date
+  updatedAt: Date
+  userProfileId: number
   resetPasswordToken: string
 }
 
-type CustomRequestTypeOptions = CustomRequestType
-& Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+type CustomRequestTypeOptions = CustomRequestType & Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 
 let myRequest: MyCustomRequest<MyContext> | null = null
 let currentUser: CommonUserProperties | null | undefined
@@ -78,7 +77,6 @@ if (currentUser) {
     const token = generateToken(userWithPasswordHash)
   }
 }
-
 
 if (currentUser) {
   const userWithPasswordHash = currentUser as unknown as User
@@ -115,8 +113,9 @@ let commonHeaders: CustomContextHeaders = {}
 export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
   const socketId = 'yourSocketId'
   let specificSocket
-
   let userService: UserService
+  let requestBody: BodyContent | null | undefined
+
   if (req) {
     // Initialize common headers
     specificSocket = socket.sockets.sockets.get(socketId)
@@ -127,7 +126,11 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
 
     authenticationMiddlware(req, res, () => {
       if (myContext) {
-        const myRequest = new MyCustomRequest<MyContext>(myContext, userService)
+
+        if (myContext.context.user !== undefined) {
+        }
+          
+          const myRequest = new MyCustomRequest<MyContext>(myContext, userService, requestBody)
         // Access and use the available methods and properties:
         const authorizationHeader = myRequest?.headers?.get('Authorization') // Access a specific header
         myRequest?.accepts('application/json') // Check accepted content types
@@ -166,7 +169,7 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
       }
     })
 
-     const myContext = {
+    const myContext = {
       // Initialize common properties
 
       // Other properties in your context...
@@ -175,6 +178,9 @@ export function processRequest(req: YourRequestObject<{}>, res: Response, next: 
       config: {} as AppConfiguration,
       context: {} as CustomContextType<MyContext<{}>>,
       ctx: {} as MyContext<{}>,
+      body: {} as BodyInit | null | undefined,
+      requestBody: {} as BodyContent | null | undefined,
+      URLSearchParams: {} as CustomURLSearchParams,
       request: {} as YourRequestObject<CustomRequestInit>,
       session: {} as CustomSessionType,
       signedCookies: {} as Record<string, string>,

@@ -6,11 +6,14 @@ import { YourRequestObject } from '@appository/backend/data-access';
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { validate } from 'class-validator';
-import { UserWithAccessToken } from '../../context/my-context';
+import { createUser, deleteUser } from '../../../dist/libs/backend/data-access/src/interfaces/auth/authenticate';
+import { MyContext } from '../../context/my-context';
+import { UserWithPasswordHash } from '../../interfaces/auth/user-with-password-hash';
 import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
 import { CustomRequestInit } from '../../make-api/requests/custom-request-init';
 import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user';
-import { UserWithoutSensitiveData, createUser, deleteUser, getAllUsers } from './user';
+import { UserWithAccessToken, UserWithoutSensitiveData } from './user';
+import { getAllUsers } from './user-queries/get-all-users';
 import { UserInput } from './user.input';
   @Injectable()
 export class UserService {
@@ -72,10 +75,10 @@ export class UserService {
     }
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<UserWithoutSensitiveData> {
+  async createUser(data: Prisma.UserCreateInput, context: MyContext, userWithPasswordHash: UserWithPasswordHash): Promise<UserWithoutSensitiveData> {
     //validate user input
     await validateUserSchema.validate(data)
-    return createUser(data)
+    return createUser(data, context, userWithPasswordHash)
   }
 
   async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User | null> {
@@ -83,8 +86,8 @@ export class UserService {
     return this.prismaService.updateUser(id, data)
   }
 
-  async deleteUser(id: string): Promise<UserWithoutSensitiveData | null> {
-    return deleteUser(id)
+  async deleteUser(id: string, context: MyContext, userWithPasswordHash: UserWithPasswordHash): Promise<UserWithoutSensitiveData | null> {
+    return deleteUser(id, context, userWithPasswordHash)
   }
 
   async getAllUsers(): Promise<UserWithoutSensitiveData[]> {

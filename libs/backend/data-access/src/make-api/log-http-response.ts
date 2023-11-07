@@ -1,4 +1,5 @@
 import { MyContext } from '../context/my-context'
+import { UserService } from '../modules/user/user.service'
 import { SessionData } from '../types/express'
 import { MyCustomRequest } from './my-custom-request'
 
@@ -16,7 +17,10 @@ export interface ParsedUrl {
   path: string | null
   href: string
 }
+let userService: UserService
+let requestBody: any;
 
+  
 export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
   const sessionData = req.session as SessionData;
   const userId = sessionData.userId;
@@ -38,12 +42,18 @@ export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
       requestHeadersArray.push([key,value || ''])
     }
   }
-
-  const request: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest({
+  
+  requestBody = {
+    body: undefined
+  }
+ 
+  const request: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest(
+    requestBody,
+    {
     body: undefined,
     url: 'https://jsonplaceholder.typicode.com/posts/1',
     method: 'GET',
-    headers: requestHeaders as HeadersInit, // Use requestHeaders here
+    headers: requestHeaders as HeadersInit,
     get: (name: string) => {
       const foundHeader = (requestHeaders as unknown as [string,string][])?.find(([key]: [string, string]) => key === name);
       if (foundHeader) {
@@ -54,7 +64,9 @@ export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
     },
     accepts: (types: string | string[]) => [],
     session: req.session
-  })
+    },
+    userService,
+  )
 
   const response = await request.fetch();
 
@@ -77,3 +89,22 @@ export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
 // Testing: When testing web applications, you may want to simulate different user scenarios. Using Tough Cookie, you can set up different cookie jars to simulate different user sessions. This allows you to test your application under different user conditions, which can help you identify and fix bugs.
 
 // Crawling APIs: APIs often have rate limits and request quotas to prevent abuse. By using Tough Cookie, you can manage API authentication and track your API usage to stay within the limits. This can help prevent your application from getting blocked by the API provider for excessive usage.
+
+
+
+// todo
+// Validation Middleware: Middleware for input validation and data sanitization. This can help ensure that the data being sent to your application is valid and safe to use.
+
+// Logging Middleware: Middleware for logging requests and responses, which can be helpful for debugging and auditing purposes.
+
+// Error Handling Middleware: Middleware for handling errors and returning standardized error responses to clients. This can make your API more user-friendly.
+
+// CORS Middleware: Middleware for handling Cross-Origin Resource Sharing (CORS) to control which domains can access your API.
+
+// Rate Limiting Middleware: Middleware for rate limiting requests to prevent abuse or excessive usage of your API.
+
+// File Upload Middleware: If your application allows file uploads, you might need middleware to handle file uploads, validate file types, and save files to the server.
+
+// Session Management Middleware: If your application uses sessions, middleware to handle session management and user state.
+
+// Cache Middleware: Middleware to cache responses and reduce the load on your database or other services.

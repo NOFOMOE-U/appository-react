@@ -26,6 +26,8 @@ import { processRequest } from './make-api/default-options'
 import { makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
+import { userRegistrationSchema } from './middleware/validation-yup-schemas/validate-email'
+
   require('dotenv').config()
   const json = require('body-parser')
   const cors = require('cors')
@@ -150,6 +152,26 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
     expressMiddleware(apolloServer),
   )
 
+
+
+app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
+  const { body } = req;
+  
+  // Validate the user registration data
+  userRegistrationSchema.validate(body)
+    .then((validData) => {
+      // Data is valid, proceed with user registration
+      // For example, save user to the database
+      // userController.register(validData);
+      res.status(201).json({ message: 'User registered successfully' });
+    })
+    .catch((error) => {
+      // Data is invalid, send an error response
+      res.status(400).json({ error: 'Validation Error', message: errorMessages.invalidRegistration });
+    });
+});
+
+
   app.post('/login', ensureAuthenticated, async (req: MyContext<UserWithAccessToken>, res: Response, next: NextFunction) => {
     // Assuming user data is already stored in the session during authentication
     const user = req.session.user;
@@ -240,14 +262,19 @@ import { permissions } from './middleware/permissions/shield/shield-permissions'
     // Create an instance of MyCustomRequest and provide the required properties
     try {
       const myCustomReq: MyCustomRequest<MyContext> = new MyCustomRequest({
-        query: req.query as Record<string, any>,
-        params: req.params as Record<string, any>,
-        customCache: req.customCache, // Provide your customCache data here
+        query: req.session.query,
+        params: req.session.params,
+        user: req.session.currentUser,
+        customCache: req.session.customCache, // Provide your customCache data here
         session: req.session,
-        accepts: req.accepts,
-        request: req.request as unknown as YourRequestObject<MyContext>
+        accepts: req.session.accepts,
+        request: req.session.request,
+        body: req.session.body,
+        requestBody: req.session.requestBody,
+        URLSearchParams: req.URLSearchParams
         // Add other required properties
       },
+      context,
       userService // pass userService instance
       )
 

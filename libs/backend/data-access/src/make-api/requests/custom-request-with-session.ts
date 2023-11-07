@@ -38,10 +38,10 @@ export interface CustomRequestWithSession<T> extends Omit<CustomRequest<T>, 'hea
     context: CustomContextType
     rawHeaders: string[] & readonly string[]
     headers: HeadersWithIndexSignature
-    getAll: (name: string) => undefined
+    getAll: (name: string[]) => undefined
   }
   get: (name: string) => undefined
-  cookies: any
+  cookies: Record<string, string>
   signedCookies: Record<string, string>
   accessToken: string | null
   currentUser?: UserWithoutSensitiveData | undefined | null

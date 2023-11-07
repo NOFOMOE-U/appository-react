@@ -3,12 +3,12 @@ import { Request } from 'express'
 import { Application, Dictionary, ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { createNestedContext } from '../context/create-nested-context'
-import { MyContext, UserWithAccessToken } from '../context/my-context'
+import { MyContext } from '../context/my-context'
 import { convertUserToUserWithAccessToken, initalizeUser } from '../interfaces/auth/authenticate'
 import { CustomRequest, getHeaderValue } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
 import { CustomRequestWithContext } from '../make-api/requests/custom-request-with-context'
-import { UserWithoutSensitiveData } from '../modules/user/user'
+import { UserWithAccessToken, UserWithoutSensitiveData } from '../modules/user/user'
 import { socket } from '../server'
 
 const currentUser: UserWithAccessToken = convertUserToUserWithAccessToken(initalizeUser());
@@ -31,7 +31,7 @@ export const mockRequest = <T>(context?: MyContext<T>): CustomRequestWithContext
     accessToken: 'test-token',
     prisma: {} as PrismaClient,
     req: {} as CustomRequest,
-    body: {},
+    body: {} as BodyInit | null | undefined,
     token: 'test-token',
     session: {} as CustomSessionType,
     rawHeaders: [],

@@ -1,5 +1,4 @@
   import { SessionData } from 'express-session';
-import { ExtendedCustomRequest } from '../interfaces/user/custom-request';
 import { HeadersWithIndexSignature } from './create-nested-context';
 
   export interface CustomRequestCommon {
@@ -34,7 +33,7 @@ import { HeadersWithIndexSignature } from './create-nested-context';
           readonly context: {};
           readonly rawHeaders: string[] & readonly string[];
           readonly headers: HeadersWithIndexSignature;
-          readonly getAll: (name: string) => undefined;
+          readonly getAll: (name: string[]): string) => undefined;
 
           // Add any other properties that are specific to this option
         };
@@ -68,7 +67,7 @@ import { HeadersWithIndexSignature } from './create-nested-context';
         readonly context: {};
         readonly rawHeaders: readonly string[];
         readonly headers: HeadersWithIndexSignature;
-        readonly getAll: (name: string) => undefined;
+        readonly getAll: (name: string[]): string) => undefined;
         
         // Add any other properties that are specific to this option
       };

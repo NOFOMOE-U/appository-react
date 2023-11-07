@@ -1,6 +1,5 @@
 import { Socket } from "socket.io";
 
-export let specificSocket: SpecificSocketType | null = null;
 
 // Define a SpecificSocketType
 export type SpecificSocketType = Socket & {
@@ -15,10 +14,19 @@ export type SpecificSocketType = Socket & {
     remoteAddress: string
 }
 
+
+export type CustomSocketType = SpecificSocketType & {
+    nsp: any; // Define the correct type for nsp
+    client: any; // Define the correct type for client
+    id: any; // Define the correct type for id
+    recovered: any; // Define the correct type for recovered
+    // Add other properties as needed
+  };
+
+export let specificSocket: SpecificSocketType | null = null;
+
 export const connection: SpecificSocketType | null = specificSocket
 export const socket: SpecificSocketType | null = specificSocket
-
-
 
 
 

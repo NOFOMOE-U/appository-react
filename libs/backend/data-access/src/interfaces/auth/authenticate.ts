@@ -4,25 +4,20 @@ import { compare, hash } from 'bcryptjs'
 import { URLSearchParams } from 'url'
 import { AppConfiguration } from '../../context/app-configuration'
 import { CustomContextType } from '../../context/custom-context-type'
-import { MyContext, UserWithAccessToken } from '../../context/my-context'
+import { CustomURLSearchParams, MyContext } from '../../context/my-context'
 import { CustomSessionType } from '../../make-api/my-custom-request'
-import { CustomRequestInit } from '../../make-api/requests/custom-request-init'
+import { BodyContent, CustomRequestInit } from '../../make-api/requests/custom-request-init'
 import { CustomRequestWithContext, YourRequestObject } from '../../make-api/requests/custom-request-with-context'
-import { UserWithoutSensitiveData } from '../../modules/user/user'
+import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
 import generateToken from '../../utils/generate-token.utils'
 import { generateRandomHash } from './generate-random-hash'
 import { removeSensitiveData } from './remove-sensitive-data'
 import { UserWithPasswordHash } from './user-with-password-hash'
 
-
-
 export type SessionRequestContext = CustomRequestWithContext<MyContext<CustomSessionType>>['req'] &
   ExtendedCustomRequest<MyContext<CustomSessionType>>
 // Before calling any of these functions, ensure that context contains prisma
 const contextWithPrisma = createContextWithPrisma()
-
-
-
 
 export function convertUserToUserWithAccessToken(user: User): UserWithAccessToken {
   return {
@@ -51,17 +46,21 @@ export const initalizeUser = (): User => ({
 const user: User = initalizeUser()
 async function createContextWithPrisma(): Promise<PrismaClient> {
   const prisma = new PrismaClient()
-  const context: MyContext = {
+  let context: MyContext = {
     prisma,
-    ctx: prisma,
+    body: {} as BodyInit | null,
+    requestBody: {} as BodyContent | null | undefined,
     user: convertUserToUserWithAccessToken(user),
     currentUser: {} as UserWithoutSensitiveData,
     config: {} as AppConfiguration,
     accessToken: null,
     session: {} as CustomSessionType,
+    ctx: {} as CustomContextType<MyContext<{}>>,
+    URLSearchParams: {} as CustomURLSearchParams,
     signedCookies: {},
+    request: {} as YourRequestObject<CustomRequestInit>,
+    size: 0, // Changed {} to 0 to fix the error
     url: '',
-    request: {} as YourRequestObject<CustomRequestInit> ,
     context: {
       currentUser: {} as UserWithAccessToken,
       accessToken: undefined,
@@ -99,9 +98,118 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
         throw new Error('Function not implemented.')
       },
     },
+    append: (key: string, value: string) => void {},
     get: () => '',
     accepts: (types: string | string[]) => [],
+    entries(): IterableIterator<[string, string]> {
+      const data = [['key1', 'value1']]
+      let index = 0
+
+      return {
+        [Symbol.iterator]() {
+          return this
+        },
+        next() {
+          if (index < data.length) {
+            const value = data[index]
+            index++
+            return { done: false, value: value as [string, string] }
+          } else {
+            return { done: true, value: undefined }
+          }
+        },
+      }
+    },
+    forEach: (callback: (key: string, value: string, parent?: CustomURLSearchParams) => void) => {
+      // Implement the 'forEach' method logic here
+      for (const key in context) {
+        if (context.hasOwnProperty(key)) {
+          callback(key, context[key] as string);
+        }
+      }
+    },
+    delete: (key: string) => {
+      // Implement the 'delete' method logic here
+      if (context.hasOwnProperty(key)) {
+        delete context[key];
+      }
+    },
+    getAll: (name: string[]) => {
+      // Implement the 'getAll' method logic here
+      const values: string[] = [];
+      for (const name of names) {
+        if (context[name] !== undefined) {
+          values.push(context[name] as string);
+        }
+      }
+      return values;
+    },
+    
+    
+    keys: ():IterableIterator<string> => {
+      const data = ['key1', 'key2']
+      let index = 0
+
+      return {
+        [Symbol.iterator]() {
+          return this
+        },
+        next() {
+          if (index < data.length) {
+            const value = data[index]
+            index++
+            return { done: false, value: value }
+          } else {
+            return { done: true, value: undefined }
+          }
+        },
+      }
+    },
+    values: (): IterableIterator<string> => {
+      const data = ['value1', 'value2']
+      let index = 0
+
+      return {
+        [Symbol.iterator]() {
+          return this
+        },
+        next() {
+          if (index < data.length) {
+            const value = data[index]
+            index++
+            return { done: false, value: value }
+          } else {
+            return { done: true, value: undefined }
+          }
+        },
+      }
+    },
+    has: (): boolean => {
+      return true
+    },
+    // Add the 'has' method
+    set: (key: string, value: string) => {
+      // Implement the 'set' method logic here
+      context[key] = value
+    },
+    // Add the 'set' method
+    sort: () => {
+      // Implement the 'sort' method logic here
+      const sortedContext = {...context}
+
+      Object.keys(sortedContext)
+        .sort()
+        .forEach((key) => {
+          sortedContext[key] = context[key]
+        })
+
+      return sortedContext
+    },
+    [Symbol.iterator](): IterableIterator<[string, string]> {
+      return this.entries()
+    }
   }
+
   context.accessToken = ''
   context.currentUser = {} as UserWithAccessToken
   return prisma

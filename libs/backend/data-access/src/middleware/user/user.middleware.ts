@@ -2,17 +2,18 @@ import { PrismaClient } from '@prisma/client';
 import { NextFunction, Response } from 'express';
 import { createContext } from '../../context/create-context';
 import { CustomContextType } from '../../context/custom-context-type';
-import { MyContext, UserWithAccessToken } from '../../context/my-context';
-import { CustomRequestWithContext } from '../../make-api/requests/custom-request-with-context';
-import { UserWithoutSensitiveData } from '../../modules/user/user';
+import { MyContext } from '../../context/my-context';
+import { convertUserToUserWithAccessToken } from '../../interfaces/auth/authenticate';
+import { CustomRequest } from '../../interfaces/user/custom-request';
+import { UserWithAccessToken } from '../../modules/user/user';
 // Instantiate a new Prisma client
 const prisma = new PrismaClient();
 
-type AuthenticatedSession = AuthenticatedRequest & CustomRequestWithContext<MyContext<{}>>
-
+type AuthenticatedSession = AuthenticatedRequest & CustomRequest<MyContext<{}>>
+type RequestContext = CustomContextType<MyContext<{}>> & MyContext<{}>
 export interface AuthenticatedRequest  {
   context: CustomContextType;
-  user: UserWithoutSensitiveData
+  user: UserWithAccessToken
 }  
 
 /**
@@ -49,17 +50,17 @@ export async function authorizeUser(...roles: string[]) {
  * Middleware that sets the authenticated user on the request object.
  */
 export async function authenticateUser(req: AuthenticatedSession, res: Response, next: NextFunction) {
-  const context: CustomContextType = await createContext(prisma, req);
+  try {
+  const context: CustomContextType<MyContext<{}>> = await createContext(prisma, req);
 
-  // Set the context on the request object
-  req.context = context;
+    // Set the context on the request object
+    (req as AuthenticatedRequest).context = context as RequestContext
 
   // If there is no user ID in the context, skip this middleware
   if (!context.userId) {
     return next();
   }
 
-  try {
     // Fetch the user from the database and set it on the request object
     const user = await prisma.user.findUnique({
       where: { id: context.userId },
@@ -72,8 +73,11 @@ export async function authenticateUser(req: AuthenticatedSession, res: Response,
         message: 'error occurred while fetching user'
       })
     }
-    //return user 
-    req.user = user
+
+    const userWithAccessToken = convertUserToUserWithAccessToken(user)
+    
+    //return user
+    req.user = userWithAccessToken
     return next();
   } catch (err) {
     console.error(err);

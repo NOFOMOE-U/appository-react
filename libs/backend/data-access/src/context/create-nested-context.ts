@@ -3,50 +3,47 @@ import { Request } from 'express'
 import { Session } from 'express-session'
 import { jest } from '../interfaces/user/custom-request'
 import { CustomSessionType } from '../make-api/my-custom-request'
-import { CustomRequestInit } from '../make-api/requests/custom-request-init'
-import { CustomContextHeaders, CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context'
+import {
+  CustomContextHeaders
+} from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
-import { AppConfiguration } from './app-configuration'
+import { SessionData } from '../types/express'
 import { CustomContextType } from './custom-context-type'
 import { MyContext } from './my-context'
-export type HeadersWithIndexSignature = Record<
-  string,
-  string>
+export type HeadersWithIndexSignature = Record<string, string>
 
 export interface CustomHeaders {
   [key: string]:
-  | string
-  | string[]
-  | ((name: string, value: string) => void)
-  | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
-  | undefined;
+    | string
+    | string[]
+    | ((name: string, value: string) => void)
+    | ((callbackFn: (value: string, name: string, headers: Headers) => void, thisArg?: any) => void)
+    | undefined
 
-  has(name: string): boolean;
-  set(name: string, value: string): this;
-  get(name: string): string | null;
-  delete(name: string): boolean;
-  append(name: string, value?: string): this;
-  keys(): IterableIterator<string>;
-  entries(): IterableIterator<[string, string]>;
-  values(): IterableIterator<string>;
-  getAll(name: string): string[];
-  [Symbol.iterator](): IterableIterator<[string, string]>;
+  has(name: string): boolean
+  set(name: string, value: string): this
+  get(name: string): string | null
+  delete(name: string): boolean
+  append(name: string, value?: string): this
+  keys(): IterableIterator<string>
+  entries(): IterableIterator<[string, string]>
+  values(): IterableIterator<string>
+  getAll(names: string): string[]
+  [Symbol.iterator](): IterableIterator<[string, string]>
 }
 
 export interface MyMockContext<T> extends MyContext {
   context: MyContext<{}>
   rawHeaders: string[]
   headers: Record<string, string | string[] | undefined>
-  getAll: (name: string) => undefined
+  getAll: (name: string[]) => string[]
   //fixes error at line 121 to safify the constraint Record<string, unknown> for  'ExtendedCustomRequestWithPrisma<MyMockContext<T>>
   [key: string]: unknown
   // Add the other required properties here
 }
 
 export interface MockExtendedCustomRequest<T extends {}> {
-  session: {
-    userId: string
-  }
+  session: CustomSessionType & SessionData
   outerContext: {
     id: string
     prisma: any
@@ -56,17 +53,17 @@ export interface MockExtendedCustomRequest<T extends {}> {
       session: {
         userId: string
       }
-      cache: {}
+      cache: RequestCache
       context: MyContext<T>
       rawHeaders: readonly string[]
       headers: HeadersWithIndexSignature
-      getAll: (name: string) => undefined
-      cookies: any,
+      getAll: (name: string[])  => string[]
+      cookies: any
       signedCookies: Record<string, string>
       [key: string]: any // allow any additional properties
     }
   }
-  cache: any
+  cache: RequestCache
   // credentials: any
   [key: string]: any // allow any additional properties
 }
@@ -84,15 +81,11 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
   const emptyRawHeaders: string[] = ['']
 
   const defaultMockRequest: MockExtendedCustomRequest<MyMockContext<T>> & Partial<Request> = {
-    session: {
-      userId: context?.session.userId,
-      yourSessionKey: '',
-      username: context?.session.username,
-      expires: 15,//todo update to accurate expiration
-    } as unknown as CustomSessionType & Session,
-    cache: {},
+    session: {} as Session & Partial<SessionData>,
+    // as unknown as CustomSessionType & Session,
+    cache: {} as RequestCache,
     outerContext: {
-      id: '',
+      id: SessionData.id,
       prisma: new PrismaClient(),
       body: {},
       currentUser: {} as UserWithoutSensitiveData,
@@ -100,19 +93,21 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
         session: {
           userId: '',
         },
-        cache: {},
+        cache: {} as RequestCache,
         context: {} as MyContext<MyMockContext<T>>,
         rawHeaders: rawHeaders,
         headers: {} as HeadersWithIndexSignature,
-        cookies: {},
+        cookies: {} as Record<string, string>,
         signedCookies: {},
-        getAll: (name: string) => undefined,
+        getAll: (name: string[]) => [],
         get: (name: string) => undefined,
         ctx: {
-          context: {},
+          context: {
+            ...context,
+          },
           rawHeaders: [] as string[] as string[] & readonly string[],
           headers: {} as HeadersWithIndexSignature,
-          getAll: (name: string) => undefined,
+          getAll: (name: string[]) => [],
         },
 
         currentUser: {} as UserWithoutSensitiveData,
@@ -136,12 +131,12 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
       context: context ? context : {},
       rawHeaders: [''],
       headers: {} as HeadersWithIndexSignature,
-      getAll: (name: string) => {
+      getAll: (name: string[])  => {
         return undefined
       },
       accepts: () => {
-        return undefined;
-      }
+        return undefined
+      },
     },
   }
 
@@ -149,23 +144,28 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
     context,
     get: (name: string) => undefined,
     currentUser: mockRequest.outerContext.currentUser,
-    session: {} as CustomSessionType & Session,
-    signedCookies: {} as Record<string, string>,
-    config: {} as AppConfiguration,
-    request: {} as YourRequestObject<CustomRequestInit>,
-    req: {} as CustomRequestWithContext<T>,
+    session: mockRequest.req.outerContext.session,
+    id: mockRequest.req.outerContext.id,
+    customProp: mockRequest.req.outerContext.customProp,
+    user: mockRequest.req.outerContext.user,
+    url: mockRequest.req.outerContext.url,
+    URLSearchParams: mockRequest.req.outerContext.URLSearchParams,
+    size: mockRequest.req.outerContext.size,
+    signedCookies: mockRequest.req.outerContext.signedCookies,
+    config: mockRequest.req.outerContext.config,
+    request: mockRequest.req.outerContext.request,
+    req: mockRequest.req.outerContext.req,
     prisma: mockRequest.outerContext.prisma,
     cache: mockRequest.req.outerContext.cache,
-    cookie: mockRequest.req.outerContext.cookie, 
+    cookie: mockRequest.req.outerContext.cookie,
     cookies: mockRequest.req.outerContext.cookies,
     token: mockRequest.req.outerContext.accessToken,
     accepts: mockRequest.req.outerContext.accepts,
-    accessToken: undefined,
+    accessToken: null,
     ctx: {
       ...mockRequest.context,
       req: mockRequest.req,
-      accepts: (types: string | string[] |
-       boolean) => {
+      accepts: (types: string | string[] | boolean) => {
         if (types === 'string') {
           return [types]
         }
@@ -177,13 +177,8 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
         }
         return []
       },
-        
-    }
+    },
   }
 
   return nestedContext
 }
-
-
-
-

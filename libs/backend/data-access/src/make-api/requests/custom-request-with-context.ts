@@ -3,46 +3,60 @@ import { NextFunction, Response } from 'express'
 import { IncomingHttpHeaders } from 'http'
 import { AppConfiguration } from '../../context/app-configuration'
 import { createContext } from '../../context/create-context'
-import { MyContext, UserWithAccessToken } from '../../context/my-context'
+import { CustomURLSearchParams, MyContext } from '../../context/my-context'
 import { CustomRequest } from '../../interfaces/user/custom-request'
 import { PrismaService } from '../../lib/prisma/prisma.service'
-import { UserWithoutSensitiveData } from '../../modules/user/user'
+import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
 import { CustomSessionType } from '../my-custom-request'
 import { CustomRequestInit } from './custom-request-init'
 
-
-export class YourRequestObject<T>{
+export class YourRequestObject<T> {
   private readonly prismaService: PrismaService
   private readonly request: CustomRequestWithContext<CustomRequestInit>
+  private readonly requestBody: CustomSessionType
+
   customProp: string
   headers: CustomContextHeaders
-  
+  query: Record<string, string>
+  user: UserWithoutSensitiveData | null
+  params: { [key: string]: string }
+  customCache: CustomSessionType
+  session: CustomSessionType
+  accepts: CustomSessionType
+  body: CustomSessionType
+  URLSearchParams: CustomURLSearchParams
 
   constructor() {
     this.prismaService = prismaService
     this.request = {} as CustomRequestWithContext<CustomRequestInit>
     this.customProp = ''
     this.headers = {} // Initialize headers if necessary
+    this.user = null
+    this.params = {} as CustomSessionType
+    this.query = {} as CustomSessionType
+    this.customCache = {} as CustomSessionType
+    this.session = {} as CustomSessionType
+    this.accepts = {} as CustomSessionType
+    this.request = {} as CustomRequestWithContext<CustomRequestInit>
+    this.body = {} as CustomSessionType
+    this.requestBody = {} as CustomSessionType
+    this.URLSearchParams = {} as CustomURLSearchParams
   }
-
-
 }
 
+const prismaService = new PrismaService()
+const yourRequestObject = new YourRequestObject<CustomRequestInit>()
 
-const prismaService = new PrismaService();
-const yourRequestObject = new YourRequestObject<CustomRequestInit>();
-
-
-  export interface CustomContextHeaders extends IncomingHttpHeaders {
+export interface CustomContextHeaders extends IncomingHttpHeaders {
   [key: string]: string | string[] | undefined
 }
 
 export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'context'> {
   id: string
   config: AppConfiguration
-  user: UserWithAccessToken 
+  user: UserWithAccessToken
   userId: CustomSessionType['userId']
-  currentUser: UserWithAccessToken 
+  currentUser: UserWithAccessToken
   accessToken: string
   prisma: PrismaClient
   prismaService?: PrismaService
@@ -57,23 +71,21 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   rawHeaders: string[]
   session: CustomSessionType
   cookies: { [key: string]: string }
-  signedCookies: Record<string,string>
+  signedCookies: Record<string, string>
   cache: RequestCache
   headers: CustomContextHeaders
   request: CustomRequest
-
 }
 
 // Middleware function to attach our custom context to the request object
-export const attachCustomContext = (): (
-  (
+export const attachCustomContext = (): ((
   req: YourRequestObject<MyContext<{}>>,
   res: Response,
   next: NextFunction,
 ) => void) => {
-  const customProp = 'example custom property';
+  const customProp = 'example custom property'
   return (req: YourRequestObject<MyContext<{}>>, res: Response, next: NextFunction) => {
-    req.customProp = customProp;
+    req.customProp = customProp
     next()
   }
 }
