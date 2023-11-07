@@ -1,4 +1,4 @@
-import { User, UserRole, UserService, UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/data-access'
+import { PrismaService, User, UserRole, UserService, UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/data-access'
 import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
@@ -117,9 +117,11 @@ let commonHeaders: CustomContextHeaders = {}
 
  export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
   const socketId = 'yourSocketId'
-  let specificSocket
-  let userService: UserService
-  let requestBody: BodyContent | null 
+   let specificSocket
+   
+  const prismaService = new PrismaService()
+  let userService: UserService = new UserService(prismaService)
+  let requestBody: BodyContent | null = null
 
   if (req) {
     // Initialize common headers
@@ -184,6 +186,7 @@ let commonHeaders: CustomContextHeaders = {}
       context: {} as CustomContextType<MyContext<{}>>,
       ctx: {} as MyContext<{}>,
       body: {} as BodyInit | null | undefined,
+      userService: {} as UserService,
       requestBody: {} as BodyContent | null | undefined,
       URLSearchParams: {} as CustomURLSearchParams,
       request: {} as YourRequestObject<CustomRequestInit>,
@@ -258,15 +261,15 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
         // Add the request-policy header if it is an API request
         ...(isApiRequest && { 'Referer-Policy': 'strict-origin-when-cross-origin' }),
         'set-cookie': [],
-        accepts(types: string | string[] | undefined) {
-          if (typeof myContext?.accepts === 'undefined') {
-            return undefined;
-          } else {
-            const result = myContext.accepts(Array.isArray(types) ? types : [types] as unknown as string);
-            return Array.isArray(result) ? result : [result];
-          }
-        }
-        ,
+        // accepts(types: string | string[] | undefined) {
+        //   if (typeof myContext?.accepts === 'undefined') {
+        //     return undefined;
+        //   } else {
+        //     const result = myContext.accepts(Array.isArray(types) ? types : [types] as unknown as string);
+        //     return Array.isArray(result) ? result : [result];
+        //   }
+        // }
+        // ,
         'accept-language': '',
         'accep-patch': '',
         'accept-range': '',

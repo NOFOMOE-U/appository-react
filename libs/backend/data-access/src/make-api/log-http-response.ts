@@ -1,7 +1,10 @@
-import { MyContext } from '../context/my-context'
+import { CustomURLSearchParams, MyContext } from '../context/my-context'
+import { UserWithAccessToken } from '../modules/user/user'
 import { UserService } from '../modules/user/user.service'
 import { SessionData } from '../types/express'
 import { MyCustomRequest } from './my-custom-request'
+import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
+import { YourRequestObject } from './requests/custom-request-with-context'
 
 export interface ParsedUrl {
   protocol: string
@@ -18,66 +21,76 @@ export interface ParsedUrl {
   href: string
 }
 let userService: UserService
-let requestBody: BodyContent | null | undefined;
+let requestBody: BodyContent | null | undefined
 
-  
 export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
-  const sessionData = req.session as SessionData;
-  const userId = sessionData.userId;
-  
+  const sessionData = req.session as SessionData
+  const userId = sessionData.userId
+
   const requestHeaders: Record<string, string | undefined> = {
-    'Authorization' : `Bearer ${userId}`,
-    'Content-Type' : 'application/json'
-  };
+    Authorization: `Bearer ${userId}`,
+    'Content-Type': 'application/json',
+  }
 
   //.... populate requestHeaders ...
 
   // Convert requestHeaders to an array of two-item arrays
-  const requestHeadersArray: [string, string][] = Object.entries(requestHeaders)
-    .map(([key,value]) => [key,value || ""])
+  const requestHeadersArray: [string, string][] = Object.entries(requestHeaders).map(([key, value]) => [
+    key,
+    value || '',
+  ])
 
   for (const key in requestHeaders) {
     if (Object.prototype.hasOwnProperty.call(requestHeaders, key)) {
-      const value = requestHeaders[key];
-      requestHeadersArray.push([key,value || ''])
+      const value = requestHeaders[key]
+      requestHeadersArray.push([key, value || ''])
     }
   }
-  
+
   requestBody = {
-    body: undefined
+    user: 'your-user-data',
+    accepts: 'your-accepted-data',
+    body: 'your-request-body-data-here',
+    requestBody: 'your-requestBody-data-here',
   }
- 
+
   const request: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest(
-    requestBody,
     {
-    body: undefined,
-    url: 'https://jsonplaceholder.typicode.com/posts/1',
-    method: 'GET',
-    headers: requestHeaders as HeadersInit,
-    get: (name: string) => {
-      const foundHeader = (requestHeaders as unknown as [string,string][])?.find(([key]: [string, string]) => key === name);
-      if (foundHeader) {
-        const value = foundHeader[1];
-        return value ? value : undefined
-      }
-      return undefined
-    },
-    accepts: (types: string | string[]) => [],
-    session: req.session
+      userService: userService,
+      url: 'https://jsonplaceholder.typicode.com/posts/1',
+      method: 'GET',
+      headers: requestHeaders as HeadersInit,
+      user: {} as UserWithAccessToken,
+      body: {} as BodyInit | null | undefined,
+      requestBody: {} as BodyContent | null | undefined,
+      URLSearchParams: {} as CustomURLSearchParams,
+      request: {} as YourRequestObject<CustomRequestInit>,
+      accepts: (types: string | string[] | undefined) => [],
+      get: (name: string) => {
+        const foundHeader = (requestHeaders as unknown as [string, string][])?.find(
+          ([key]: [string, string]) => key === name,
+        )
+        if (foundHeader) {
+          const value = foundHeader[1]
+          return value ? value : undefined
+        }
+        return undefined
+      },
+      session: req.session,
     },
     userService,
+    requestBody,
   )
 
-  const response = await request.fetch();
+  const response = await request.fetch()
 
   if (response.ok) {
-    const data = await response.json();
-    console.log('Response data:', data);
+    const data = await response.json()
+    console.log('Response data:', data)
   } else {
-    console.error('Error:', response.status, response.statusText);
+    console.error('Error:', response.status, response.statusText)
   }
 }
-
 
 // #todo ways to use tough cookie
 // Web scraping: When scraping websites, it's common to send multiple requests to the same website over a period of time. By using Tough Cookie, you can ensure that the website doesn't block you due to repeated requests from the same IP address. You can set up a cookie jar to store cookies and send them with subsequent requests, mimicking a regular user's behavior.
@@ -89,8 +102,6 @@ export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
 // Testing: When testing web applications, you may want to simulate different user scenarios. Using Tough Cookie, you can set up different cookie jars to simulate different user sessions. This allows you to test your application under different user conditions, which can help you identify and fix bugs.
 
 // Crawling APIs: APIs often have rate limits and request quotas to prevent abuse. By using Tough Cookie, you can manage API authentication and track your API usage to stay within the limits. This can help prevent your application from getting blocked by the API provider for excessive usage.
-
-
 
 // todo
 // Validation Middleware: Middleware for input validation and data sanitization. This can help ensure that the data being sent to your application is valid and safe to use.

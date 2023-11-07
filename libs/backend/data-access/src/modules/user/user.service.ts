@@ -19,6 +19,7 @@ export class UserService {
   private currentUser?: UserWithAccessToken
   request: YourRequestObject<CustomRequestInit>
   user: UserWithAccessToken | null
+  
   constructor(private readonly prismaService: PrismaService) {
     this.request = new YourRequestObject<CustomRequestInit>()
     this.user = null
@@ -117,7 +118,9 @@ export class UserService {
   // async getUserByTaskId(id: string): Promise<Task | null> {
   //   return this.prismaService.getUserByTaskId(id)
   // }
-}
+  }
+const prismaService = new PrismaService()
+const userService: UserService = new UserService(prismaService)
 
 
 

@@ -276,8 +276,8 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
         userService: req.session.userServicce, // pass user service instance
         // Add other required properties
       },
+      userService, // pass userService instance
       context,
-      userService // pass userService instance
       )
 
       await makeRequest(myCustomReq)

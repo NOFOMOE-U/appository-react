@@ -60,7 +60,7 @@ export interface MyContext<T = {}> extends Record<string, unknown> {
   cookies?: Record<string, string>
   signedCookies: Record<string, string>,
   get?: (name: string) => string | null | undefined
-  accepts: (types: string | string[]) => string[]
+  accepts: (types: string | string[] | undefined) => (string | false | null)[] | undefined
   URLSearchParams: CustomURLSearchParams
   [Symbol.iterator](): IterableIterator<[string, string]>;
 }  

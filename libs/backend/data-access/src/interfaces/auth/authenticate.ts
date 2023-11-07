@@ -1,4 +1,4 @@
-import { ExtendedCustomRequest } from '@appository/backend/data-access'
+import { ExtendedCustomRequest, UserService } from '@appository/backend/data-access'
 import { PrismaClient, User, UserRole } from '@prisma/client'
 import { compare, hash } from 'bcryptjs'
 import { URLSearchParams } from 'url'
@@ -48,6 +48,7 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
   const prisma = new PrismaClient()
   let context: MyContext = {
     prisma,
+    userService: {} as UserService,
     body: {} as BodyInit | null,
     requestBody: {} as BodyContent | null | undefined,
     user: convertUserToUserWithAccessToken(user),
@@ -100,7 +101,7 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
     },
     append: (key: string, value: string) => void {},
     get: () => '',
-    accepts: (types: string | string[]) => [],
+    accepts: (types: string | string[] | undefined) => [],
     entries(): IterableIterator<[string, string]> {
       const data = [['key1', 'value1']]
       let index = 0

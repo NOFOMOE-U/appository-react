@@ -1,62 +1,65 @@
-import { CustomURLSearchParams, MyContext } from '../context/my-context'
-import { PrismaService } from '../lib/prisma/prisma.service'
-import { UserWithAccessToken } from '../modules/user/user'
-import { UserService } from '../modules/user/user.service'
-import { apiConfig } from './api-config/api-config'
-import { EXTERNAL_API_CONFIG_MAP } from './api-config/external-config'
-import { INTERNAL_API_CONFIG_MAP } from './api-config/internal-config'
-import { MyCustomRequest } from './my-custom-request'
-import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
-import { YourRequestObject } from './requests/custom-request-with-context'
+import { MyContext } from '../context/my-context';
+import { PrismaService } from '../lib/prisma/prisma.service';
+import { UserService } from '../modules/user/user.service';
+import { EXTERNAL_API_CONFIG_MAP } from './api-config/external-config';
+import { INTERNAL_API_CONFIG_MAP } from './api-config/internal-config';
+import { MyCustomRequest } from './my-custom-request';
+import { BodyContent, CustomRequestInit } from './requests/custom-request-init';
 
+// Define a default base URL in your apiConfig
+export const apiConfig = {
+  // ... other endpoints ...
+  baseApiUrl: 'https://api.example.com', //todo update to use proper baseApiUrl
+};
 
-const INTERNAL_API_CONFIG = INTERNAL_API_CONFIG_MAP
-const EXTERNAL_API_CONFIG = EXTERNAL_API_CONFIG_MAP
+const INTERNAL_API_CONFIG = INTERNAL_API_CONFIG_MAP;
+const EXTERNAL_API_CONFIG = EXTERNAL_API_CONFIG_MAP;
 
-type ApiEndpoint = keyof typeof apiConfig
-//createRequest accepts additional argument for the API type
-type ApiType = 'isInternal' | 'isExternal'
+const userSelectEndpoint: keyof typeof apiConfig = 'baseApiUrl';
 
-let prismaService = new PrismaService()
-let userService=  new UserService(prismaService)
-let requestBody: BodyContent | null = null
+type ApiEndpoint = keyof typeof apiConfig;
+type ApiType = 'isInternal' | 'isExternal';
+
+let prismaService = new PrismaService();
+let userService = new UserService(prismaService);
+let requestBody: BodyContent | null = null;
 
 export function createRequest(
   context: MyContext,
   endpoint: ApiEndpoint,
   type: ApiType = 'isInternal',
 ): MyCustomRequest<MyContext> {
-  const baseUrl = type === 'isInternal' ? INTERNAL_API_CONFIG[endpoint] : EXTERNAL_API_CONFIG[endpoint]
+  // Use the base URL from apiConfig
+  const baseUrl = apiConfig.baseApiUrl;
 
-  const customRequestInit: CustomRequestInit & { body?: BodyInit| undefined } = {
+  // Construct the full URL based on the endpoint and base URL
+  const fullUrl = generateUrl(endpoint, baseUrl, type);
+
+  const customRequestInit: CustomRequestInit & { body?: BodyInit | undefined } = {
     method: 'GET',
-    url: baseUrl,
-    URLSearchParams: {} as CustomURLSearchParams,
-    user: context.user as UserWithAccessToken | null,
-    request: new YourRequestObject<CustomRequestInit>(),
-    requestBody: undefined,
-    accepts: (types: string | string[] | undefined) => {
-      if (typeof context?.accepts === 'undefined') {
-        return undefined
-      } else {
-        const result = context.accepts(Array.isArray(types) ? types : ([types] as unknown as string))
-        if (Array.isArray(result)) {
-          return result
-        } else if (typeof result === 'string') {
-          return [result]
-        } else {
-          return undefined
-        }
-      }
-    },
+    url: fullUrl,
+    URLSearchParams: context.URLSearchParams,
+    user: context.user,
+    request: context.request,
+    requestBody: context.requestBody,
+    accepts: context.accepts,
     body: JSON.stringify(context),
-  }
-  const requestBody = JSON.stringify(context); // Convert the context to JSON
-  return new MyCustomRequest({...customRequestInit, body: requestBody, userService}, undefined, userService)
+  };
+
+  const requestBody: BodyInit = JSON.stringify(context); // Convert the context to JSON
+  return new MyCustomRequest({ ...customRequestInit, body: requestBody, userService },userService, undefined );
 }
 
-export function generateUrl(endpoint: string, id = '', secondValue = '', type: ApiType = 'isInternal'): string {
-  const baseUrl = type === 'isInternal' ? INTERNAL_API_CONFIG_MAP.toString() : EXTERNAL_API_CONFIG_MAP.toString()
-  const url = new URL(endpoint, baseUrl)
-  return url.href
+// Update the generateUrl function to use the base URL
+function generateUrl(endpoint: string, baseUrl: string, type: ApiType = 'isInternal'): string {
+  // Combine the endpoint with the base URL
+  const url = new URL(endpoint, baseUrl);
+  return url.href;
 }
+
+const context: MyContext = {} as MyContext<{}>;
+const type: ApiType = 'isInternal';
+
+// Now create myCustomRequest after defining createRequest
+const myCustomRequest = createRequest(context, userSelectEndpoint, type);
+myCustomRequest.userService = userService;

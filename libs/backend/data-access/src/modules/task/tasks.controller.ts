@@ -8,7 +8,7 @@ export class TasksController {
     private taskService: TaskService,
     private permissionsService: PermissionsService,
     private userService: UserService,
-  ) {}
+  ) { }
 
   @Get()
   async getTasks(@Query() query: { userId: string; taskId: number; projectMembers: string[] }): Promise<any> {
@@ -21,15 +21,21 @@ export class TasksController {
 
     // Check if the user has permission to reassign the task
     const user = await this.userService.getUserById(userId)
+ 
+    // //TODO TASK SET UP
     // Get the task details
-    const task = await this.taskService.getTaskById(taskId.toString())
-    if (!user || !task || !this.permissionsService.canReassignTask(user, task)) {
-      throw new ForbiddenException('You do not have permission to reassign this task')
-    }
-    //can update 
-    if (!user || !task || !this.permissionsService.canUpdateTask(user, task)) {
-      throw new ForbiddenException('You do not have permission to update this task')
-    }
-    return task
-  }
+    //     const task = await this.taskService.getTaskById(taskId.toString())
+    //     if (!user || !task || !this.permissionsService.canReassignTask(user, task)) {
+    //       throw new ForbiddenException('You do not have permission to reassign this task')
+    //     }
+    //     //can update 
+    //     if (!user || !task || !this.permissionsService.canUpdateTask(user, task)) {
+    //       throw new ForbiddenException('You do not have permission to update this task')
+    //     }
+        // return task
+      }
+  
+  
+
+  
 }

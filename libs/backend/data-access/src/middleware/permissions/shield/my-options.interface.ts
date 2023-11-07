@@ -68,7 +68,7 @@ const options: MyOptions= {
       context: {} as MyContext,
       ...({} as any),
     },
-    accepts: (types: string | string[]) => {
+    accepts: (types: string | string[] | undefined) => {
       if (typeof types === 'string' && types == 'application/json') {
         return ['application/json']
       }
