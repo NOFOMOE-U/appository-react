@@ -14,7 +14,7 @@ import { validateUserSchema } from '../../middleware/validation-yup-schemas/vali
 import { UserWithAccessToken, UserWithoutSensitiveData } from './user';
 import { getAllUsers } from './user-queries/get-all-users';
 import { UserInput } from './user.input';
-  @Injectable()
+@Injectable()
 export class UserService {
   private currentUser?: UserWithAccessToken
   request: YourRequestObject<CustomRequestInit>
@@ -81,6 +81,7 @@ export class UserService {
     passwordHash: string,
   ): Promise<UserWithoutSensitiveData> {
     //validate user input
+    await this.validateUserInput(data)
     await validateUserSchema.validate(data)
     return createUser(data, context, passwordHash)
   }
@@ -113,6 +114,27 @@ export class UserService {
   async getCurrentUser(): Promise<UserWithAccessToken | null> {
     return this.currentUser || null
   }
+
+  async getApiUrl(endpoint: string): Promise<string> {
+    //review if this is accurate and if not, where
+    const baseUrl = 'https://example.com/api'
+
+    // Combine the endpoint with the base URL
+    return `${baseUrl}/${endpoint}`
+  }
+
+  private getBaseUrlForAccess(userAccess: 'free' | 'basic' | 'premium' | 'enterprise'): string { 
+    const baseUrls: Record<'free' | 'basic' | 'premium' | 'enterprise', string> = {
+      free: 'https://example.com/api/free',
+      basic: 'https://example.com/api/free',
+      premium:'https://example.com/api/premium',
+      enterprise:'https://example.com/api/enterprise'
+    }
+
+    //Retrieve the appropriate base UR based on the user's access level
+    return baseUrls[userAccess]
+  }
+
 
   //todo connect tasks to prismaService
   // async getUserByTaskId(id: string): Promise<Task | null> {

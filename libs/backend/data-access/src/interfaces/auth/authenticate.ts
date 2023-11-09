@@ -25,7 +25,7 @@ export function convertUserToUserWithAccessToken(user: User): UserWithAccessToke
     resetPasswordToken: undefined,
     accessToken: generateToken(user),
     userProfileId: user.id as unknown as number,
-    passwordHash: undefined, // Change the type to undefined
+    passwordHash: undefined,
     username: user.username, // Add username property
   }
 }

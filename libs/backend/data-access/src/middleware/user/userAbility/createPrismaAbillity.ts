@@ -2,8 +2,9 @@ import { AbilityBuilder, PureAbility } from '@casl/ability';
 import { PrismaQuery, Subjects, createPrismaAbility } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient, User, User as UserType } from '@prisma/client';
-import { MyContext } from '../../../context/my-context';
-import { CustomRequestWithContext } from '../../../make-api/requests/custom-request-with-context';
+import { Request } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { ParsedQs } from 'qs';
 import { getUserId } from '../../../utils/backend-auth.utils';
 
 type AppAbility = PureAbility<
@@ -40,10 +41,11 @@ export class CaslAbilityFactory {
     return build()
   }
 
-  static async createForPrisma(prisma: PrismaClient, req: CustomRequestWithContext<MyContext>): Promise<AppAbility>{
+  static async createForPrisma(prisma: PrismaClient, req: Request): Promise<AppAbility>{
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(createPrismaAbility)
       
-      const user = await getUserId(req) // replace with actual user
+    const user = await getUserId(req) // replace with actual user
+    
     can('read', 'Post')
     can('manage', 'User', { id: user })
     cannot('delete', 'User', { id: user })
@@ -55,7 +57,7 @@ export class CaslAbilityFactory {
 }
 
 const prisma = new PrismaClient()
-const req: CustomRequestWithContext<MyContext> = {} as CustomRequestWithContext<MyContext>;
+const req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> = {} as Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>;
 const ability =  CaslAbilityFactory.createForPrisma(prisma, req)
 
 export default ability

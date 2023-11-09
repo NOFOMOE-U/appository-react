@@ -39,7 +39,7 @@ const User = objectType({
   name: 'User',
   definition(t) {
     t.nonNull.string('id')
-    t.nonNull.string('name')
+    // t.nonNull.string('name')
     t.nonNull.string('email')
     t.nonNull.string('username')
     t.list.field('posts', { type: 'Post' })
@@ -83,7 +83,7 @@ export const Mutation = extendType({
         data: 'UserInput',
       },
       resolve: async (_parent, { data }, ctx: Context) => {
-        const { name, email, password, confirmPassword } = data
+        const { username, email, password, confirmPassword } = data
 
         if (password !== confirmPassword) {
           throw new Error('Passwords do not match, please try again')
@@ -92,7 +92,7 @@ export const Mutation = extendType({
         const passwordHash = await hashPassword(password)
         return ctx.getPrisma().user.create({
           data: {
-            name,
+            username,
             email,
             passwordHash,
           }as Prisma.UserCreateInput,
@@ -103,13 +103,13 @@ export const Mutation = extendType({
       type: 'User',
       args: {
         id: 'id',
-        name: 'String',
+        username: 'String',
         email: 'String',
       },
-      resolve: async (_parent, { id, name, email }, ctx: Context) => {
+      resolve: async (_parent, { id, username, email }, ctx: Context) => {
         return ctx.getPrisma().user.update({
           data: {
-            name,
+            username,
             email,
           },
           where: {

@@ -65,8 +65,8 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
   //Constructor
   constructor(
     options: CustomRequestOptions,
-    requestBody: BodyContent | null | undefined,
     userService: UserService,
+    requestBody: BodyContent | null | undefined,
   ) {
     if (!options.url) {
       throw new Error('URL is required')
@@ -388,8 +388,8 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
     })
       const customRequest: MyCustomRequest<MyContext> = new MyCustomRequest<MyContext<UserWithoutSensitiveData>>(
       options,
+      userService,
       requestBody,
-      userService
      )
     customRequest.customHeaders = customHeaders
 

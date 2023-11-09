@@ -1,13 +1,8 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 import { PrismaContext } from '../../interfaces/prisma/prisma.interface';
 import { permissionsMatrix } from '../../middleware/permissions/permissions-matrix';
-import { UserWithoutSensitiveData } from '../../modules/user/user';
-import prisma, { CustomPrismaClient } from './prisma';
- // export interface PrismaContext {
-//   prisma: PrismaClient
-// }
-
+import { CustomPrismaClient } from './prisma';
  
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
@@ -23,7 +18,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private taskId: string | null = null
 
   constructor() {
-    this.prisma = prisma
+    this.prisma = new PrismaClient()
     this.initPermissionsMatrix();
   }
 
@@ -37,6 +32,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     await this.prisma.$disconnect()
+  }
+
+  async getClient() {
+    await this.prisma;
   }
 
   async getUserById(id: string): Promise<User | null> {
@@ -61,11 +60,11 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   async getContext(): Promise<PrismaContext> {
     return {
-      prisma: this.prisma,
-      cookies: {},
-      id: '',
-      currentUser: {} as UserWithoutSensitiveData,
-      token: '',
+      prisma: (await this.getContext()).prisma,
+      cookies: (await this.getContext()).cookies,
+      id: (await this.getContext()).id,
+      currentUser: (await this.getContext()).currentUser,
+      token: (await this.getContext()).token,
       getUserId: () => this.userId,
       getPrisma: () => this.prisma,
     }

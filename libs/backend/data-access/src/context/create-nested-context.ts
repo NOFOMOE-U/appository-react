@@ -146,6 +146,7 @@ export const createNestedContext = <T>(context?: MyContext<T>): CustomContextTyp
     currentUser: mockRequest.outerContext.currentUser,
     session: mockRequest.req.outerContext.session,
     id: mockRequest.req.outerContext.id,
+    userService: mockRequest.req.outerContext.userService,
     customProp: mockRequest.req.outerContext.customProp,
     user: mockRequest.req.outerContext.user,
     url: mockRequest.req.outerContext.url,

@@ -31,6 +31,7 @@ export interface MyContext<T = {}> extends Record<string, unknown> {
   config?: AppConfiguration
   currentUser?: UserWithAccessToken | UserWithoutSensitiveData | null | undefined;
   ctx: CustomContextType;
+  customProp?: string | undefined
   user: UserWithAccessToken
   req?: IncomingMessage
   userService: UserService

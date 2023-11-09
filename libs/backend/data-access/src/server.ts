@@ -23,7 +23,7 @@ import { applyMiddleware } from 'graphql-middleware'
 import { makeSchema } from 'nexus'
 import { Namespace, Server } from 'socket.io'; // Import the necessary types
 import { processRequest } from './make-api/default-options'
-import { makeApiRequest } from './make-api/make-api-request'
+import { ApiRequestFunction, makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
 import userRegistrationSchema from './middleware/validation-yup-schemas/validate-registration'
@@ -293,7 +293,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
 
   app.get('/make-api-request', async (req: CustomRequestWithContext<MyContext<{}>>, res: Response, next: NextFunction) => {
       try {
-        await makeApiRequest(req)
+        await makeApiRequest(req, userService.getApiUrl as ApiRequestFunction);
 
         res.status(200).json({ message: 'API request processed successfully' })
       } catch (error) {

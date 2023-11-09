@@ -41,8 +41,9 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
     user: {
       passwordHash: undefined,
     } as UserWithAccessToken,
-    body: {} as any,
-    requestBody: {} as any,
+    body: {} as BodyInit | null | undefined,
+    userService: {} as UserService,
+    requestBody: {} as BodyContent | null | undefined,
     request: {} as YourRequestObject<CustomRequestInit>,
     url: 'https://jsonplaceholder.typicode.com/posts/1',
     method: 'GET',
@@ -79,6 +80,7 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
       size: 0,
       url: '',
       URLSearchParams: {} as CustomURLSearchParams,
+      userService: {} as UserService,
       user: {} as  UserWithAccessToken,
       signedCookies: {} as Record<string, string>,
       config: {} as AppConfiguration,
@@ -109,8 +111,8 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
     },
     config: {} as AppConfiguration,
   },
+  userService = new UserService(prismaService),
   myContext,
-  userService = new UserService(prismaService) ,
 )
 
 

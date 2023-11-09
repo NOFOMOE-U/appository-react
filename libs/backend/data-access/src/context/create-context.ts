@@ -1,6 +1,6 @@
   import { PrismaClient, User } from '@prisma/client';
 import { convertUserToUserWithAccessToken } from '../interfaces/auth/authenticate';
-import { CustomRequest, ExtendedCustomRequest } from '../interfaces/user/custom-request';
+import { CustomRequest } from '../interfaces/user/custom-request';
 import { PrismaService } from '../lib/prisma/prisma.service';
 import { CustomSessionType } from '../make-api/my-custom-request';
 import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init';
@@ -52,9 +52,9 @@ let prismaService: PrismaService
 
     const customReq: MyContext<UserWithoutSensitiveData> = {
       ...req,
-      customProp: currentUserWithAccessToken,
-      req: {} as ExtendedCustomRequest<MyContext<UserWithoutSensitiveData>>,
-      token: token as string,
+      customProp: sessionData.user.customProp,
+      req: sessionData.req,
+      token: sessionData.token,
       id: sessionData.id,
       body: {} as BodyInit | null,
       requestBody: {} as BodyContent | null | undefined,
@@ -117,6 +117,7 @@ let prismaService: PrismaService
       ctx: customReq.ctx,
       size: 0,
       user: customReq.user,
+      userService: customReq.userService,
       url: customReq.url,
       URLSearchParams: customReq.URLSearchParams,
       // context: customReq.context,

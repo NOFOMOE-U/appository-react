@@ -1,6 +1,6 @@
-import { getUserById } from '@appository/backend/data-access';
 import { PrismaClient, UserRole } from '@prisma/client';
 import { rule } from 'graphql-shield';
+import { getUserById } from '../../../modules/user/user-queries/get-user-by-id';
 import errorMessages from '../error-messages';
 
 const prisma = new PrismaClient();

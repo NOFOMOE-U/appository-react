@@ -6,6 +6,7 @@ interface HeadersData {
 }
 
 export class CustomHeadersImpl extends CustomHeadersHandler implements CustomHeaders {
+  [key:string]: any
   constructor(headersObject: { [k: string]: string | string[] } = {}) {
     super(headersObject)
 

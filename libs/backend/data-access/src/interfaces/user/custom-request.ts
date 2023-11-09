@@ -7,6 +7,7 @@ import { CustomSessionType } from '../../make-api/my-custom-request'
 import { BodyContent } from '../../make-api/requests/custom-request-init'
 import { CustomContextHeaders } from '../../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../../modules/user/user'
+import { UserService } from '../../modules/user/user.service'
 // const prisma = new PrismaClient()
 
 export declare const jest: {
@@ -26,6 +27,7 @@ export interface CustomRequest<T = unknown> extends Request {
   token: string
   body: BodyInit | null | undefined
   requestBody: BodyContent | null | undefined
+  userService: UserService
   destination: RequestDestination
   request: CustomRequest
   username: string 

@@ -9,6 +9,35 @@ import { isReadingOwnSession } from '../rules/is-reading-own-session'
 import { isReadingOwnUser } from '../rules/is-reading-own-user'
 
 
+const isAuthenticatedFreeTier = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+  const user = await ctx.getUser()
+
+  if(!user) {
+    throw new Error(errorMessages.notAuthenticated)
+  }
+
+  if(!isFreeTier(user.accessTier)) {
+    throw new Error(errorMessages.notAuthorized)
+  }
+
+  return true
+})
+const isAuthenticatedAccessTier = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+  const user = await ctx.getUser()
+  if (!user) {
+    throw new Error(errorMessages.notAuthenticated)
+  }
+
+  if (!isPaidTier(user.accessTier)) {
+    throw new Error(errorMessages.notAuthenticated)
+  } else {
+    return true
+  }
+})
+
+//heper functions to check the users tier
+const isFreeTier = (accessTier: string) => accessTier === 'free'
+const isPaidTier = (accessTier: string) => accessTier === 'standard' || accessTier === 'premium' || accessTier === 'enterprise'
 
 export const permissions: IRuleTypeMap = {
   Query: {
@@ -22,23 +51,23 @@ export const permissions: IRuleTypeMap = {
       return true
     }),
     me: isAuthenticatedUser,
-    users: or(isAuthenticatedUser,isAdmin, and(isEditor, isOwner)),
-    user: and(isAuthenticatedUser, isReadingOwnUser),
-    session: and(isAuthenticatedUser, isReadingOwnSession)
+    users: or(isAuthenticatedUser, isAdmin, and(isEditor, isOwner), isAuthenticatedAccessTier),
+    user: and(isAuthenticatedUser, isReadingOwnUser, isAuthenticatedAccessTier),
+    session: and(isAuthenticatedUser, isReadingOwnSession, isAuthenticatedAccessTier),
   } as IRuleFieldMap,
+
   Mutation: {
     signUp: not(isAuthenticatedUser),
     login: not(isAuthenticatedUser),
     logout: not(isAuthenticatedUser),
-    createUser: and(isAuthenticatedUser, isOwner, or(isAdmin)),
-    updateMyProfile: and(isAuthenticatedUser, isOwner),
-    deleteUser: or(isAdmin, and(isOwner,isAuthenticatedUser)),
-    revokeRefreshTokensForUser: and(isAuthenticatedUser, isReadingOwnUser)
+    createUser: and(isAuthenticatedUser, isOwner, or(isAdmin), isAuthenticatedAccessTier),
+    updateMyProfile: and(isAuthenticatedUser, isOwner, isAuthenticatedAccessTier),
+    deleteUser: or(isAdmin, and(isOwner, isAuthenticatedUser), isAuthenticatedAccessTier),
+    revokeRefreshTokensForUser: and(isAuthenticatedUser, isReadingOwnUser, isAuthenticatedAccessTier),
   },
   User: {
-    secret: isOwner,
+    secret: and(isOwner, isAuthenticatedFreeTier),
   },
 }
 
-
-export const isAuthenticatedAdmin = chain(isAuthenticatedUser, isAdmin)
+export const isAuthenticatedAdmin = chain(isAuthenticatedUser, isAdmin, isAuthenticatedAccessTier)

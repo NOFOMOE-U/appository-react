@@ -12,8 +12,8 @@ import { CustomURLSearchParams, MyContext } from './my-context';
 export interface CustomContextType<T = MyContext<{}>> {
   ctx: any
   context?: T
-  id: string;
-  customProp: string;
+  id?: string;
+  customProp?: string | undefined;
   req: YourRequestObject<CustomRequestInit>
   request: CustomRequest<{}>
   body?: BodyInit | null | undefined

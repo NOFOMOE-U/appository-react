@@ -18,7 +18,7 @@ async function bootstrap() {
   const myContext = await initContext(req)
 
   // Fixed error by changing userService to requestBody
-  const myRequest = new MyCustomRequest(myContext, requestBody, userService )
+  const myRequest = new MyCustomRequest(myContext, userService, requestBody )
 
   const app = await NestFactory.create(AppModule)
   const config = app.get(ConfigService)

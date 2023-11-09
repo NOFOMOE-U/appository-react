@@ -1,6 +1,6 @@
 import { rule } from 'graphql-shield';
 import { PrismaService } from '../../../lib/prisma/prisma.service';
-import { getUserById } from '../../../modules/user/user';
+import { getUserById } from '../../../modules/user/user-queries/get-user-by-id';
 import { UserService } from '../../../modules/user/user.service';
 import errorMessages from '../error-messages';
 import { PermissionsService } from '../permissions.service';

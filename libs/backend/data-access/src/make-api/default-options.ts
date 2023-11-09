@@ -137,7 +137,7 @@ let commonHeaders: CustomContextHeaders = {}
         if (myContext.context.user !== undefined) {
         }
           
-          const myRequest = new MyCustomRequest<MyContext>(myContext, userService, requestBody)
+        const myRequest = new MyCustomRequest<MyContext>(myContext, userService, requestBody)
         // Access and use the available methods and properties:
         const authorizationHeader = myRequest?.headers?.get('Authorization') // Access a specific header
         myRequest?.accepts('application/json') // Check accepted content types

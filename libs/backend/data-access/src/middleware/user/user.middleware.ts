@@ -9,7 +9,7 @@ import { UserWithAccessToken } from '../../modules/user/user';
 // Instantiate a new Prisma client
 const prisma = new PrismaClient();
 
-type AuthenticatedSession = AuthenticatedRequest & CustomRequest<MyContext<{}>>
+export type AuthenticatedSession = AuthenticatedRequest & CustomRequest<MyContext<{}>>
 type RequestContext = CustomContextType<MyContext<{}>> & MyContext<{}>
 export interface AuthenticatedRequest  {
   context: CustomContextType;

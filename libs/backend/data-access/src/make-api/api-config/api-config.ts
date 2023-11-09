@@ -33,6 +33,7 @@ import { generateUrl } from "../generate-endpint";
 // const createUserUrl: generateUrl('users/{userId}', '123', '', EndpointType.CREATE),
 // // Generate a search endpoint
 const INTERNAL_API_CONFIG = {
+    
     getUsersUrl: generateUrl('users'),
     getUserByIdUrl: generateUrl('users/{userId}', '123'),
     updateUserUrl: generateUrl('users/{userId}'),
@@ -174,7 +175,6 @@ const INTERNAL_API_CONFIG = {
     deleteNotificationsById: 'https://api.example.com/notifications/:id',
     
     // Search Related URLs:
-    
     search: 'https://api.example.com/search?q=:query',
     
     // Productivity Related Searches:
@@ -191,6 +191,7 @@ const INTERNAL_API_CONFIG = {
     searchProjectProgressStats: 'https://api.example.com/project-progress-stats?q=:query',
     searchTimeTrackingStats: 'https://api.example.com/time-tracking-stats?q=:query',
     searchGoalProgressStats: 'https://api.example.com/goal-progress-stats?q=:query',
+
     // Communication Related Searches:
     searchMessages: 'https://api.example.com/messages?q=:query',
     searchAudioMessages: 'https://api.example.com/audio-messages?q=:query',
@@ -346,8 +347,7 @@ const INTERNAL_API_CONFIG = {
 
 
 
-export const apiConfig = {
-}
+export const apiConfig = {}
 
 
 

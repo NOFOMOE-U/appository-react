@@ -1,14 +1,15 @@
   import { PrismaClient } from '@prisma/client'
 import { NextFunction, Response } from 'express'
-import { AuthenticatedRequest } from '../user/user.middleware'
+import { YourRequestObject } from '../../make-api/requests/custom-request-with-context'
+import { UserWithAccessToken } from '../../modules/user/user'
 
   const jwt = require('jsonwebtoken')
 
   const prisma = new PrismaClient()
   const secret = 'mysecret'
 
-  export async function BackendAuthMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
-    const authHeader = req.headers.authorization
+  export async function BackendAuthMiddleware(req: YourRequestObject<UserWithAccessToken>, res: Response, next: NextFunction): Promise<void> {
+    const authHeader =  req.headers.authorization
 
     if (!authHeader) {
       res.status(401).json({ error: 'No token provided' })
@@ -43,13 +44,13 @@ import { AuthenticatedRequest } from '../user/user.middleware'
         id: user.id.toString(),
         name: user.name,
         email: user.email,
+        username: user.username,
         // posts: user.posts,
         roles: user.roles,
-        userProfileId: user.userProfileId,
+        userProfileId: user.userProfileId as number,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        passwordHash: user.passwordHash,
-        resetPasswordToken: user.resetPasswordToken,
+        resetPasswordToken: undefined,
       }
 
       next()

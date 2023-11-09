@@ -1,11 +1,9 @@
 import { createParamDecorator, ExecutionContext, Injectable, NestMiddleware } from '@nestjs/common'
 import { Context, GqlExecutionContext } from '@nestjs/graphql'
-import { NextFunction } from 'express'
+import { NextFunction, Request } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import { shield } from 'graphql-shield'
-import { CustomContextType } from '../../context/custom-context-type'
 import prisma from '../../lib/prisma/prisma'
-import { CustomRequestWithContext } from '../../make-api/requests/custom-request-with-context'
 import { CaslAbilityFactory } from '../user/userAbility/createPrismaAbillity'
 import errorMessages from './error-messages'
 import { PermissionsModuleOptions } from './permissions.types'
@@ -32,7 +30,7 @@ export class PermissionsMiddleware implements NestMiddleware {
 
   async use(
     @Info() info: GraphQLResolveInfo,
-    @Context() context: CustomRequestWithContext<CustomContextType>,
+    @Context() context: Request,
     next: NextFunction,
   ) {
     const ability = await CaslAbilityFactory.createForPrisma(prisma, context)

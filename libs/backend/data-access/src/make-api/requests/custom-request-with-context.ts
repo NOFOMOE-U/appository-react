@@ -27,11 +27,11 @@ export class YourRequestObject<T> {
   URLSearchParams: CustomURLSearchParams
 
   constructor() {
+    this.customProp = ''
     this.prismaService = prismaService
     this.request = {} as BodyInit | null | undefined
-    this.customProp = ''
-    this.headers = {} // Initialize headers if necessary
-    this.user = null
+    this.headers = {}  as CustomContextHeaders// Initialize headers if necessary
+    this.user = {} as UserWithoutSensitiveData
     this.params = {} as CustomSessionType
     this.query = {} as CustomSessionType
     this.customCache = {} as CustomSessionType
