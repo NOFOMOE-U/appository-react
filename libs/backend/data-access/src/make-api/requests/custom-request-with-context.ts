@@ -14,7 +14,9 @@ export class YourRequestObject<T> {
   private readonly prismaService: PrismaService
   private readonly request: BodyInit | null | undefined
   private readonly requestBody: BodyContent | null | undefined
+  private readonly req: CustomSessionType
 
+  accessTier?: AccessTier
   customProp: string
   headers: CustomContextHeaders
   query: Record<string, string>
@@ -29,7 +31,7 @@ export class YourRequestObject<T> {
   constructor() {
     this.customProp = ''
     this.prismaService = prismaService
-    this.request = {} as BodyInit | null | undefined
+    this.req = {} as CustomSessionType
     this.headers = {}  as CustomContextHeaders// Initialize headers if necessary
     this.user = {} as UserWithoutSensitiveData
     this.params = {} as CustomSessionType

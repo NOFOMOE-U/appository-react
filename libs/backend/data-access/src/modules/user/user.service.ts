@@ -8,8 +8,10 @@ import { Prisma, User } from '@prisma/client';
 import { validate } from 'class-validator';
 import { createUser, deleteUser } from '../../../dist/libs/backend/data-access/src/interfaces/auth/authenticate';
 import { MyContext } from '../../context/my-context';
+import { hashPassword } from '../../interfaces/auth/user-with-password-hash';
 import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
 import { CustomRequestInit } from '../../make-api/requests/custom-request-init';
+import errorMessages from '../../middleware/permissions/error-messages';
 import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user';
 import { UserWithAccessToken, UserWithoutSensitiveData } from './user';
 import { getAllUsers } from './user-queries/get-all-users';
@@ -17,12 +19,17 @@ import { UserInput } from './user.input';
 @Injectable()
 export class UserService {
   private currentUser?: UserWithAccessToken
+  private userAccessTier?: AccessTier
   request: YourRequestObject<CustomRequestInit>
   user: UserWithAccessToken | null
   
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private accessTier: AccessTier
+  ) {
     this.request = new YourRequestObject<CustomRequestInit>()
     this.user = null
+    this.userAccessTier = accessTier
   }
 
   accepts(types: string | string[] | undefined): (string | false | null)[] | undefined {
@@ -108,11 +115,24 @@ export class UserService {
   }
 
   async setUser(user: UserWithAccessToken): Promise<void> {
-    this.currentUser = user
+    this.currentUser = user;
+    this.userAccessTier = this.accessTier
   }
 
   async getCurrentUser(): Promise<UserWithAccessToken | null> {
     return this.currentUser || null
+  }
+
+
+  async changeUserPassword(userId: string, newPassword: string): Promise<boolean>{
+    //ogic to change the user's password in the database
+    //you migh want to hash the new password before storing it
+    const hashedPassword = await hashPassword(newPassword);
+    const updatedUser = await this.prismaService.updateUser(userId, {
+      passwordHash: hashedPassword
+    })
+
+    return updatedUser != null
   }
 
   async getApiUrl(endpoint: string): Promise<string> {
@@ -123,16 +143,19 @@ export class UserService {
     return `${baseUrl}/${endpoint}`
   }
 
-  private getBaseUrlForAccess(userAccess: 'free' | 'basic' | 'premium' | 'enterprise'): string { 
-    const baseUrls: Record<'free' | 'basic' | 'premium' | 'enterprise', string> = {
-      free: 'https://example.com/api/free',
-      basic: 'https://example.com/api/free',
-      premium:'https://example.com/api/premium',
-      enterprise:'https://example.com/api/enterprise'
+  private getBaseUrlForAccess(): string { 
+    if (!this.userAccessTier) {
+      throw new Error(errorMessages.NoUrlAccess)
     }
 
+    const baseUrls: Record<AccessTier, string> = {
+      free: 'https://example.com/api/free',
+      standard: 'https://example.com/api/free', // Adjust as needed
+      premium: 'https://example.com/api/premium',
+      enterprise: 'https://example.com/api/enterprise',
+    }
     //Retrieve the appropriate base UR based on the user's access level
-    return baseUrls[userAccess]
+    return baseUrls[this.userAccessTier]
   }
 
 
@@ -142,7 +165,7 @@ export class UserService {
   // }
   }
 const prismaService = new PrismaService()
-const userService: UserService = new UserService(prismaService)
+const userService: UserService = new UserService(prismaService, userAccessTier)
 
 
 

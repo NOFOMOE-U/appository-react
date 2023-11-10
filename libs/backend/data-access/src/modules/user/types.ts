@@ -134,3 +134,68 @@ export const Mutation = extendType({
   },
 })
 export default nullable(User)
+
+
+
+// blog platform
+
+// Users[]
+// id int primar_key
+// username varchar
+// created_at timestamp
+// post_id
+// comment_id
+// posts[]
+// comments[]
+
+
+// Follows
+// following_user_id int
+// followed_by_user_id int
+// created_at
+
+// Posts
+// post_id
+// coments[]
+// comment_id
+
+// Comments
+// id
+// user_id
+// comment
+// post
+// post_id
+// users[]
+
+// employees
+// id int
+// name varchar
+// schedule timestamp
+// position varchar
+
+// coffee
+// id int
+// price float
+// size numeric
+// flavor string
+
+// breakfast
+// id int
+// burritos, string
+//   crossiants, string
+//   omellette string
+
+
+// promotionals
+// id key
+// discount_price numeric
+// expiration timestamp
+// description string
+// user_id foreign key
+
+// Customer
+// id
+// username,
+//   email,
+//   favOrder,
+// promotional_id

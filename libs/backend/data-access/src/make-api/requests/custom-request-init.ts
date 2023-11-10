@@ -31,8 +31,10 @@ export interface CustomRequestInit extends RequestInit {
   request: YourRequestObject<CustomRequestInit>
   req?: IncomingMessage
 }
+const accessTier = userAccessTier
+// const accessTier = new AccessTier()
 const prismaService = new PrismaService();
-const userService = new UserService(prismaService);
+const userService = new UserService(prismaService, accessTier);
 export interface CustomRequestOptions extends CustomRequestInit {
     userService: UserService
 }

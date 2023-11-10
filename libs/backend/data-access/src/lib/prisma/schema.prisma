@@ -19,8 +19,8 @@ model Configuration {
   headless Boolean
 }
 
-
-// Add a new "HEADLESS" mode model
+//todo set up
+// Add a new "pin" mode model
 model HeadlessJob {
   id        Int      @id @default(autoincrement())
   // Add any fields necessary for your background job
@@ -601,3 +601,47 @@ TEXT
 IMAGE
 VIDEO
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Headless
+// This TypeScript code appears to be a Nest.js application's main entry point (main.ts). It sets up and initializes various components required for the application to run. Here's an overview of the key elements in this code:
+
+// Import Statements: You're importing various modules, types, and services required for your Nest.js application. These include custom request types, middleware, services, and the main AppModule.
+
+// Bootstrap Function: The bootstrap function serves as the entry point for your application. It's marked as async, indicating it contains asynchronous operations.
+
+// Context Initialization: You start by defining a request object (req) and then initialize a context object using the initContext function. This context is used to handle requests and set up your application's environment.
+
+// Nest.js Setup: You create the Nest.js application using NestFactory.create(AppModule), configure it, and get the ConfigService instance.
+
+// Environment Checks: There's a commented-out section with a HEADLESS mode check. It appears to handle different behaviors based on whether your application is running in headless mode. It includes background tasks for tracking milestones in teams.
+
+// Global Prefix: You set a global API prefix to the application.
+
+// Middleware: You configure and use the LoggingMiddleware as global middleware for the application.
+
+// Server Start: The application listens on a specified port, and log messages are generated to indicate that the application is running and in which environment mode.
+
+// Please note that there are some commented-out code sections, such as the HEADLESS mode check and GraphQL file upload, which you may need to uncomment and complete according to your application's requirements.
+
+// This code represents the typical structure of a Nest.js application entry point. If you have specific questions or need further assistance with a particular aspect of this code, please feel free to ask.

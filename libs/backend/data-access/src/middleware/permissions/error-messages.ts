@@ -86,5 +86,7 @@ export default {
   requestValidationFailed: 'Request validation failed. Please check the provided data.',
   resourceConflict: 'The resource is in conflict with another request or resource.',
   
+  //api access
+  NoUrlAccess: 'You currently have no access to this resource'
 } as { [key: string]: string }
  

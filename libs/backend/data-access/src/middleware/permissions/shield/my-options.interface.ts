@@ -248,19 +248,19 @@ const options: MyOptions = {
     return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName) as SVGElement
   }, 
 
-// createEvent(eventInterface: CustomEventTypes): AnimationEvents | AudioWorklet | Event | AnimationEvent  {
-//     switch (eventInterface) {
-//       case 'AnimationEvent':
-//         return new AnimationEvent('animation') as AnimationEvents; 
-//       case 'AnimationPlaybackEvent':
-//         return new AnimationPlaybackEvent('animationplayback') as AnimationEvents;
-//       case 'AudioWorkletEvent':
-//         return new AudioWorklet() as AudioWorkletEvent;
+createEvent(eventInterface): AnimationEvent  {
+    switch (eventInterface) {
+      case 'AnimationEvent':
+        return new AnimationEvent('animation') as AnimationEvent; 
+      case 'AnimationPlaybackEvent':
+        return new AnimationPlaybackEvent('animationplayback') as AnimationPlaybackEvent & AnimationEvent;
+      case 'AudioWorklet':
+        return new AudioWorklet() as AudioWorklet & AnimationEvent;
 
-//       default:
-//         throw new Error(`Unsupported event interface: ${eventInterface}`);
-//       }
-//   } ,
+      default:
+        throw new Error(`Unsupported event interface: ${eventInterface}`);
+      }
+  } ,
 
 
 
@@ -355,18 +355,25 @@ const options: MyOptions = {
   importNode: function <T extends Node>(node: T, deep?: boolean | undefined): T {
     throw new Error('Function not implemented.')
   },
-  // open(unused1?: string | URL, unused2?: string | URL): Document | Window | null{
-  //   throw new Error('Function not implemented.')
-
-  //   // const newDocument = document.implementation.createHTMLDocument('New Document')
-  //   // return newDocument.open('unused1', 'unused2')
-  // },
-
-  open(url?: string | URL, name?: string): Document {
-    const newDocument = document.implementation.createHTMLDocument('New Document');
-    newDocument.open(url?.toString(), name);
-    return newDocument
+   
+  open(url?: string | URL, name?: string, features?: string): Window | null {
+    if (url && name && features) {
+      const newWindow = window.open(url.toString(), name, features)
+      return newWindow
+    }
+    return null
   },
+
+
+  
+      // open(url?: string | URL, name?: string): Document {
+
+      //   const newDocument = document.implementation.createHTMLDocument('New Document');
+      //   newDocument.open(url?.toString(), name);
+      //   return newDocument
+      // },
+  
+
 
   queryCommandEnabled: function (commandId: string): boolean {
     throw new Error('Function not implemented.')
