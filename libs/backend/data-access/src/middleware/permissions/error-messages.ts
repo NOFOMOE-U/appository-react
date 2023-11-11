@@ -87,6 +87,10 @@ export default {
   resourceConflict: 'The resource is in conflict with another request or resource.',
   
   //api access
-  NoUrlAccess: 'You currently have no access to this resource'
+  NoUrlAccess: 'You currently have no access to this resource',
+
+
+  //access tiers
+  failedUpdate: 'Failed to update access tier'
 } as { [key: string]: string }
  

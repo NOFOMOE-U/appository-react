@@ -7,7 +7,7 @@ const Query = objectType({
   definition(t) {
     t.field('hello', {
       type: 'String',
-      resolve: () => 'world',
+      resolve: () => 'dummy query',
     })
   },
 })

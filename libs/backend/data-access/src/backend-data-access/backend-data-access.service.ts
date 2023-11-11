@@ -6,7 +6,7 @@ import { UserWithoutSensitiveData } from '../modules/user/user'
 type UserCreateInputWithoutSensitiveData = Omit<
   Prisma.UserCreateInput,
   'resetPasswordToken' | 'password' | 'passwordHash'
-> & {
+  > & {
   passwordHash: string
   resetPasswordToken?: string | null
 }

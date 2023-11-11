@@ -55,10 +55,6 @@ interface CommonUserProperties {
   userProfileId: number
   resetPasswordToken: string
 }
-type CommonUserType = Omit<CommonUserProperties, 'passwordHash'>
-{
-  
-  };
 
 type CustomRequestTypeOptions = CustomRequestType & Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 
@@ -115,12 +111,12 @@ export let myContext:
 
 let commonHeaders: CustomContextHeaders = {}
 
- export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
+ export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: AccessTier) {
   const socketId = 'yourSocketId'
    let specificSocket
    
   const prismaService = new PrismaService()
-  let userService: UserService = new UserService(prismaService)
+  let userService: UserService = new UserService(prismaService, accessTier)
   let requestBody: BodyContent | null = null
 
   if (req) {
@@ -135,7 +131,7 @@ let commonHeaders: CustomContextHeaders = {}
       if (myContext) {
 
         if (myContext.context.user !== undefined) {
-        }
+       
           
         const myRequest = new MyCustomRequest<MyContext>(myContext, userService, requestBody)
         // Access and use the available methods and properties:
@@ -173,6 +169,7 @@ let commonHeaders: CustomContextHeaders = {}
 
         console.error('myContext is null. Handle this case appropriately.')
         next(new Error('myContext is null'))
+        }
       }
     })
 
@@ -193,7 +190,7 @@ let commonHeaders: CustomContextHeaders = {}
       session: {} as CustomSessionType,
       signedCookies: {} as Record<string, string>,
       currentUser: {} as UserWithoutSensitiveData | null,
-
+      accessTier: {} as AccessTier,
       get: (name: string) => undefined,
       cache: {} as RequestCache,
       headers: {

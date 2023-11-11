@@ -1,12 +1,14 @@
+import { UserWithAccessToken } from "../../modules/user/user";
+
 //todo set up prisma type and add to schema
-enum AccessTier {
+export enum AccessTier {
     FREE = 'free',
     STANDARD = 'standard',
     PREMIUM = 'premium',
     ENTERPRISE = 'enterprise',
   }
   
-  function isAuthenticated(accessTier: AccessTier): boolean {
+export  function isAuthenticated(accessTier: AccessTier): boolean {
     switch (accessTier) {
       case AccessTier.FREE:
         // Implement logic for free access
@@ -23,11 +25,25 @@ enum AccessTier {
       default:
         return false; // Invalid access tier
     }
+  
+  
   }
   
-  // Example usage:
-  const userAccessTier: AccessTier = AccessTier.PREMIUM;
-  const isAuthenticatedUser: boolean = isAuthenticated(userAccessTier);
+
+export function mapAccessTierToUserWithAccessToken(accessTier: AccessTier): UserWithAccessToken{
+    
+  switch (accessTier) {
+      case accessTier.FREE
+
+      break
+    }
+
+  return new UserWithAccessToken
+  }
   
-  console.log(`Is the user authenticated? ${isAuthenticatedUser}`);
+  // // // Example usage:
+  // // const userAccessTier: AccessTier = AccessTier.PREMIUM;
+  // // const isAuthenticatedUser: boolean = isAuthenticated(userAccessTier);
+  
+  // console.log(`Is the user authenticated? ${isAuthenticatedUser}`);
   

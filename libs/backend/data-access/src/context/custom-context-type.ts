@@ -1,6 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
 import Jwt, { JwtPayload } from 'jsonwebtoken';
 import { CustomRequest } from '../interfaces/user/custom-request';
+import { AccessTier } from '../make-api/api-config/access-tier';
 import { CustomSessionType } from '../make-api/my-custom-request';
 import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init';
 import { YourRequestObject } from '../make-api/requests/custom-request-with-context';
@@ -33,6 +34,7 @@ export interface CustomContextType<T = MyContext<{}>> {
   user: UserWithAccessToken
   size: 0
   url: string
+  accessTier?: AccessTier | undefined
   URLSearchParams: CustomURLSearchParams
   get: (name: string) => string | undefined
   accepts: (types: string | string[] | undefined) => (string | false | null)[] | undefined

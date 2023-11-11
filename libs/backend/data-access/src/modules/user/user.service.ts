@@ -16,10 +16,11 @@ import { validateUserSchema } from '../../middleware/validation-yup-schemas/vali
 import { UserWithAccessToken, UserWithoutSensitiveData } from './user';
 import { getAllUsers } from './user-queries/get-all-users';
 import { UserInput } from './user.input';
+ 
 @Injectable()
 export class UserService {
   private currentUser?: UserWithAccessToken
-  private userAccessTier?: AccessTier
+  private accessTier?: AccessTier
   request: YourRequestObject<CustomRequestInit>
   user: UserWithAccessToken | null
   
@@ -29,7 +30,7 @@ export class UserService {
   ) {
     this.request = new YourRequestObject<CustomRequestInit>()
     this.user = null
-    this.userAccessTier = accessTier
+    this.accessTier = accessTier
   }
 
   accepts(types: string | string[] | undefined): (string | false | null)[] | undefined {
@@ -98,6 +99,18 @@ export class UserService {
     return this.prismaService.updateUser(id, data)
   }
 
+  async updateUserAccessTier(userId: string): Promise<User | null>{
+    // Fetch the user based on their ID
+    const user = await this.prismaService.getUserById(userId)
+
+    if (user) {
+     
+      //Persist the updpdate user information to the database
+      return this.prismaService.updateUser(userId)
+    }
+      return null;
+  }
+
   async deleteUser(id: string, context: MyContext, passwordHash: string): Promise<UserWithoutSensitiveData | null> {
     return deleteUser(id, context, passwordHash)
   }
@@ -116,7 +129,7 @@ export class UserService {
 
   async setUser(user: UserWithAccessToken): Promise<void> {
     this.currentUser = user;
-    this.userAccessTier = this.accessTier
+    this.accessTier = this.accessTier
   }
 
   async getCurrentUser(): Promise<UserWithAccessToken | null> {
@@ -144,7 +157,7 @@ export class UserService {
   }
 
   private getBaseUrlForAccess(): string { 
-    if (!this.userAccessTier) {
+    if (!this.accessTier) {
       throw new Error(errorMessages.NoUrlAccess)
     }
 
@@ -155,7 +168,7 @@ export class UserService {
       enterprise: 'https://example.com/api/enterprise',
     }
     //Retrieve the appropriate base UR based on the user's access level
-    return baseUrls[this.userAccessTier]
+    return baseUrls[this.accessTier]
   }
 
 
@@ -165,7 +178,8 @@ export class UserService {
   // }
   }
 const prismaService = new PrismaService()
-const userService: UserService = new UserService(prismaService, userAccessTier)
+
+const userService: UserService = new UserService(prismaService, accessTier)
 
 
 

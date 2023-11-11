@@ -12,7 +12,7 @@ import { UserService } from '../modules/user/user.service'
 import { getUserId } from '../utils/backend-auth.utils'
 import { myContext } from './default-options'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
-import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
+import { BodyContent, CustomRequestInit, CustomRequestOptions } from './requests/custom-request-init'
 import { CustomRequestWithContext, YourRequestObject } from './requests/custom-request-with-context'
 
 
@@ -41,6 +41,7 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
     user: {
       passwordHash: undefined,
     } as UserWithAccessToken,
+    accessTier: {} as CustomRequestOptions['accessTier'],
     body: {} as BodyInit | null | undefined,
     userService: {} as UserService,
     requestBody: {} as BodyContent | null | undefined,
@@ -96,6 +97,7 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
       ctx: {} as UserWithAccessToken,
       session: {} as CustomSessionType,
       cache: {} as RequestCache,
+      accessTier: {} as AccessTier,
       get: (name: string) => undefined,
       accepts: (types: string | string[] | undefined) => {
         if (typeof types === 'string') {
@@ -111,7 +113,7 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
     },
     config: {} as AppConfiguration,
   },
-  userService = new UserService(prismaService),
+  userService = new UserService(prismaService, userAccessTier),
   myContext,
 )
 

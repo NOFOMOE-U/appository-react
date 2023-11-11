@@ -8,7 +8,6 @@ import { isOwner } from '../rules/is-owner'
 import { isReadingOwnSession } from '../rules/is-reading-own-session'
 import { isReadingOwnUser } from '../rules/is-reading-own-user'
 
-
 const isAuthenticatedFreeTier = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
   const user = await ctx.getUser()
 

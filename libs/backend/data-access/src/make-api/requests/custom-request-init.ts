@@ -30,18 +30,21 @@ export interface CustomRequestInit extends RequestInit {
   URLSearchParams: CustomURLSearchParams
   request: YourRequestObject<CustomRequestInit>
   req?: IncomingMessage
+  accessTier: AccessTier
 }
 const accessTier = userAccessTier
 // const accessTier = new AccessTier()
 const prismaService = new PrismaService();
 const userService = new UserService(prismaService, accessTier);
 export interface CustomRequestOptions extends CustomRequestInit {
-    userService: UserService
+  userService: UserService
+  accessTier: AccessTier
 }
 
 const customRequestOptions: CustomRequestOptions = {
   userService: userService,
   user: null,
+  accessTier: {} as AccessTier,
   accepts: () => ['json'],
   body: {} as BodyInit | null | undefined,
   request: {} as YourRequestObject<CustomRequestInit>,

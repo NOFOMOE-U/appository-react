@@ -162,14 +162,36 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
   userRegistrationSchema.validate(body)
     .then((validData) => {
       // Data is valid, proceed with user registration
-      // For example, save user to the database
+      const user = {
+        ...validData,
+        accessTier: 'FREE'
+      }
       // userController.register(validData);
       res.status(201).json({ message: 'User registered successfully' });
     })
     .catch((error) => {
       // Data is invalid, send an error response
-      res.status(400).json({ error: 'Validation Error', message: errorMessages.invalidRegistration });
+      res.status(400).json({ error: errorMessages.invalidRegistration });
     });
+});
+
+// Express route handling the payment confirmation
+app.post('/confirm-payment', async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.body.userId; // Retrieve the user ID from the payment request
+    const newAccessTier = AccessTier.PREMIUM; // Or the access tier from the payment
+
+    // Assuming 'userService' is an instance of your UserService
+    const updatedUser = await userService.updateUserAccessTier(userId, newAccessTier);
+
+    if (updatedUser) {
+      res.status(200).json({ message: 'Access tier updated successfully' });
+    } else {
+      res.status(404).json({ error: errorMessages.userNotFound });
+    }
+  } catch (error) {
+    res.status(500).json({ error: errorMessages.failedUpdate });
+  }
 });
 
 
@@ -190,6 +212,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
         userProfileId:  user.userProfileId,
         accessToken: user.accessToken,
         resetPasswordToken: undefined,
+        accessTier: user.accessTier
       };
 
       res.json({ currentUser });
@@ -224,7 +247,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
           req.user = user
         }
         // authentication success,
-        next()
+        next
       }
     }
   }
@@ -257,8 +280,8 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
   // Other route handlers
   // ...
 
-  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
-    processRequest(req, res, next)
+  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: AccessTier) => {
+    processRequest(req, res, next, accessTier)
     
     // Create an instance of MyCustomRequest and provide the required properties
     try {
@@ -274,6 +297,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
         requestBody: req.session.requestBody,
         URLSearchParams: req.URLSearchParams,
         userService: req.session.userServicce, // pass user service instance
+        accessTier: req.session.accessTier
         // Add other required properties
       },
       userService, // pass userService instance
@@ -320,7 +344,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
   app.get('/example', (req: CustomRequestWithContext<MyContext<{}>>, res: Response) => {
     // Access custom properties and methods from the custom request object
     const customProp = req.customProp
-    // Access standar request properties
+    // Access standard request properties
     const userId = req.userId
   })
   // Register permissions middleware globally
