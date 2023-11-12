@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient, User } from '@prisma/client'
 import { hashPassword } from '../interfaces/auth/user-with-password-hash'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 
@@ -15,7 +15,7 @@ type UserCreateInputWithoutSensitiveData = Omit<
 export class BackendDataAccessService {
   constructor(@Inject(PrismaClient) private readonly prisma: PrismaClient) {}
 
-  async createUser(userData: UserCreateInputWithoutSensitiveData): Promise<UserCreateInputWithoutSensitiveData> {
+  async createUser(userData: UserCreateInputWithoutSensitiveData): Promise<User> {
     const hashedPassword = await hashPassword(userData.passwordHash)
     const createdUser = await this.prisma.user.create({
       data: {

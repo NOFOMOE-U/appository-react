@@ -97,7 +97,7 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
       ctx: {} as UserWithAccessToken,
       session: {} as CustomSessionType,
       cache: {} as RequestCache,
-      accessTier: {} as AccessTier,
+      accessTier: myContext?.accessTier,
       get: (name: string) => undefined,
       accepts: (types: string | string[] | undefined) => {
         if (typeof types === 'string') {
@@ -109,11 +109,11 @@ const updateRequest = new MyCustomRequest<MyCustomContext>(
         return []
       },
       // Added default value for customProp to fix error
-      customProp: '',
+      customProp: myContext?.customProp,
     },
     config: {} as AppConfiguration,
   },
-  userService = new UserService(prismaService, userAccessTier),
+  userService = new UserService(prismaService, accessTier),
   myContext,
 )
 

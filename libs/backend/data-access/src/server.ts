@@ -22,6 +22,7 @@ import session from 'express-session'
 import { applyMiddleware } from 'graphql-middleware'
 import { makeSchema } from 'nexus'
 import { Namespace, Server } from 'socket.io'; // Import the necessary types
+// import { AccessTier } from './make-api/api-config/access-tier'
 import { processRequest } from './make-api/default-options'
 import { ApiRequestFunction, makeApiRequest } from './make-api/make-api-request'
 import errorMessages from './middleware/permissions/error-messages'
@@ -176,13 +177,13 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
 });
 
 // Express route handling the payment confirmation
-app.post('/confirm-payment', async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
+app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithContext<MyContext>>, res: Response, next: NextFunction) => {
   try {
-    const userId = req.body.userId; // Retrieve the user ID from the payment request
-    const newAccessTier = AccessTier.PREMIUM; // Or the access tier from the payment
+    const userId = req.body.; // Retrieve the user ID from the payment request
+    // const newAccessTier = accessTier.PREMIUM; // Or the access tier from the payment
 
     // Assuming 'userService' is an instance of your UserService
-    const updatedUser = await userService.updateUserAccessTier(userId, newAccessTier);
+    const updatedUser = await userService.updateUserAccessTier(userId);
 
     if (updatedUser) {
       res.status(200).json({ message: 'Access tier updated successfully' });
@@ -286,18 +287,19 @@ app.post('/confirm-payment', async (req: YourRequestObject<{}>, res: Response, n
     // Create an instance of MyCustomRequest and provide the required properties
     try {
       const myCustomReq: MyCustomRequest<MyContext> = new MyCustomRequest({
+        session: req.session,
+        body: req.session.body,
         query: req.session.query,
         params: req.session.params,
-        user: req.session.currentUser,
-        customCache: req.session.customCache, // Provide your customCache data here
-        session: req.session,
         accepts: req.session.accepts,
         request: req.session.request,
-        body: req.session.body,
+        user: req.session.user,
+        accessTier: req.session.accessTier,
+        customCache: req.session.customCache, // Provide your customCache data here
         requestBody: req.session.requestBody,
         URLSearchParams: req.URLSearchParams,
         userService: req.session.userServicce, // pass user service instance
-        accessTier: req.session.accessTier
+        // accessTier: req.session.accessTier
         // Add other required properties
       },
       userService, // pass userService instance
@@ -315,9 +317,11 @@ app.post('/confirm-payment', async (req: YourRequestObject<{}>, res: Response, n
   })
 
 
-  app.get('/make-api-request', async (req: CustomRequestWithContext<MyContext<{}>>, res: Response, next: NextFunction) => {
+  app.get('/make-api-request', async (req: CustomRequestWithContext<MyContext<{}>>, res: Response, next: NextFunction, apiRequestFunction: ApiRequestFunction) => {
       try {
-        await makeApiRequest(req, userService.getApiUrl as ApiRequestFunction);
+        await makeApiRequest(req,
+          userService.getApiUrl as ApiRequestFunction,
+          apiRequestFunction);
 
         res.status(200).json({ message: 'API request processed successfully' })
       } catch (error) {

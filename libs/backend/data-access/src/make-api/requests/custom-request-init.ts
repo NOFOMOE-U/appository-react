@@ -6,9 +6,9 @@ import { CustomURLSearchParams } from '../../context/my-context'
 import { PrismaService } from '../../lib/prisma/prisma.service'
 import { UserWithAccessToken } from '../../modules/user/user'
 import { UserService } from '../../modules/user/user.service'
+import { AccessTier } from '../api-config/access-tier'
 import { CustomSessionType } from '../my-custom-request'
 import { YourRequestObject } from './custom-request-with-context'
-
 export type BodyContent = object | FormData | string // Include all possible types
 
 export interface CustomRequestInit extends RequestInit {
@@ -30,21 +30,22 @@ export interface CustomRequestInit extends RequestInit {
   URLSearchParams: CustomURLSearchParams
   request: YourRequestObject<CustomRequestInit>
   req?: IncomingMessage
-  accessTier: AccessTier
 }
-const accessTier = userAccessTier
-// const accessTier = new AccessTier()
+
+const userAccessTier = {} as AccessTier
+//todo verify accessTier goes here - checked updated 
+// const accessTier =  mapAccessTierToUserWithAccessToken('userAccessTier');
 const prismaService = new PrismaService();
-const userService = new UserService(prismaService, accessTier);
+const userService = new UserService(prismaService, userAccessTier);
 export interface CustomRequestOptions extends CustomRequestInit {
   userService: UserService
-  accessTier: AccessTier
-}
+  // accessTier: AccessTier
+ }
 
 const customRequestOptions: CustomRequestOptions = {
   userService: userService,
   user: null,
-  accessTier: {} as AccessTier,
+  // accessTier: {} as AccessTier, // todo AccessTier
   accepts: () => ['json'],
   body: {} as BodyInit | null | undefined,
   request: {} as YourRequestObject<CustomRequestInit>,

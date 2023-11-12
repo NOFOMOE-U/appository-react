@@ -1,36 +1,74 @@
-import { MyContext } from '../context/my-context';
-import { ExtendedCustomRequest } from '../interfaces/user/custom-request';
-import errorMessages from '../middleware/permissions/error-messages';
-import { getDefaultAxiosOptions } from './default-options';
-import { CustomRequestWithContext } from './requests/custom-request-with-context';
+import { MyContext } from '../context/my-context'
+import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
+import errorMessages from '../middleware/permissions/error-messages'
+import { RequestOptions, getDefaultAxiosOptions } from './default-options'
+import { CustomRequestWithContext } from './requests/custom-request-with-context'
+// import {
+//   generatePDF,
+//   generateDocx,
+//   generateMarkdown,
+//   generateRTF,
+//   shareViaCloudStorage,
+//   shareViaCollaborationTool,
+//   shareViaDocumentHosting,
+// } from '../generate-docs/generate-pdf'
 
 export type ApiRequestFunction = (endpoint: string) => Promise<string>
 
-export async function makeApiRequest(req: CustomRequestWithContext<MyContext<{}>>, apiRequestFunction: ApiRequestFunction) {
+interface APIRequestOptions extends RequestOptions {
+  // Add or override properties if needed specifically for API calls
+
+  additionalProperty?: string
+}
+
+export async function makeApiRequest(
+  endpoint: string,
+  req: CustomRequestWithContext<MyContext<{}>>,
+  apiRequestFunction: ApiRequestFunction,
+) {
   // Create an instance of ExtendedCustomRequest using defaultOptions
-  const options = getDefaultAxiosOptions(req) as unknown as ExtendedCustomRequest;
+  const options = getDefaultAxiosOptions(req) as unknown as ExtendedCustomRequest
   // Add any additional headers/params as needed
   try {
-    
     // Use axios to make a GET request to the API endpoint
-    const responseData = await apiRequestFunction('https://example.com/api/users'+ options);
-    
-    // Process the responseData as needed
-    console.log(responseData);
+    const responseData = await apiRequestFunction(endpoint)
 
+    // Process the responseData as needed
+    console.log(responseData)
+
+
+    // todo doc generation
+    // // Generate PDF
+    // generatePDF(responseData)
+
+    // // Generate .docx
+    // generateDocx(responseData)
+
+    // // Generate .md
+    // generateMarkdown(responseData)
+
+    // // Generate .rtf
+    // generateRTF(responseData)
+
+    // // Share via Cloud Storage
+    // shareViaCloudStorage(responseData, 'Google Drive')
+
+    // // Share via Collaboration Tool
+    // shareViaCollaborationTool(responseData, 'Google Docs')
+
+    // // Share via Document Hosting
+    // shareViaDocumentHosting(responseData, 'Example Hosting Service')
 
     const downloadLink = document.createElement('a')
     downloadLink.href = 'https://example.com/api/users'
     downloadLink.download = 'data.json'
-    downloadLink.click();
+    downloadLink.click()
   } catch (error) {
-    console.log('Request Error: ',errorMessages.requestError);
+    console.log('Request Error: ', errorMessages.requestError)
   }
 }
 
-
-
-// todo frontend start todo
+// todo frontend start todo for doc dgeenerations
 // In your frontend code, create a button or link that triggers the makeApiRequest function when clicked.
 
 // When the API request is successful, it will trigger the download of the response data as a file (in this example, 'data.json'). You can customize the file name and format according to your needs.

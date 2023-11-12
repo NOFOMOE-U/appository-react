@@ -2,6 +2,7 @@ import { CustomURLSearchParams, MyContext } from '../context/my-context'
 import { UserWithAccessToken } from '../modules/user/user'
 import { UserService } from '../modules/user/user.service'
 import { SessionData } from '../types/express'
+import { AccessTier } from './api-config/access-tier'
 import { MyCustomRequest } from './my-custom-request'
 import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
 import { YourRequestObject } from './requests/custom-request-with-context'
@@ -22,7 +23,9 @@ export interface ParsedUrl {
 }
 let userService: UserService
 let requestBody: BodyContent | null | undefined
+let accessTier: AccessTier
 
+// Log request
 export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
   const sessionData = req.session as SessionData
   const userId = sessionData.userId
@@ -57,6 +60,7 @@ export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
   const request: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest(
     {
       userService: userService,
+      accessTier: accessTier,
       url: 'https://jsonplaceholder.typicode.com/posts/1',
       method: 'GET',
       headers: requestHeaders as HeadersInit,

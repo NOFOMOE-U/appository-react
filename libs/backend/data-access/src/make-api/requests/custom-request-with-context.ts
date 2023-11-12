@@ -7,16 +7,19 @@ import { CustomURLSearchParams, MyContext } from '../../context/my-context'
 import { CustomRequest } from '../../interfaces/user/custom-request'
 import { PrismaService } from '../../lib/prisma/prisma.service'
 import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
+import { AccessTier } from '../api-config/access-tier'
 import { CustomSessionType } from '../my-custom-request'
 import { BodyContent, CustomRequestInit } from './custom-request-init'
 
 export class YourRequestObject<T> {
   private readonly prismaService: PrismaService
   private readonly request: BodyInit | null | undefined
-  private readonly requestBody: BodyContent | null | undefined
-  private readonly req: CustomSessionType
+  readonly requestBody: BodyContent | null | undefined
+  private readonly req: CustomRequest
+  private readonly accessTier: AccessTier
+  // private readonly session: CustomSessionType
 
-  accessTier?: AccessTier
+  // accessTier?: AccessTier
   customProp: string
   headers: CustomContextHeaders
   query: Record<string, string>
@@ -25,24 +28,25 @@ export class YourRequestObject<T> {
   customCache: CustomSessionType
   session: CustomSessionType
   accepts: CustomSessionType
-  body: CustomSessionType
+  body: BodyInit | null | undefined
   URLSearchParams: CustomURLSearchParams
 
   constructor() {
     this.customProp = ''
     this.prismaService = prismaService
-    this.req = {} as CustomSessionType
+    this.req = {} as CustomRequest
+    this.request = {} as URLSearchParams
+    this.body = {} as BodyInit
+    this.requestBody = {} as BodyContent
     this.headers = {}  as CustomContextHeaders// Initialize headers if necessary
-    this.user = {} as UserWithoutSensitiveData
+    this.accessTier = {} as AccessTier
     this.params = {} as CustomSessionType
     this.query = {} as CustomSessionType
-    this.customCache = {} as CustomSessionType
-    this.session = {} as CustomSessionType
+    this.user = {} as UserWithoutSensitiveData
     this.accepts = {} as CustomSessionType
-    this.request = {} as BodyInit | null | undefined
-    this.body = {} as CustomSessionType
-    this.requestBody = {} as BodyContent | null | undefined
+    this.session = {} as CustomSessionType
     this.URLSearchParams = {} as CustomURLSearchParams
+    this.customCache = {} as CustomSessionType
   }
 }
 
@@ -54,6 +58,7 @@ export interface CustomContextHeaders extends IncomingHttpHeaders {
 }
 
 export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'context'> {
+  [key: string]: any // allow any additional properties
   id: string
   config: AppConfiguration
   user: UserWithAccessToken
@@ -65,8 +70,8 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   destination: RequestDestination
   passwordHash?: string
   customProp?: string
-  [key: string]: any // allow any additional properties
   req: CustomRequest
+  request: CustomRequest
   context: MyContext<UserWithoutSensitiveData>
   body: any
   token: string
@@ -76,7 +81,6 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   signedCookies: Record<string, string>
   cache: RequestCache
   headers: CustomContextHeaders
-  request: CustomRequest
 }
 
 // Middleware function to attach our custom context to the request object

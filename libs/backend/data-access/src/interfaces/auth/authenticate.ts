@@ -26,6 +26,7 @@ export function convertUserToUserWithAccessToken(user: User): UserWithAccessToke
     accessToken: generateToken(user),
     userProfileId: user.id as unknown as number,
     passwordHash: undefined,
+    accessTier: user.accessTier ,
     username: user.username, // Add username property
   }
 }
@@ -225,12 +226,13 @@ export const createUser = async (
   const allowedRoles = Object.values(UserRole)
   const validRoles = roles.filter((role) => allowedRoles.includes(role))
 
-  const { name, email, passwordHash, id } = userWithPasswordHash
+  const { name, email, username,passwordHash, id } = userWithPasswordHash
 
   const user = await prisma.user.create({
     data: {
       name,
       email,
+      username,
       passwordHash,
       roles: {
         set: validRoles,
@@ -267,6 +269,7 @@ export const updateUser = async (
       name,
       email,
       roles,
+      
     },
   })
   return user as unknown as UserWithoutSensitiveData | null

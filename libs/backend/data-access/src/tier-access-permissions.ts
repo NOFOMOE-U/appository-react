@@ -4,6 +4,7 @@ export function checkFreeAccess(): boolean {
     return hasFreeAccess;
   }
   
+
   export function verifyStandardAccess(): boolean {
     // Verify standard access
     const hasStandardAccess = checkFreeAccess(); // Incorporate free access
@@ -12,6 +13,7 @@ export function checkFreeAccess(): boolean {
     return isStandardUser && hasStandardAccess;
   }
   
+
   export function verifyPremiumAccess(): boolean {
     // Verify premium access
     const hasStandardAccess = verifyStandardAccess(); // Incorporate standard access
@@ -19,6 +21,7 @@ export function checkFreeAccess(): boolean {
     const isPremiumUser = true;
     return isPremiumUser && hasStandardAccess;
   }
+  
   
   export function authenticateEnterpriseUser(): boolean {
     // Authenticate enterprise access

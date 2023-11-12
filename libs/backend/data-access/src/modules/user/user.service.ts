@@ -10,6 +10,7 @@ import { createUser, deleteUser } from '../../../dist/libs/backend/data-access/s
 import { MyContext } from '../../context/my-context';
 import { hashPassword } from '../../interfaces/auth/user-with-password-hash';
 import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
+import { AccessTier } from '../../make-api/api-config/access-tier';
 import { CustomRequestInit } from '../../make-api/requests/custom-request-init';
 import errorMessages from '../../middleware/permissions/error-messages';
 import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user';
@@ -20,17 +21,17 @@ import { UserInput } from './user.input';
 @Injectable()
 export class UserService {
   private currentUser?: UserWithAccessToken
-  private accessTier?: AccessTier
+  // accessTier: AccessTier
   request: YourRequestObject<CustomRequestInit>
   user: UserWithAccessToken | null
   
   constructor(
     private readonly prismaService: PrismaService,
-    private accessTier: AccessTier
+    // accessTier: AccessTier
   ) {
     this.request = new YourRequestObject<CustomRequestInit>()
     this.user = null
-    this.accessTier = accessTier
+    // this.accessTier = accessTier // todo accessTier
   }
 
   accepts(types: string | string[] | undefined): (string | false | null)[] | undefined {
@@ -45,10 +46,10 @@ export class UserService {
       roles: ['USER'],
       username: 'youKnoMe',
       userProfileId: 0,
-      createdAt: new Date(),
+      createdAt: new Date(Date.now()),
       updatedAt: new Date(),
-      resetPasswordToken: '',
-      passwordHash: '',
+      resetPasswordToken: null,
+      passwordHash: undefined,
     },
     {
       id: '',
@@ -57,10 +58,10 @@ export class UserService {
       username: 'youKnoMe',
       roles: ['USER'],
       userProfileId: 1,
-      createdAt: new Date(),
+      createdAt: new Date(Date.now()),
       updatedAt: new Date(),
-      resetPasswordToken: '',
-      passwordHash: '',
+      resetPasswordToken: null,
+      passwordHash: null,
     },
     {
       id: '',
@@ -69,10 +70,10 @@ export class UserService {
       roles: ['USER'],
       username: 'toBit',
       userProfileId: 2,
-      createdAt: new Date(),
+      createdAt: new Date(Date.now()),
       updatedAt: new Date(),
-      resetPasswordToken: '',
-      passwordHash: '',
+      resetPasswordToken: null,
+      passwordHash: null,
     },
   ]
 
@@ -129,7 +130,7 @@ export class UserService {
 
   async setUser(user: UserWithAccessToken): Promise<void> {
     this.currentUser = user;
-    this.accessTier = this.accessTier
+    // this.accessTier = this.accessTier //todo accessTier
   }
 
   async getCurrentUser(): Promise<UserWithAccessToken | null> {
@@ -156,30 +157,27 @@ export class UserService {
     return `${baseUrl}/${endpoint}`
   }
 
-  private getBaseUrlForAccess(): string { 
+ async getBaseUrlForAccess(): string { 
     if (!this.accessTier) {
       throw new Error(errorMessages.NoUrlAccess)
     }
 
-    const baseUrls: Record<AccessTier, string> = {
+    const baseUrls:  Record<AccessTier, string> = {
       free: 'https://example.com/api/free',
       standard: 'https://example.com/api/free', // Adjust as needed
       premium: 'https://example.com/api/premium',
       enterprise: 'https://example.com/api/enterprise',
     }
     //Retrieve the appropriate base UR based on the user's access level
-    return baseUrls[this.accessTier]
+    return baseUrls[accessTier]
   }
-
 
   //todo connect tasks to prismaService
   // async getUserByTaskId(id: string): Promise<Task | null> {
   //   return this.prismaService.getUserByTaskId(id)
   // }
   }
-const prismaService = new PrismaService()
 
-const userService: UserService = new UserService(prismaService, accessTier)
 
 
 

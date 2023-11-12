@@ -10,6 +10,7 @@ import prisma, { CustomPrismaClient } from '../lib/prisma/prisma'
 import { authenticationMiddlware, socket } from '../server'
 import { SessionData } from '../types/express'
 import generateToken from '../utils/generate-token.utils'
+import { AccessTier } from './api-config/access-tier'
 import { CustomSessionType, MyCustomRequest } from './my-custom-request'
 import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
 import {
@@ -23,7 +24,7 @@ type CustomRequestType = CustomRequestWithContext<
   MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>>
 >
 // Define the RequestOptions type
-type RequestOptions = {
+export type RequestOptions = {
   headers: {
     [key: string]: string | string[] | undefined
   }
@@ -175,6 +176,29 @@ let commonHeaders: CustomContextHeaders = {}
 
     const myContext = {
       // Initialize common properties
+
+      //todo verify if this works:
+
+      // // Other properties in your context...
+      // user: SessionData.user, // Changed type to UserWithAccessToken
+      // accessToken: SessionData.setAccessToken,
+      // config: SessionData.config,
+      // context: SessionData.context,
+      // ctx: SessionData.ctx,
+      // body: SessionData.body,
+      // userService: SessionData.userService,
+      // requestBody: SessionData.requestBody,
+      // URLSearchParams: SessionData.URLSearchParams,
+      // request: SessionData.request,
+      // session: SessionData.session,
+      // signedCookies: SessionData.signedCookies,
+      // currentUser: SessionData.currentUser,
+      // accessTier: SessionData.accessTier,
+      // get: SessionData.get,
+      // cache: SessionData.cache,
+      // headers: {
+      //   accepts: SessionData.accepts,
+      // },
 
       // Other properties in your context...
       user: {} as UserWithAccessToken, // Changed type to UserWithAccessToken

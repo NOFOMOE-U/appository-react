@@ -19,6 +19,9 @@ export const UserType = objectType({
     t.string('email')
     t.string('username')
     t.string('accessTier')
+    //todo update payment
+    // t.list.field('payments', { type: 'Payment' }) // Define the relationship to payments
+
   //   t.nonNull.field('userProfile', {
   //     type: 'UserProfile',
   //     resolve: async (parent: UserWithoutSensitiveData, _args, ctx: Context) => {
@@ -43,14 +46,19 @@ const User = objectType({
     // t.nonNull.string('name')
     t.nonNull.string('email')
     t.nonNull.string('username')
-    t.list.field('posts', { type: 'Post' })
     t.field('role', {
       type: 'UserRoleEnum',
-    })
-    t.nonNull.string('createdAt')
-    t.string('updatedAt')
-    t.nonNull.string('passwordHash')
-    
+    }),
+    t.list.field('posts', { type: 'Post' })
+    t.nonNull.string('createdAt'),
+    t.string('updatedAt'),
+    t.nonNull.string('passwordHash'),
+    t.nullable.field('resetPasswordToken', {
+      type: 'String'
+      }) // Reset password token can be nullable
+    t.nullable.field('userProfileId', { type: 'Int'}) // User profile ID is nullable
+    // todo update user payment
+    // t.list.field('payments', { type: 'Payment' }) // Define the relationship to payments
   },
 })
 
@@ -60,7 +68,10 @@ export const Query = extendType({
     t.list.field('users', {
       type: 'User',
       resolve: async (_parent, _args, ctx: Context) => {
-        return ctx.getPrisma().user.findMany()
+        return ctx.getPrisma().user.findMany(
+          //todo update payment info
+          // { include: { payments: true } }
+        )
       },
     })
     t.field('user', {

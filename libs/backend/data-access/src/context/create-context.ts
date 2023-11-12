@@ -1,4 +1,5 @@
   import { PrismaClient, User } from '@prisma/client';
+import { IncomingMessage } from 'http';
 import { convertUserToUserWithAccessToken } from '../interfaces/auth/authenticate';
 import { CustomRequest } from '../interfaces/user/custom-request';
 import { PrismaService } from '../lib/prisma/prisma.service';
@@ -52,23 +53,20 @@ let prismaService: PrismaService
 
     const customReq: MyContext<UserWithoutSensitiveData> = {
       ...req,
-      customProp: sessionData.user.customProp,
-      req: sessionData.req,
-      token: sessionData.token,
-      id: sessionData.id,
-      body: {} as BodyInit | null,
-      requestBody: {} as BodyContent | null | undefined,
-      size: 0,
+      size: filteredCookies.length,
+      customProp: 'custom value',
+      req: {} as IncomingMessage,
+      token: token as string,
+      id:  req.id as string,
+      body: req.body as BodyInit , //removed to test,
+      requestBody: {} as BodyContent, // removed to test | null | undefined,
       URLSearchParams: {} as CustomURLSearchParams,
-      ctx: {} as CustomContextType<MyContext<{}>>,
+      ctx: {} as CustomContextType,
       request: {} as YourRequestObject<CustomRequestInit>,
       accessToken: req.accessToken as string,
       currentUser: sessionData.currentUser,
       prismaService: prismaService,
-      // session: {} as CustomSessionType,
-      // destination: {} as RequestDestination,
       userId: sessionData.user?.id as string,
-      // request: {} as CustomRequestWithContext<CustomRequestInit>,
       user: currentUserWithAccessToken as unknown as UserWithAccessToken,
       entries: function (): IterableIterator<[string, string]> {
         throw new Error('Function not implemented.');

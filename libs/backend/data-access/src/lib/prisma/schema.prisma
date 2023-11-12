@@ -35,9 +35,10 @@ model HeadlessJob {
 model User {
   id                 String           @id @default(uuid())
   name               String
-  username           String           @unique
   email              String?          @unique
+  username           String           @unique
   passwordHash       String           @db.VarChar(255)
+  accessTier         String        
   roles              UserRole[]       @default([USER])
   posts              Post[]
   teamMemberships    TeamMembership[]
@@ -47,13 +48,14 @@ model User {
   createdBy          Task?            @relation("created_by")
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @default(now())
-  resetPasswordToken String?           @default(value: "")
+  resetPasswordToken String?          @default(value: "")
   settings           UserSettings?    @relation("settings")
   userProfile        UserProfile?     @relation("user_profile")
   userProfileId      Int?
-  personas    Persona[]  @relation("user_personas")
-  password    Password?   @relation("password")
-  backgroundJobs HeadlessJob[] @relation("background_jobs")
+  password           Password?   @relation("password")
+  personas           Persona[]  @relation("user_personas")
+  backgroundJobs     HeadlessJob[] @relation("background_jobs")
+  payments           Payment[]  @relation("user_payments")
 }
 
 model Password {
@@ -194,10 +196,10 @@ model UserProfile {
 }
 model Persona {
   id        Int          @id @default(autoincrement())
-  name      String
-  attributes  Json
+  name      String?
+  attributes  Json?
   profiles  UserProfile[] @relation("profile_personas")
-  users     User[]       @relation("user_personas")
+  users     User[]        @relation("user_personas")
 }
 
 model UserSettings {
@@ -441,6 +443,24 @@ model NotificationPreferences{
   @@unique([userId])
   }
 
+//todo st up payment system- make sure to ask what other propeties are needed basd on the type of app being set up
+model Payment {
+  id         String       @id @default(uuid())
+  amount     Float
+  method     PaymentMethod
+  userId     String
+  user       User?  @relation("user_payments", fields: [userId], references: [id])
+  // Other payment details and relationships
+}
+
+// todo add additional properties to order
+model Order {
+  id       String      @id @default(uuid())
+  // ... other fields
+  status   OrderStatus
+  // ... other fields
+}
+
 
 //ENUMS
 
@@ -524,7 +544,7 @@ enum TrackMode {
 }
 
 
-
+//todo set up enums
 // // Product Enums
 // enum ProductType {
 // PHYSICAL
@@ -546,21 +566,25 @@ enum TrackMode {
 // DISCONTINUED
 // }
 
-// // Order Enums
-// enum PaymentMethod {
-// CREDIT_CARD
-// DEBIT_CARD
-// PAYPAL
-// BANK_TRANSFER
-// }
 
-// enum OrderStatus {
-// PENDING
-// CONFIRMED
-// SHIPPED
-// DELIVERED
-// CANCELLED
-// }
+
+  // Order Enums
+  enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  }
+
+  
+
+  enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  }
 
 // Blog Enums
 enum PostStatus {

@@ -12,14 +12,30 @@ import { BodyContent } from '../../../make-api/requests/custom-request-init'
 import errorMessages from '../error-messages'
 
 
-type AnimationEvents = AnimationEvent | AnimationPlaybackEvent;
-type CustomEventTypes = 'AnimationEvent' | 'AnimationPlaybackEvent' | 'AudioWorkletEvent';
-type AudioWorkletEvent = Event | AudioWorklet; // Define your own type for AudioWorklet event
+
+type EventInterface = 'AnimationEvent' | 'AnimationPlaybackEvent' |
+ 'AnimationEvent'
+| 'AudioWorklet' 
+| 'AudioProcessingEvent'
+| 'BlobEvent'
+| 'ClipboardEvent'
+| 'CloseEvent'
+| 'CompositionEvent'
+| 'CustomEvent<any>'
+| 'DeviceMotionEvent'
+| 'DeviceOrientationEvent'
+| 'DragEvent'
+| 'ErrorEvent'
+| 'FontFaceSetLoadEvent'
+| 'FormDataEvent'
+| 'GamepadEvent'
+| 'HashChangeEvent'
+| 'IDBVersionChangeEvent'
+| 'InputEvent'
+| 'KeyboardEvent';
 
 
-
-
-export interface MyOptions extends IOptions, Omit<Document, 'schema'> {
+export interface MyOptions extends IOptions {
   //override the debug property to accept a string instead of a boolean
   debug: boolean
   //add a new property that specifies the type of context expected by the middleware
@@ -36,8 +52,82 @@ export interface MyOptions extends IOptions, Omit<Document, 'schema'> {
   datasourceNames: string
   activeProvider: string
   dataProxy: boolean
-}
+  close: () => void
+  open: () => void
+  url: '',
+  alinkColor: string,
+  all: HTMLAllCollection,
+  anchors: HTMLCollectionOf<HTMLAnchorElement>,
+  applets: HTMLCollection,
+  bgColor: '',
+  body: HTMLElement,
+  characterSet: '',
+  charset: '',
+  compatMode: '',
+  contentType: '',
+  cookie: '',
+  currentScript: null,
+  defaultView: null,
+  designMode: '',
+  dir: '',
+  doctype: null,
+  documentElement: HTMLElement,
+  documentURI: '',
+  domain: '',
+  embeds: HTMLCollectionOf<HTMLEmbedElement>,
+  fgColor: '',
+  forms: HTMLCollectionOf<HTMLFormElement>,
+  fullscreen: false,
+  fullscreenEnabled: false,
+  head: HTMLHeadElement,
+  hidden: false,
+  images: HTMLCollectionOf<HTMLImageElement>,
+  implementation: DOMImplementation,
+  inputEncoding: '',
+  lastModified: '',
+  linkColor: '',
+  links: HTMLCollectionOf<HTMLAnchorElement | HTMLAreaElement>,
+  location: Location,
+  onfullscreenchange: null,
+  onfullscreenerror: null,
+  onpointerlockchange: null,
+  onpointerlockerror: null,
+  onreadystatechange: null,
+  onvisibilitychange: null,
+  ownerDocument: null,
+  pictureInPictureEnabled: false,
+  plugins: HTMLCollectionOf<HTMLEmbedElement>,
+  readyState: string,
+  referrer: string,
+  rootElement: null,
+  scripts: HTMLCollectionOf<HTMLScriptElement>,
+  scrollingElement: null,
+  timeline: DocumentTimeline,
+  title: string,
+  visibilityState: string,
+  vlinkColor: string
+  adoptNode: <T extends Node>(node: T) => void,
+  captureEvents: () => void;
 
+  caretRangeFromPoint: (x: number, y: number) => Range | null,
+  clear:  ()  => void,
+  createAttribute: (localName: string) => Attr,
+  createAttributeNS: (arg0: namespace, arg1: string | null, arg2: qualifiedName, arg3: string) => Attr,
+  // createCDATASection: (data: string) => CDATASection,
+  // createComment: (data: string) => Comment {
+  //   throw new Error('Function not implemented.')
+  // },
+  // createDocumentFragment: function (): DocumentFragment {
+  //   throw new Error('Function not implemented.')
+  // },
+  // createElement: function <K extends keyof HTMLElementTagNameMap>(
+  //   tagName: K,
+  //   options?: ElementCreationOptions | undefined,
+  // ): HTMLElementTagNameMap[K] {
+  //   throw new Error('Function not implemented.')
+  // },
+
+}
 const currentUserRequestsPasswordHash = true // Replace with your logic to determine if passwordHash should be included
 let user: User
 
@@ -48,7 +138,7 @@ user = {
   roles: [UserRole.USER],
   username: 'WhoAmI',
   userProfileId: 2,
-  createdAt: new Date(),
+  createdAt: new Date(Date.now()),
   updatedAt: new Date(),
   passwordHash: `undefined`,
   resetPasswordToken: null,
@@ -148,13 +238,14 @@ const options: MyOptions = {
     const hashedPassword = await hashPassword(dataToHash)
     return hashedPassword
   },
+  namespace: '',
   datasourceNames: '',
   activeProvider: '',
   dataProxy: false,
   close: function (): void {
     throw new Error('Function not implemented.')
   },
-  URL: '',
+  url: '',
   alinkColor: '',
   all: {} as HTMLAllCollection,
   anchors: {} as HTMLCollectionOf<HTMLAnchorElement>,
@@ -197,15 +288,15 @@ const options: MyOptions = {
   ownerDocument: null,
   pictureInPictureEnabled: false,
   plugins: {} as HTMLCollectionOf<HTMLEmbedElement>,
-  readyState: 'complete',
-  referrer: '',
+  readyState: 'ready-state',
+  referrer: 'referrer',
   rootElement: null,
   scripts: {} as HTMLCollectionOf<HTMLScriptElement>,
   scrollingElement: null,
   timeline: {} as DocumentTimeline,
-  title: '',
+  title: 'title',
   visibilityState: 'hidden',
-  vlinkColor: '',
+  vlinkColor: 'vlinkColor',
   adoptNode: function <T extends Node>(node: T): T {
     throw new Error('Function not implemented.')
   },
@@ -221,7 +312,7 @@ const options: MyOptions = {
   createAttribute: function (localName: string): Attr {
     throw new Error('Function not implemented.')
   },
-  createAttributeNS: function (namespace: string | null, qualifiedName: string): Attr {
+  createAttributeNS: function (arg0: namespace, arg1: string | null, arg2: qualifiedName, arg3: string): Attr {
     throw new Error('Function not implemented.')
   },
   createCDATASection: function (data: string): CDATASection {
@@ -240,36 +331,53 @@ const options: MyOptions = {
     throw new Error('Function not implemented.')
   },
 
-  createHTMLElement(qualifiedName: string): HTMLElement {
-    return document.createElement(qualifiedName)
-  },
-
-  createSVGElement(qualifiedName: string): SVGElement {
-    return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName) as SVGElement
-  }, 
-
-createEvent(eventInterface): AnimationEvent  {
-    switch (eventInterface) {
-      case 'AnimationEvent':
-        return new AnimationEvent('animation') as AnimationEvent; 
-      case 'AnimationPlaybackEvent':
-        return new AnimationPlaybackEvent('animationplayback') as AnimationPlaybackEvent & AnimationEvent;
-      case 'AudioWorklet':
-        return new AudioWorklet() as AudioWorklet & AnimationEvent;
-
-      default:
-        throw new Error(`Unsupported event interface: ${eventInterface}`);
-      }
-  } ,
-
-
-
-
-
-
-  // createEvent: function (eventInterface: 'AnimationEvent'): AnimationEvent {
-  //   throw new Error('Function not implemented.')
+  // createHTMLElement(qualifiedName: string): HTMLElement {
+  //   return document.createElement(qualifiedName)
   // },
+
+  // createSVGElement(qualifiedName: string): SVGElement {
+  //   return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName) as SVGElement
+  // }, 
+
+// createEvent(eventInterface: string): AnimationEvent  {
+//     switch (eventInterface) {
+//       case 'AnimationEvent':
+//         return new AnimationEvent('animation') as AnimationEvent & AnimationPlaybackEvent; 
+//       case 'AnimationPlaybackEvent':
+//         return new AnimationPlaybackEvent('animationplayback') as AnimationPlaybackEvent & AnimationEvent;
+//       case 'AudioWorklet':
+//         return new AudioWorklet() as AudioWorklet & AnimationEvent;
+
+//       default:
+//         throw new Error(`Unsupported event interface: ${eventInterface}`);
+//       }  
+//   } ,
+
+
+
+  // createEvent(eventInterface: 'AnimationEvent'): AnimationEvent{
+  //   switch(eventInterface){
+  //   case 'AnimationEvent':
+  //       return new AnimationEvent('animation') as AnimationEvent & AnimationPlaybackEvent;
+  //     default:
+  //       throw new Error(`Unsupported event interface: ${eventInterface}`);
+  //   }
+  // },
+
+  
+  // createEvent(eventInterface: EventInterface): Event {
+  //   switch (eventInterface) {
+  //     case 'AnimationEvent':
+  //       return new AnimationEvent('animation');
+  //     case 'AnimationPlaybackEvent':
+  //       return new AnimationPlaybackEvent('animationplayback');
+  //     default:
+  //       throw new Error(`Unsupported event interface: ${eventInterface}`);
+  //   }
+  // },
+
+
+  
   createNodeIterator: function (
     root: Node,
     whatToShow?: number | undefined,
@@ -322,25 +430,25 @@ createEvent(eventInterface): AnimationEvent  {
     throw new Error('Function not implemented.')
   },
 
-  getElementsByTagNS: function (namespaceURI: string, localName: string): HTMLCollectionOf<HTMLElement>{
-    if(namespaceURI === "http://www.w3.org/1999/xhtml"){
-        return this.getElementsByTagName(localName) as HTMLCollectionOf<HTMLElement>
-  } else if (namespaceURI === "http://www.w3.org/2000/svg"){
-    // handle SVG elements separately
-    const svgElements = this.getElementsByTagNameNS(namespaceURI, localName);
-    const elements: HTMLElement[] = []
+  // getElementsByTagNS: function (namespaceURI: string, localName: string): HTMLCollectionOf<HTMLElement>{
+  //   if(namespaceURI === "http://www.w3.org/1999/xhtml"){
+  //       return this.getElementsByTagName(localName) as HTMLCollectionOf<HTMLElement>
+  // } else if (namespaceURI === "http://www.w3.org/2000/svg"){
+  //   // handle SVG elements separately
+  //   const svgElements = this.getElementsByTagNameNS(namespaceURI, localName);
+  //   const elements: HTMLElement[] = []
 
-      for (let i = 0; i < svgElements.length; i++) {
-        elements.push(svgElements.item(i) as HTMLElement & SVGElement)
-      }
-        return {
-          length: elements.length,
-          item: (index: number) => elements[index],
-        } as HTMLCollectionOf<HTMLElement>
-    } else {
-      throw new Error("Unsupported namespace")
-    }
-  },
+  //     for (let i = 0; i < svgElements.length; i++) {
+  //       elements.push(svgElements.item(i) as HTMLElement & SVGElement)
+  //     }
+  //       return {
+  //         length: elements.length,
+  //         item: (index: number) => elements[index],
+  //       } as HTMLCollectionOf<HTMLElement>
+  //   } else {
+  //     throw new Error("Unsupported namespace")
+  //   }
+  // },
 
 
   getSelection: function (): Selection | null {
@@ -353,16 +461,15 @@ createEvent(eventInterface): AnimationEvent  {
     throw new Error('Function not implemented.')
   },
   importNode: function <T extends Node>(node: T, deep?: boolean | undefined): T {
-    throw new Error('Function not implemented.')
+  import nullable from '../../../../dist/libs/backend/data-access/src/modules/user/types';
+  import { createNamespace } from 'cls-hooked';
+throw new Error('Function not implemented.')
   },
    
-  open(url?: string | URL, name?: string, features?: string): Window | null {
-    if (url && name && features) {
-      const newWindow = window.open(url.toString(), name, features)
-      return newWindow
-    }
-    return null
-  },
+  // open({ (unused1?: string | undefined, unused2?: string | undefined): Document; (url: string | URL, name: string, features: string): Window | null; }): Document {
+
+   
+  //  },
 
 
   

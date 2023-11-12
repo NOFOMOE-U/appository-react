@@ -2,7 +2,7 @@ const INTERNAL_BASE_URL = 'https://internal-api.example.com/'
 const EXTERNAL_BASE_URL = 'https://api.example.com/'
 
 
-    enum EndpointType {
+  enum EndpointType {
   GET = 'GET',
   PATCH = 'PATCH',
   SEARCH = 'SEARCH',

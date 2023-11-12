@@ -6,7 +6,7 @@ import { CustomPrismaClient } from './prisma';
  
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  private prisma:  CustomPrismaClient;
+  private prisma: CustomPrismaClient
   private permissionsMatrix: {
     [key: string]: {
       [key: string]: {
@@ -19,7 +19,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   constructor() {
     this.prisma = new PrismaClient()
-    this.initPermissionsMatrix();
+    this.initPermissionsMatrix()
   }
 
   private initPermissionsMatrix() {
@@ -35,12 +35,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getClient() {
-    await this.prisma;
+    await this.prisma
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    return user ? {...user} : null
+    const user = await this.prisma.user.findUnique({ where: { id } })
+    return user ? { ...user } : null
   }
 
   // //todo set up tasks and connect how to find user by task id.
@@ -50,31 +50,31 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   // }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    return user ? {...user} : null
+    const user = await this.prisma.user.findUnique({ where: { email } })
+    return user ? { ...user } : null
   }
 
-  setUserId(userId: string | null){
+  setUserId(userId: string | null) {
     this.userId = userId
   }
 
   async getContext(): Promise<PrismaContext> {
     return {
-      prisma: (await this.getContext()).prisma,
-      cookies: (await this.getContext()).cookies,
       id: (await this.getContext()).id,
       currentUser: (await this.getContext()).currentUser,
       token: (await this.getContext()).token,
+      prisma: (await this.getContext()).prisma,
+      cookies: (await this.getContext()).cookies,
       getUserId: () => this.userId,
       getPrisma: () => this.prisma,
     }
-  }  
+  }
 
   async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User | null> {
     return this.prisma.user.update({
       where: { id },
       data,
-    });
+    })
   }
   isAuthorized(user: User | undefined, resourceType: string, action: string): boolean {
     if (user) {
@@ -88,8 +88,6 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     // if not authorized, return false by default
     return false
   }
-
-
 }
 
 export const getContext = async (): Promise<PrismaContext> => {
@@ -100,7 +98,6 @@ export const getContext = async (): Promise<PrismaContext> => {
 
 // todo
 // In the isAuthorized method:
-
-// user represents the user object for whom you want to check authorization.
-// resourceType is the type of resource (e.g., 'project', 'task').
-// action is the specific action (e.g., 'create', 'read', 'update', 'delete').
+  // user represents the user object for whom you want to check authorization.
+  // resourceType is the type of resource (e.g., 'project', 'task').
+  // action is the specific action (e.g., 'create', 'read', 'update', 'delete').

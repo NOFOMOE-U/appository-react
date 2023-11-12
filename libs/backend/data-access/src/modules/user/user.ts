@@ -7,7 +7,7 @@ export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'r
   password?: string
   passwordHash?: never
   resetPasswordToken?: null | string
-  // username: string 
+  // accessTier: AccessTier
 }
 
 
