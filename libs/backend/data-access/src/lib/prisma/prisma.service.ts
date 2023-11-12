@@ -40,18 +40,26 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   async getUserById(id: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where: { id } })
-    return user ? { ...user } : null
+    return user ? {
+      ...user,
+      accessTier: user.accessTier
+    } : null
   }
 
   // //todo set up tasks and connect how to find user by task id.
   // async getUserByTaskId(id: string): Promise<Task | null> {
   //   const userTask = await this.prisma.user.findUnique({where: {id}})
-  //   return userTask ? {...userTask} : null
+  //   return userTask ? {...userTask,
+  // accessTier: user.accessTier
+  // } : null
   // }
 
   async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where: { email } })
-    return user ? { ...user } : null
+    return user ? {
+      ...user,
+      accessTier: user.accessTier
+    } : null
   }
 
   setUserId(userId: string | null) {

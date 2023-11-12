@@ -5,7 +5,6 @@ import { Prisma, PrismaClient, User, User as UserType } from '@prisma/client'
 import { Request } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { AccessTier } from '../../../make-api/api-config/access-tier'
 import { getUserId } from '../../../utils/backend-auth.utils'
 
 
@@ -47,7 +46,7 @@ export class CaslAbilityFactory {
     return build()
   }
 
-  static async createForPrisma(prisma: PrismaClient, req: Request, accessTier: AccessTier): Promise<AppAbility> {
+  static async createForPrisma(prisma: PrismaClient, req: Request, accessTier: string): Promise<AppAbility> {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(createPrismaAbility)
     can('read', 'Post')
 
@@ -62,7 +61,7 @@ export class CaslAbilityFactory {
 
     const additionalRules = accessTier
       ? // Rules for specific packages
-        accessTier === 'FREE'
+        accessTier === 'free'
         ? [
             {
               subject: 'FreeResource',
@@ -109,7 +108,6 @@ export class CaslAbilityFactory {
     return createPrismaAbility(ability as SubjectRawRule & ClaimRawRule<any>) as AppAbility
   }
 }
-
 const prisma = new PrismaClient()
 const req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> = {} as Request<
   ParamsDictionary,
@@ -117,8 +115,9 @@ const req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> = 
   any,
   ParsedQs,
   Record<string, any>
->
- const ability = await CaslAbilityFactory.createForPrisma(prisma, req, accessTier)
+  >
+  const accessTier = 'free'
+  const ability = await CaslAbilityFactory.createForPrisma(prisma, req, accessTier)
 
 export default ability
 

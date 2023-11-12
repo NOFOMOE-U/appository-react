@@ -12,6 +12,7 @@ import { YourRequestObject } from './custom-request-with-context'
 export type BodyContent = object | FormData | string // Include all possible types
 
 export interface CustomRequestInit extends RequestInit {
+  //todo do i need accessTier here 
   user: UserWithAccessToken | null
   url?: string
   query?: ParsedQs
@@ -32,13 +33,16 @@ export interface CustomRequestInit extends RequestInit {
   req?: IncomingMessage
 }
 
-const userAccessTier = {} as AccessTier
+const accessTier = {} as AccessTier
 //todo verify accessTier goes here - checked updated 
-// const accessTier =  mapAccessTierToUserWithAccessToken('userAccessTier');
+// const accessTier =  mapAccessTierToUserWithAccessToken('accessTier');
 const prismaService = new PrismaService();
-const userService = new UserService(prismaService, userAccessTier);
+const userService = new UserService(prismaService
+// accessTier //todo verify if it needs to be here and then update 
+);
 export interface CustomRequestOptions extends CustomRequestInit {
   userService: UserService
+  //todo
   // accessTier: AccessTier
  }
 

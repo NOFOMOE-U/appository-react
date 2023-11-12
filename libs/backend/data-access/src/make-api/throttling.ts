@@ -1,9 +1,9 @@
 //todo move into it's own foder
-
-import endpoint from
+import { RequestOptions } from "./default-options"
+import { ApiRequestFunction } from "./make-api-request"
     // Function to handle API requests with retry and throttling
 
-    async function makeAPICallWithRetryThrottling(endpoint: Api, requestOptions) {
+    async function makeAPICallWithRetryThrottling(endpoint: ApiRequestFunction, requestOptions: RequestOptions) {
         const MAX_RETRIES = 3 // Maximum number of retries
         const RETRY_DELAY = 1000 // Time delay between retries in milliseconds
         const THROTTLE_DELAY = 500 // Throttling time between requests in milliseconds
@@ -15,7 +15,7 @@ import endpoint from
                 await delay(THROTTLE_DELAY)
 
                 // Make the API call with provided request options
-                const response = await makeAPICall(apiEndpoint, requestOptions)
+                const response = await makeAPICall(endpoint, requestOptions)
 
                 // Process the response, transform data as needed
                 const processedData = processAPIResponse(response)
@@ -41,7 +41,7 @@ import endpoint from
     }
 
 // Function to simulate delay using Promises
-export function delay(ms) {
+export function delay(ms: any) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
@@ -49,7 +49,7 @@ export function delay(ms) {
 
 // Function to make the actual API call using Axios or Fetch
 // Function to make the actual API call using Axios or Fetch
-async function makeAPICall(endpoint, options, requestLibrary = 'axios') {
+async function makeAPICall(endpoint: any, options: any, requestLibrary = 'axios') {
     let response;
     if (requestLibrary === 'axios') {
       const axios = require('axios'); // Import Axios when needed
@@ -65,7 +65,7 @@ async function makeAPICall(endpoint, options, requestLibrary = 'axios') {
   
 
 // Function to process the API response
-export function processAPIResponse(response) {
+export function processAPIResponse(response: any) {
   // Process the response, transform data if necessary
   // Return the processed data
   return response.data
