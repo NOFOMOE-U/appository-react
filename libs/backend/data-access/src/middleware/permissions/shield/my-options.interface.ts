@@ -43,6 +43,7 @@ export interface MyOptions extends IOptions {
   prisma?: PrismaClient
 
   //from GetPrismaClientConfig
+  namespace: '',
   datamodel: []
   mappings: []
   document: Document
@@ -106,28 +107,101 @@ export interface MyOptions extends IOptions {
   title: string,
   visibilityState: string,
   vlinkColor: string
+  
   adoptNode: <T extends Node>(node: T) => void,
+  
   captureEvents: () => void;
 
   caretRangeFromPoint: (x: number, y: number) => Range | null,
-  clear:  ()  => void,
+  
+  clear: () => void,
+  
   createAttribute: (localName: string) => Attr,
-  createAttributeNS: (arg0: namespace, arg1: string | null, arg2: qualifiedName, arg3: string) => Attr,
-  // createCDATASection: (data: string) => CDATASection,
-  // createComment: (data: string) => Comment {
-  //   throw new Error('Function not implemented.')
-  // },
-  // createDocumentFragment: function (): DocumentFragment {
-  //   throw new Error('Function not implemented.')
-  // },
-  // createElement: function <K extends keyof HTMLElementTagNameMap>(
-  //   tagName: K,
-  //   options?: ElementCreationOptions | undefined,
-  // ): HTMLElementTagNameMap[K] {
-  //   throw new Error('Function not implemented.')
-  // },
+  //change arg0 from/ namespace   changed arg2: from qualifiedName
+  
+  createAttributeNS: (namespace: string, arg1: string | null, qualifiedName: string, arg3: string) => Attr,
 
+  
+  createCDATASection: (data: string) => CDATASection,
+ 
+  createComment: (data: string) => Comment,
+ 
+  createDocumentFragment: () => DocumentFragment,
+ 
+  createElement: <K extends keyof HTMLElementTagNameMap>(
+    tagName: K,
+    options?: ElementCreationOptions | undefined,
+  ) => Element,
+ 
+  createNodeIterator: (
+    root: Node,
+    whatToShow?: number | undefined,
+    filter?: NodeFilter | null | undefined,
+  ) => NodeIterator,
+ 
+  createProcessingInstruction: (target: string, data: string) => ProcessingInstruction,
+  createRange: () => Range,
+ 
+  createTextNode: (data: string) => Text,
+  
+  createTreeWalker: (
+    root: Node,
+    whatToShow?: number | undefined,
+    filter?: NodeFilter | null | undefined,
+  )=> TreeWalker,
+  
+  execCommand: (commandId: string, showUI?: boolean | undefined, value?: string | undefined) => boolean,
+  
+  exitFullscreen: () => Promise<void>,
+  
+  exitPictureInPicture: () => Promise<void> ,
+  
+  exitPointerLock: () => void ,
+  
+  getElementById:  (elementId: string) => HTMLElement | null,
+ 
+  getElementsByClassName:(classNames: string)=> HTMLCollectionOf<Element>,
+  
+  getElementsByName:  (elementName: string) => NodeListOf<HTMLElement>,
+
+  getElementsByTagName:  <K extends keyof HTMLElementTagNameMap>(
+    qualifiedName: K,
+  ) => HTMLCollectionOf<HTMLElementTagNameMap[K]>,
+
+  createEvent: (eventInterface: string) => AnimationEvent,
+
+  getSelection:  ()=> Selection | null,
+  
+  hasFocus: () => boolean,
+  
+  hasStorageAccess: ()=> Promise<boolean> ,
+ 
+  importNode: <T extends Node> (node: T, deep?: boolean | undefined) => T,
+
+  queryCommandEnabled:(commandId: string) => boolean ,
+  queryCommandIndeterm: (commandId: string)=> boolean ,
+  queryCommandState: (commandId: string) => boolean,
+
+  queryCommandSupported:  (commandId: string)=> boolean 
+
+  queryCommandValue:  (commandId: string)=> string ,
+  releaseEvents:  ()=> void ,
+  requestStorageAccess:  ()=> Promise<void> ,
+  write:  (...text: string[])=> void,
+  writeln: (...text: string[]) => void,
+  addEventListener: <K extends keyof DocumentEventMap>(
+    type: K,
+    listener: (this: Document, ev: DocumentEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions | undefined,
+  ) => void,
+  removeEventListener: <K extends keyof DocumentEventMap>(
+    type: K,
+    listener: (this: Document, ev: DocumentEventMap[K]) => any,
+    options?: boolean | EventListenerOptions | undefined,
+  ) => void
 }
+
+
 const currentUserRequestsPasswordHash = true // Replace with your logic to determine if passwordHash should be included
 let user: User
 
@@ -141,6 +215,7 @@ user = {
   createdAt: new Date(Date.now()),
   updatedAt: new Date(),
   passwordHash: `undefined`,
+  accessTier: 'access-tier',
   resetPasswordToken: null,
   // add any additional fields as necessary
 }
@@ -300,36 +375,47 @@ const options: MyOptions = {
   adoptNode: function <T extends Node>(node: T): T {
     throw new Error('Function not implemented.')
   },
+
   captureEvents: function (): void {
     throw new Error('Function not implemented.')
   },
+
   caretRangeFromPoint: function (x: number, y: number): Range | null {
     throw new Error('Function not implemented.')
   },
+
   clear: function (): void {
     throw new Error('Function not implemented.')
   },
+
   createAttribute: function (localName: string): Attr {
     throw new Error('Function not implemented.')
   },
-  createAttributeNS: function (arg0: namespace, arg1: string | null, arg2: qualifiedName, arg3: string): Attr {
+
+  createAttributeNS: function (namespace: string, arg1: string | null, qualifiedName: string, arg3: string): Attr {
     throw new Error('Function not implemented.')
   },
+
   createCDATASection: function (data: string): CDATASection {
     throw new Error('Function not implemented.')
   },
+
   createComment: function (data: string): Comment {
     throw new Error('Function not implemented.')
   },
+
   createDocumentFragment: function (): DocumentFragment {
     throw new Error('Function not implemented.')
   },
+
   createElement: function <K extends keyof HTMLElementTagNameMap>(
     tagName: K,
     options?: ElementCreationOptions | undefined,
   ): HTMLElementTagNameMap[K] {
     throw new Error('Function not implemented.')
   },
+
+
 
   // createHTMLElement(qualifiedName: string): HTMLElement {
   //   return document.createElement(qualifiedName)
@@ -339,21 +425,23 @@ const options: MyOptions = {
   //   return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName) as SVGElement
   // }, 
 
-// createEvent(eventInterface: string): AnimationEvent  {
-//     switch (eventInterface) {
-//       case 'AnimationEvent':
-//         return new AnimationEvent('animation') as AnimationEvent & AnimationPlaybackEvent; 
-//       case 'AnimationPlaybackEvent':
-//         return new AnimationPlaybackEvent('animationplayback') as AnimationPlaybackEvent & AnimationEvent;
-//       case 'AudioWorklet':
-//         return new AudioWorklet() as AudioWorklet & AnimationEvent;
+createEvent(eventInterface: string): AnimationEvent  {
+    switch (eventInterface) {
+      case 'AnimationEvent':
+        return new AnimationEvent('animation') as AnimationEvent & AnimationPlaybackEvent; 
+      case 'AnimationPlaybackEvent':
+        return new AnimationPlaybackEvent('animationplayback') as AnimationPlaybackEvent & AnimationEvent;
+      case 'AudioWorklet':
+        return new AudioWorklet() as AudioWorklet & AnimationEvent;
 
-//       default:
-//         throw new Error(`Unsupported event interface: ${eventInterface}`);
-//       }  
-//   } ,
+      default:
+        throw new Error(`Unsupported event interface: ${eventInterface}`);
+      }  
+  } ,
 
-
+  // createEvent(eventInterface: string): AnimationEvent {
+  //   return document.createEvent("AnimationPlaybackEvent")
+  // }
 
   // createEvent(eventInterface: 'AnimationEvent'): AnimationEvent{
   //   switch(eventInterface){
@@ -461,9 +549,7 @@ const options: MyOptions = {
     throw new Error('Function not implemented.')
   },
   importNode: function <T extends Node>(node: T, deep?: boolean | undefined): T {
-  import nullable from '../../../../dist/libs/backend/data-access/src/modules/user/types';
-  import { createNamespace } from 'cls-hooked';
-throw new Error('Function not implemented.')
+ throw new Error('Function not implemented.')
   },
    
   // open({ (unused1?: string | undefined, unused2?: string | undefined): Document; (url: string | URL, name: string, features: string): Window | null; }): Document {
@@ -472,16 +558,12 @@ throw new Error('Function not implemented.')
   //  },
 
 
+  open(url?: string | URL, name?: string): Document {
+    const newDocument = document.implementation.createHTMLDocument('New Document');
+    newDocument.open(url?.toString(), name);
+    return newDocument
+  },
   
-      // open(url?: string | URL, name?: string): Document {
-
-      //   const newDocument = document.implementation.createHTMLDocument('New Document');
-      //   newDocument.open(url?.toString(), name);
-      //   return newDocument
-      // },
-  
-
-
   queryCommandEnabled: function (commandId: string): boolean {
     throw new Error('Function not implemented.')
   },
