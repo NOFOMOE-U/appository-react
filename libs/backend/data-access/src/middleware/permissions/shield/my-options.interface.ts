@@ -198,7 +198,185 @@ export interface MyOptions extends IOptions {
     type: K,
     listener: (this: Document, ev: DocumentEventMap[K]) => any,
     options?: boolean | EventListenerOptions | undefined,
-  ) => void
+  ) => void,
+  createElementNS(
+    namespaceURI: "http://www.w3.org/1999/xhtml" | "http://www.w3.org/2000/svg" | "http://www.w3.org/1998/Math/MathML",
+    qualifiedName: string,
+    options?: any
+  ): HTMLElement | SVGElement | MathMLElement,
+  baseURI: '',
+  childNodes: NodeListOf<ChildNode>,
+  firstChild: null,
+  isConnected: false,
+  lastChild: null,
+  nextSibling: null,
+  nodeName: '',
+  nodeType: 0,
+  nodeValue: null,
+  parentElement: null,
+  parentNode: null,
+  previousSibling: null,
+  textContent: null,
+  appendChild:  <T extends Node>(node: T)=> T,
+  
+  cloneNode: (deep?: boolean | undefined) => Node,
+  
+  compareDocumentPosition: (other: Node) => number,
+  
+  contains: (other: Node | null) => boolean,
+  
+  getRootNode: (options?: GetRootNodeOptions | undefined) => Node,
+  
+  hasChildNodes: () => boolean,
+  insertBefore:  <T extends Node>(node: T, child: Node | null)=> T,
+  isDefaultNamespace: (namespace: string | null) => boolean,
+  isEqualNode:(otherNode: Node | null) => boolean,
+  isSameNode:(otherNode: Node | null) => boolean,
+  lookupNamespaceURI:(prefix: string | null) => string | null,
+  lookupPrefix: (namespace: string | null) => string | null,
+  normalize: () => void ,
+  
+  removeChild: <T extends Node>(child: T) => T,
+  replaceChild: <T extends Node>(node: Node, child: T) => T,
+  ELEMENT_NODE: 1,
+  ATTRIBUTE_NODE: 2,
+  TEXT_NODE: 3,
+  CDATA_SECTION_NODE: 4,
+  ENTITY_REFERENCE_NODE: 5,
+  ENTITY_NODE: 6,
+  PROCESSING_INSTRUCTION_NODE: 7,
+  COMMENT_NODE: 8,
+  DOCUMENT_NODE: 9,
+  DOCUMENT_TYPE_NODE: 10,
+  DOCUMENT_FRAGMENT_NODE: 11,
+  NOTATION_NODE: 12,
+  DOCUMENT_POSITION_DISCONNECTED: 1,
+  DOCUMENT_POSITION_PRECEDING: 2,
+  DOCUMENT_POSITION_FOLLOWING: 4,
+  DOCUMENT_POSITION_CONTAINS: 8,
+  DOCUMENT_POSITION_CONTAINED_BY: 16,
+  DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 32,
+  dispatchEvent: (event: Event) => boolean,
+  activeElement: null,
+  adoptedStyleSheets: [],
+  fullscreenElement: null,
+  pictureInPictureElement: null,
+  pointerLockElement: null,
+  styleSheets: StyleSheetList,
+  elementFromPoint:  (x: number, y: number) => Element | null ,
+  elementsFromPoint:  (x: number, y: number)=> Element[] ,
+  getAnimations:  () => Animation[],
+  fonts: FontFaceSet,
+  onabort: null,
+  onanimationcancel: null,
+  onanimationend: null,
+  onanimationiteration: null,
+  onanimationstart: null,
+  onauxclick: null,
+  onbeforeinput: null,
+  onblur: null,
+  oncancel: null,
+  oncanplay: null,
+  oncanplaythrough: null,
+  onchange: null,
+  onclick: null,
+  onclose: null,
+  oncontextmenu: null,
+  oncopy: null,
+  oncuechange: null,
+  oncut: null,
+  ondblclick: null,
+  ondrag: null,
+  ondragend: null,
+  ondragenter: null,
+  ondragleave: null,
+  ondragover: null,
+  ondragstart: null,
+  ondrop: null,
+  ondurationchange: null,
+  onemptied: null,
+  onended: null,
+  onerror: null,
+  onfocus: null,
+  onformdata: null,
+  ongotpointercapture: null,
+  oninput: null,
+  oninvalid: null,
+  onkeydown: null,
+  onkeyup: null,
+  onload: null,
+  onloadeddata: null,
+  onloadedmetadata: null,
+  onloadstart: null,
+  onlostpointercapture: null,
+  onmousedown: null,
+  onmouseenter: null,
+  onmouseleave: null,
+  onmousemove: null,
+  onmouseout: null,
+  onmouseover: null,
+  onmouseup: null,
+  onpaste: null,
+  onpause: null,
+  onplay: null,
+  onplaying: null,
+  onpointercancel: null,
+  onpointerdown: null,
+  onpointerenter: null,
+  onpointerleave: null,
+  onpointermove: null,
+  onpointerout: null,
+  onpointerover: null,
+  onpointerup: null,
+  onprogress: null,
+  onratechange: null,
+  onreset: null,
+  onresize: null,
+  onscroll: null,
+  onscrollend: null,
+  onsecuritypolicyviolation: null,
+  onseeked: null,
+  onseeking: null,
+  onselect: null,
+  onselectionchange: null,
+  onselectstart: null,
+  onslotchange: null,
+  onstalled: null,
+  onsubmit: null,
+  onsuspend: null,
+  ontimeupdate: null,
+  ontoggle: null,
+  ontransitioncancel: null,
+  ontransitionend: null,
+  ontransitionrun: null,
+  ontransitionstart: null,
+  onvolumechange: null,
+  onwaiting: null,
+  onwebkitanimationend: null,
+  onwebkitanimationiteration: null,
+  onwebkitanimationstart: null,
+  onwebkittransitionend: null,
+  onwheel: null,
+  childElementCount: 0,
+  children: HTMLCollection,
+  firstElementChild: null,
+  lastElementChild: null,
+  append:  (...nodes: (string | Node)[]) => void ,
+  prepend:  (...nodes: (string | Node)[]) => void ,
+  querySelector: function <K extends keyof HTMLElementTagNameMap>(selectors: K) => HTMLElementTagNameMap[K] | null ,
+  querySelectorAll:  <K extends keyof HTMLElementTagNameMap>(
+    selectors: K,
+  )=> NodeListOf<HTMLElementTagNameMap[K]>,
+  replaceChildren:  (...nodes: (string | Node)[]) => void ,
+  createExpression: function (expression: string, resolver?: XPathNSResolver | null | undefined)=> XPathExpression,
+  createNSResolver: function (nodeResolver: Node)=> Node ,
+  evaluate:  (
+    expression: string,
+    contextNode: Node,
+    resolver?: XPathNSResolver | null | undefined,
+    type?: number | undefined,
+    result?: XPathResult | null | undefined,
+  )=> XPathResult
 }
 
 
@@ -416,7 +594,13 @@ const options: MyOptions = {
   },
 
 
-
+  createElementNS(
+    namespaceURI: "http://www.w3.org/1999/xhtml" | "http://www.w3.org/2000/svg" | "http://www.w3.org/1998/Math/MathML",
+    qualifiedName: string,
+    options?: any
+  ): HTMLElement | SVGElement | MathMLElement {
+    throw new Error("Function not implemented.");
+  },
   // createHTMLElement(qualifiedName: string): HTMLElement {
   //   return document.createElement(qualifiedName)
   // },
@@ -425,6 +609,7 @@ const options: MyOptions = {
   //   return document.createElementNS('http://www.w3.org/2000/svg', qualifiedName) as SVGElement
   // }, 
 
+  
 createEvent(eventInterface: string): AnimationEvent  {
     switch (eventInterface) {
       case 'AnimationEvent':
@@ -438,32 +623,6 @@ createEvent(eventInterface: string): AnimationEvent  {
         throw new Error(`Unsupported event interface: ${eventInterface}`);
       }  
   } ,
-
-  // createEvent(eventInterface: string): AnimationEvent {
-  //   return document.createEvent("AnimationPlaybackEvent")
-  // }
-
-  // createEvent(eventInterface: 'AnimationEvent'): AnimationEvent{
-  //   switch(eventInterface){
-  //   case 'AnimationEvent':
-  //       return new AnimationEvent('animation') as AnimationEvent & AnimationPlaybackEvent;
-  //     default:
-  //       throw new Error(`Unsupported event interface: ${eventInterface}`);
-  //   }
-  // },
-
-  
-  // createEvent(eventInterface: EventInterface): Event {
-  //   switch (eventInterface) {
-  //     case 'AnimationEvent':
-  //       return new AnimationEvent('animation');
-  //     case 'AnimationPlaybackEvent':
-  //       return new AnimationPlaybackEvent('animationplayback');
-  //     default:
-  //       throw new Error(`Unsupported event interface: ${eventInterface}`);
-  //   }
-  // },
-
 
   
   createNodeIterator: function (
