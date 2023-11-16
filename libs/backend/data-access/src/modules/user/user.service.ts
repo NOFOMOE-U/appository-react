@@ -13,25 +13,27 @@ import { PrismaService } from '../../lib/prisma/prisma.service'; //added because
 import { AccessTier } from '../../make-api/api-config/access-tier';
 import { CustomRequestInit } from '../../make-api/requests/custom-request-init';
 import errorMessages from '../../middleware/permissions/error-messages';
+import userRegistrationSchema from '../../middleware/validation-yup-schemas/validate-registration';
 import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user';
+import { BaseService } from '../../services/base-service';
 import { UserWithAccessToken, UserWithoutSensitiveData } from './user';
 import { getAllUsers } from './user-queries/get-all-users';
 import { UserInput } from './user.input';
- 
 @Injectable()
-export class UserService {
+export class UserService extends BaseService {
   private currentUser?: UserWithAccessToken
-  // accessTier: AccessTier
+  accessTier: AccessTier
   request: YourRequestObject<CustomRequestInit>
   user: UserWithAccessToken | null
   
   constructor(
     private readonly prismaService: PrismaService,
-    // accessTier: AccessTier
+    accessTier: AccessTier
   ) {
+    super(prismaService);
     this.request = new YourRequestObject<CustomRequestInit>()
     this.user = null
-    // this.accessTier = accessTier // todo accessTier
+    this.accessTier = accessTier // todo accessTier
   }
 
   accepts(types: string | string[] | undefined): (string | false | null)[] | undefined {
@@ -89,9 +91,15 @@ export class UserService {
     context: MyContext,
     passwordHash: string,
   ): Promise<UserWithoutSensitiveData> {
-    //validate user input
-    await this.validateUserInput(data)
-    await validateUserSchema.validate(data)
+    //validate user input against yup schema
+
+    try {
+      await userRegistrationSchema.validate(data, {abortEarly: false}); // You can provide options here if needed
+    } catch(error){
+      throw new Error(errorMessages.userNotRegistered)
+    }
+
+    //If the vaidation is successfully registered, proceed to create user
     return createUser(data, context, passwordHash)
   }
 
@@ -100,14 +108,15 @@ export class UserService {
     return this.prismaService.updateUser(id, data)
   }
 
-  async updateUserAccessTier(userId: string): Promise<User | null>{
+  async updateUserAccessTier(userId: string, data: Prisma.UserUpdateInput): Promise<User | null>{
     // Fetch the user based on their ID
     const user = await this.prismaService.getUserById(userId)
 
     if (user) {
      
-      //Persist the updpdate user information to the database
-      return this.prismaService.updateUser(userId)
+      //Persist the uppdate user information to the database
+      await validateUserSchema.validate(data)
+      return this.prismaService.updateUser(userId, data);
     }
       return null;
   }
@@ -120,8 +129,9 @@ export class UserService {
     return getAllUsers()
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.prismaService.getUserById(id)
+  async getUserById(id: string): Promise<UserWithoutSensitiveData | null> {
+    const user = await this.prismaService.getUserById(id)
+    return this.sanitizeSensitiveData(user)
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
@@ -133,10 +143,29 @@ export class UserService {
     // this.accessTier = this.accessTier //todo accessTier
   }
 
-  async getCurrentUser(): Promise<UserWithAccessToken | null> {
-    return this.currentUser || null
+  async getCurrentUser(): Promise<UserWithoutSensitiveData | null>  {
+    const user = this.currentUser;
+    
+    if (user) {
+      return user
+      
+    } else {
+      return null;
+    }
   }
 
+
+
+private sanitizeSensitiveData(user: UserWithAccessToken | User | null): UserWithoutSensitiveData | null {
+  if (user) {
+    // Exclude sensitive information from the user object
+    const { passwordHash, ...sanitizedUser } = user;
+
+    // Return the user object without sensitive data
+    return sanitizedUser;
+  }
+  return null;
+}
 
   async changeUserPassword(userId: string, newPassword: string): Promise<boolean>{
     //ogic to change the user's password in the database
@@ -157,7 +186,7 @@ export class UserService {
     return `${baseUrl}/${endpoint}`
   }
 
- async getBaseUrlForAccess(): string { 
+ async getBaseUrlForAccess(): Promise<string> { 
     if (!this.accessTier) {
       throw new Error(errorMessages.NoUrlAccess)
     }

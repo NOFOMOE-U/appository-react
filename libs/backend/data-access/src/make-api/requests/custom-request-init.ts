@@ -4,7 +4,7 @@ import { AppConfiguration } from '../../context/app-configuration'
 import { CustomContextType } from '../../context/custom-context-type'
 import { CustomURLSearchParams } from '../../context/my-context'
 import { PrismaService } from '../../lib/prisma/prisma.service'
-import { UserWithAccessToken } from '../../modules/user/user'
+import { UserWithoutSensitiveData } from '../../modules/user/user'
 import { UserService } from '../../modules/user/user.service'
 import { AccessTier } from '../api-config/access-tier'
 import { CustomSessionType } from '../my-custom-request'
@@ -13,9 +13,10 @@ export type BodyContent = object | FormData | string // Include all possible typ
 
 export interface CustomRequestInit extends RequestInit {
   //todo do i need accessTier here 
-  user: UserWithAccessToken | null
+  user: UserWithoutSensitiveData
   url?: string
   query?: ParsedQs
+  accessTier?: AccessTier
   params?: { [key: string]: string }
   get?: (name: string) => string | null | undefined
   accepts: (types: string | string[] | undefined) => (string | false | null)[] | undefined
@@ -33,23 +34,21 @@ export interface CustomRequestInit extends RequestInit {
   req?: IncomingMessage
 }
 
-const accessTier = {} as AccessTier
-//todo verify accessTier goes here - checked updated 
-// const accessTier =  mapAccessTierToUserWithAccessToken('accessTier');
+const accessTier = {} as string; // initialize accessTier
+
 const prismaService = new PrismaService();
-const userService = new UserService(prismaService
-// accessTier //todo verify if it needs to be here and then update 
+const userService = new UserService(prismaService, accessTier
+ //todo verify if it needs to be here and then update
 );
 export interface CustomRequestOptions extends CustomRequestInit {
   userService: UserService
-  //todo
-  // accessTier: AccessTier
+  accessTier: AccessTier
  }
 
 const customRequestOptions: CustomRequestOptions = {
   userService: userService,
-  user: null,
-  // accessTier: {} as AccessTier, // todo AccessTier
+  user: {} as UserWithoutSensitiveData,
+  accessTier: {} as AccessTier, // todo AccessTier
   accepts: () => ['json'],
   body: {} as BodyInit | null | undefined,
   request: {} as YourRequestObject<CustomRequestInit>,

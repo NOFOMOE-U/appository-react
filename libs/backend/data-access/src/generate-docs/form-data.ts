@@ -7,13 +7,14 @@ import { UserWithAccessToken } from '../modules/user/user'
 
 import { CustomRequest } from '../interfaces/user/custom-request'
 import { PrismaService } from '../lib/prisma/prisma.service'
+import { AccessTier } from '../make-api/api-config/access-tier'
+import { myContext } from '../make-api/default-options'
+import { CustomSessionType, MyCustomRequest } from '../make-api/my-custom-request'
+import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init'
+import { CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context'
 import { UserWithoutSensitiveData } from '../modules/user/user'
 import { UserService } from '../modules/user/user.service'
 import { getUserId } from '../utils/backend-auth.utils'
-import { myContext } from './default-options'
-import { CustomSessionType, MyCustomRequest } from './my-custom-request'
-import { BodyContent, CustomRequestInit, CustomRequestOptions } from './requests/custom-request-init'
-import { CustomRequestWithContext, YourRequestObject } from './requests/custom-request-with-context'
 
 
 type UserLoginSessionType = CustomRequestWithContext<CustomRequestInit>
@@ -22,7 +23,6 @@ type UserLoginSessionType = CustomRequestWithContext<CustomRequestInit>
 let userService: UserService
 let prismaService: PrismaService = new PrismaService()
 let requestBody: BodyContent | null | undefined
-
 
 const headers = new Headers()
 
@@ -36,14 +36,16 @@ type MyCustomContext = MyContext<UserWithoutSensitiveData> & {
   get?: (name: string) => string | undefined
 }
   
+let accessTier =  AccessTier
 const updateRequest = new MyCustomRequest<MyCustomContext>(
   {
     user: {
       passwordHash: undefined,
     } as UserWithAccessToken,
-    accessTier: {} as CustomRequestOptions['accessTier'],
+    // accessTier: {} as CustomRequestOptions['accessTier'],
     body: {} as BodyInit | null | undefined,
     userService: {} as UserService,
+    accessTier: {} as AccessTier,
     requestBody: {} as BodyContent | null | undefined,
     request: {} as YourRequestObject<CustomRequestInit>,
     url: 'https://jsonplaceholder.typicode.com/posts/1',

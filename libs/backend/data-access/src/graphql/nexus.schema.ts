@@ -4,11 +4,14 @@ import { RootTypes } from '@appository/backend/data-access';
 import { GraphQLSchema } from 'graphql';
 import { applyMiddleware } from 'graphql-middleware';
 import { makeSchema } from 'nexus';
-import * as path from 'path';
 import { join } from 'path';
 import { permissions } from '../middleware/permissions/shield/shield-permissions';
+import { Configuration } from '../modules/database';
 import * as UserModule from '../modules/user/user.module';
 import * as types from './type';
+
+
+
 
 export interface GraphQLSchemaWithProps extends GraphQLSchema {
   query: any;
@@ -18,13 +21,16 @@ export interface GraphQLSchemaWithProps extends GraphQLSchema {
 }
 
 export const nexusSchema = makeSchema({
-  types: [RootTypes, types, UserModule],
+  types: [Configuration, RootTypes, UserModule, types],
   outputs: {
     schema: __dirname + '/schema.graphql',
     typegen: join(process.cwd(), 'node_modules/@types/nexus-typegen/index.d.ts'),
   },
   contextType: {
-    module: path.dirname('/context'),
+    // Use existing contextType definition- this works and was the orignia code... 
+    // module: path.dirname('/context'),
+    //trying per request
+    module: join(process.cwd(), 'context'),
     export: 'Context',
   },
   shouldGenerateArtifacts: true,

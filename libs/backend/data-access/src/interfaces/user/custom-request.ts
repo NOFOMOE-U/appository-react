@@ -18,6 +18,7 @@ export declare const jest: {
 //using the generate Type parameter of T allows us to be able to add
 // additional properities to the reqquest object as needed.
 export interface CustomRequest<T = unknown> extends Request {
+  context: T
   id: string
   config: AppConfiguration
   user?: UserWithoutSensitiveData | null
@@ -25,20 +26,19 @@ export interface CustomRequest<T = unknown> extends Request {
   query: any;
   params: any;
   token: string
-  body: BodyInit | null | undefined
-  requestBody: BodyContent | null | undefined
-  userService: UserService
-  destination: RequestDestination
-  request: CustomRequest
-  username: string 
   expires: string
-  yourSessionKey: string
-  headers: CustomContextHeaders
+  username: string 
   startTime?: number
   cache: RequestCache
+  request: CustomRequest
+  requestBody: BodyContent | null | undefined
   currentUser?: UserWithoutSensitiveData | undefined | null
+  destination: RequestDestination
+  body: BodyInit | null | undefined
+  headers: CustomContextHeaders
   accessToken?: string | null
-  context: T
+  yourSessionKey: string
+  userService: UserService
 }
 
 // Define the ExtendedCustomRequest interface that extends CustomRequest with additional properties

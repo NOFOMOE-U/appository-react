@@ -1,11 +1,159 @@
+
+// Implementation Plan:
+// Document Library System:
+
+// Document Management:
+// Establish a solid infrastructure to organize, store, and retrieve various document types (PDF, Markdown, SQL) within a structured hierarchy.
+// Editing Functionality:
+// Integrate a collaborative text editor allowing multiple users to work on documents simultaneously.
+// Implement features like version control to track changes, allowing rollback if necessary.
+// Grammar and Spelling Checks:
+// Incorporate grammar and spell-check functionalities using suitable third-party APIs or libraries.
+// Document Conversion Tools:
+
+// SQL to CSV or PDF:
+// Develop a feature allowing SQL files to be converted into CSV or PDF formats.
+// User Interaction:
+
+// Collaboration Features:
+// Develop real-time collaboration tools allowing users to edit, share, and collaborate on documents.
+// Commenting and Review:
+// Implement commenting and review functionalities within documents to facilitate feedback.
+// Reporting System:
+
+// User Behavior Reports:
+// Create a reporting system to generate insights based on user behavior and activities within the application.
+// Security Reports:
+// Establish reporting for monitoring security-related aspects, like access logs, authentication, and permissions.
+// Future Extensibility:
+
+// Library/Modules Creation:
+// Develop specialized libraries for major functionalities like reports, collaboration, and document editing.
+// Shared Modules:
+// Use shared modules for common functionalities like logging, context, and authentication to maintain consistency across modules.
+// Integration with Existing Modules:
+
+// GraphQL and Prisma Integration:
+// Ensure seamless integration with existing GraphQL and Prisma modules to incorporate new features.
+// User Experience Enhancement:
+
+// User-Friendly Interface:
+// Design an intuitive and user-friendly interface for ease of document creation, editing, and collaboration.
+// Testing and Quality Assurance:
+
+// Unit and Integration Testing:
+// Implement rigorous testing protocols to maintain the quality and stability of newly added features.
+// Feedback Loop and Continuous Improvement:
+
+// Gather User Feedback:
+// Periodically collect feedback from users to identify areas of improvement and new features required.
+// Iterative Development:
+// Use an iterative approach to constantly refine and enhance functionalities based on feedback.
+// Scaling and Performance:
+
+// Optimization:
+// Regularly optimize the system to ensure performance, especially when handling large documents or concurrent users.****
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   //todo set up external document sharing
+// //   PDF Generation: Libraries like PDFKit or jsPDF can help generate PDFs. Code might include structuring content, defining styles, and converting them into a PDF format.
+
+// // Word Documents: For .docx files, the "docx" package in Node.js or libraries like "mammoth" can be used to create Word documents programmatically. This would involve structuring the document with the required content and formatting.
+
+// // Markdown Files: Generating markdown is relatively simple, as it's a plain text format. Just organize the data in a markdown-specific way and save it with the ".md" extension.
+
+// // Rich Text Format (RTF): Libraries like "rtf-creator" or "rich-text-rfc" can assist in creating RTF files. You'll need to structure the content and define the formatting.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 must create the file for docker
 # https://www.youtube.com/watch?v=UuQsEoX6f0Q
 
-# around 11 min mark
+# around 11 min **mark**
 
 
 sign up set up for nexus:
 https://javascript.plainenglish.io/ultimate-authentication-using-graphql-nexus-ec01f79dff2c
+
+// FRONT END CI - CD PIPELINE SETUP
+https://blog.logrocket.com/best-practices-ci-cd-pipeline-frontend/
 
 
 <!-- add in the main.ts file -->
@@ -57,6 +205,17 @@ lastActivity: A timestamp indicating the last activity or interaction using the 
 
 isTyping: A flag to indicate if the user or team is currently typing a message.
 
+
+
+
+receiveMessage(message: Message): Handle incoming text messages.
+
+
+
+
+
+
+receiveFile(file: File): Handle incoming files or attachments.
 Methods:
 
 connect: Establish a connection to the server when the app starts or when the user logs in.

@@ -5,11 +5,13 @@ import { CustomPrismaClient } from '../../lib/prisma/prisma';
 import errorMessages from '../../middleware/permissions/error-messages';
 import { isAuthenticatedUser } from '../../middleware/permissions/rules/is-authenticated-user';
 import { AuthenticatedSession, authenticateUser } from '../../middleware/user/user.middleware';
-
+import { UserWithoutSensitiveData } from './user';
+ 
 const prisma = new PrismaClient();
 
-class UserManager {
+class UserManagerService {
   private prisma: CustomPrismaClient;
+  trackUserBehavior: any;
 
   constructor(private readonly prismaService: CustomPrismaClient) {
     this.prisma = prismaService; 
@@ -17,12 +19,26 @@ class UserManager {
 
 
   // User Registration
-  async createUser(user: Prisma.UserCreateInput): Promise<User | null> {
+  async createUser(user: Prisma.UserCreateInput): Promise<UserWithoutSensitiveData | null> {
     // Implement user registration logic here
+    // Map User object to UserCreateInput
+    const userCreateInput: Prisma.UserCreateInput = {
+      name: user.name,
+      username: user.username,
+      accessTier: user.accessTier,
+      email: user.email,
+      passwordHash: user.passwordHash as string, // Hash password and assert as string
+      roles: {
+        set: user.roles as UserRole,
+      },
+    }
+    
     // You can use the Prisma client to create a new user in the database
-    const newUser = await this.prisma.user.create({ data: user });
-    return newUser;
+    const newUser = (await this.prisma.user.create({ data: userCreateInput })) as UserWithoutSensitiveData
+    return newUser
   }
+
+
 
   // User Profile Management
   async updateUserProfile(userId: string, updatedUser: Partial<User>): Promise<User | null> {
@@ -34,9 +50,9 @@ class UserManager {
   // Add more methods for user role management, password management, and other user-related operations
 }
 
-export default UserManager;
+export default UserManagerService;
 
-const userManager = new UserManager(prisma);
+const userManager = new UserManagerService(prisma);
 
 // Example usage:
 const newUser: User = {
@@ -44,9 +60,9 @@ const newUser: User = {
   name: 'John Doe',
   username: 'johndoe',
   email: 'john@example.com',
-  passwordHash: `null`, // You should hash the password
+  passwordHash: null, // You should hash the password
     roles: [UserRole.USER],
-    createdAt: new Date,
+    createdAt: new Date(Date.now()),
     updatedAt: new Date,
     resetPasswordToken: null,
     userProfileId: null
@@ -54,10 +70,13 @@ const newUser: User = {
 };
 
 // Register a new user
-userManager.createUser({
-  ...newUser,
-  passwordHash: newUser.passwordHash ?? '' 
-}).then((user) => {
+userManager
+  .createUser({
+    ...newUser,
+    username: newUser.username ?? '',
+    passwordHash: newUser.passwordHash ?? '',
+  })
+  .then((user) => {
   console.log('User created:', user);  
 });
 

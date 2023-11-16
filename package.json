@@ -34,7 +34,14 @@
     "migrate-status": "npx prisma migrate status --preview-feature --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
     "db-pull": "prisma db pull --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
     "db:migrate:dev": "npx env-cmd -f .local.env npx prisma migrate dev",
-    "db:studio": "npx env-cmd -f .local.env npx prisma studio"
+    "db:studio": "npx env-cmd -f .local.env npx prisma studio",
+
+    
+    "**create-docs**":"-*docs",
+    "docs": "typedoc",
+    "generate-docs":"run-docs",
+    "run-docs":""
+
   },
   "private": true,
   "devDependencies": {
@@ -104,6 +111,7 @@
     "react-test-renderer": "18.2.0",
     "ts-jest": "28.0.5",
     "ts-node": "10.9.1",
+    "typedoc": "^0.25.3",
     "typescript": "~4.8.4",
     "uglify-js": "^3.17.4",
     "url-loader": "^3.0.0"

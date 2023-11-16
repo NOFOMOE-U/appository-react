@@ -1,4 +1,6 @@
 export default {
+  //user not registers
+  userNotRegistered: 'You must signed up if you want to proceed forward',
   //permission errors
   missingPermissions: "You don't have the necessary permissions to perform this action.",
   invalidCredentials: 'Invalid credentials.',
@@ -91,6 +93,9 @@ export default {
 
 
   //access tiers
-  failedUpdate: 'Failed to update access tier'
+  failedUpdate: 'Failed to update access tier',
+
+  //document errors
+  invalidDocument: 'Problem creating the document, please try again'
 } as { [key: string]: string }
  

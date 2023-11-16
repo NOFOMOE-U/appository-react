@@ -27,6 +27,9 @@
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
       "@appository/core": ["libs/core/src/index.ts"],
       "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
+      "@appository/shared-features/api-tool": ["libs/shared-features/api-tool/src/index.ts"],
+      "@appository/shared-features/documents": ["libs/shared-features/documents/src/index.ts"],
+      "@appository/shared-features/reports": ["libs/shared-features/reports/src/index.ts"],
       "@appository/shared/module": ["libs/shared/module/src/index.ts"],
       "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
     }

@@ -40,6 +40,7 @@ export const initalizeUser = (): User => ({
   createdAt: new Date(),
   updatedAt: new Date(),
   userProfileId: 98098087,
+  accessTier: 'FREE',
   passwordHash: generateRandomHash(), // Replace with an actual hashed password
   resetPasswordToken: `undefined`, // Replace with an actual reset token or use undefined
 })
@@ -49,10 +50,11 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
   const prisma = new PrismaClient()
   let context: MyContext = {
     prisma,
+    user: convertUserToUserWithAccessToken(user),
+    accessTier: {} as AccessTier,
     userService: {} as UserService,
     body: {} as BodyInit | null,
     requestBody: {} as BodyContent | null | undefined,
-    user: convertUserToUserWithAccessToken(user),
     currentUser: {} as UserWithoutSensitiveData,
     config: {} as AppConfiguration,
     accessToken: null,
@@ -67,7 +69,6 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
       currentUser: {} as UserWithAccessToken,
       accessToken: undefined,
       url: {} as URLSearchParams,
-
       ctx: {} as CustomContextType<MyContext<{}>>,
       config: {
         enableVideo: false,
@@ -226,13 +227,15 @@ export const createUser = async (
   const allowedRoles = Object.values(UserRole)
   const validRoles = roles.filter((role) => allowedRoles.includes(role))
 
-  const { name, email, username,passwordHash, id } = userWithPasswordHash
+  const { name, email, username,passwordHash, accessTier, id } = userWithPasswordHash
 
   const user = await prisma.user.create({
     data: {
+      id,
       name,
       email,
       username,
+      accessTier,
       passwordHash,
       roles: {
         set: validRoles,
@@ -261,6 +264,12 @@ export const updateUser = async (
   email: string,
   roles: UserRole[],
 ): Promise<UserWithoutSensitiveData | null> => {
+
+  // Example: Check if the user making the update has the necessary permissions
+  if (!context.user || !context.user.roles.includes('ADMIN')) {
+    throw new Error(`Unauthorized. Only admins, or individuals with proper access can update users.`);
+  }
+
   const user = await prisma.user.update({
     where: {
       id,

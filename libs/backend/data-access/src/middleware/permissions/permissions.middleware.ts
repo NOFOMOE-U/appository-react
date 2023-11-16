@@ -4,7 +4,8 @@ import { NextFunction, Request } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import { shield } from 'graphql-shield'
 import prisma from '../../lib/prisma/prisma'
-import { CaslAbilityFactory } from '../user/userAbility/createPrismaAbillity'
+
+import { createForPrisma } from '../user/userAbility/casl-abilities'
 import errorMessages from './error-messages'
 import { PermissionsModuleOptions } from './permissions.types'
 import isAuthorized from './rules/isAuthorized'
@@ -33,7 +34,8 @@ export class PermissionsMiddleware implements NestMiddleware {
     @Context() context: Request,
     next: NextFunction,
   ) {
-    const ability = await CaslAbilityFactory.createForPrisma(prisma, context)
+    const accessTier = context.user?.accessTier
+    const ability = await createForPrisma(prisma, context, accessTier)
 
     const fieldPath = info.path
     const fieldTypeName = info.parentType.name

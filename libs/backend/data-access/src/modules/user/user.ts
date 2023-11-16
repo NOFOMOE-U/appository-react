@@ -6,12 +6,12 @@ export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'r
   password?: string
   passwordHash?: never
   resetPasswordToken?: null | string
-  // accessTier: AccessTier
+  // accessTier: string
 }
 
 
 export type UserWithAccessToken = UserWithoutSensitiveData &  {
-  accessToken: string 
+  accessToken?: string | null
   accessTier: string
   passwordHash: string | undefined;
   resetPasswordToken: string | undefined;

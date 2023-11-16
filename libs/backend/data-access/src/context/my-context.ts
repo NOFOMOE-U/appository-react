@@ -29,25 +29,28 @@ export interface CustomURLSearchParams extends URLSearchParams {
 
 export interface MyContext<T = {}> extends Record<string, unknown> {
   config?: AppConfiguration
+  user: UserWithoutSensitiveData
   currentUser?: UserWithAccessToken | UserWithoutSensitiveData | null | undefined;
   ctx: CustomContextType;
   customProp?: string | undefined
-  user: UserWithAccessToken
   req?: IncomingMessage
-  userService: UserService
   request: YourRequestObject<CustomRequestInit>
   body: BodyInit | null | undefined;
   requestBody: BodyContent | null | undefined 
-  userId?: string | undefined | null
-  accessToken: string | null
-  prisma?: PrismaClient
+  id?: string
   url: string
+  size: number
+  prisma?: PrismaClient
+  userId?: string | undefined | null
+  userService: UserService
+  accessToken: string | null
   session: CustomSessionType
   cache?: RequestCache
-  id?: string
   cookie?: string
   token?: string
-  size: number
+  cookies?: Record<string, string>
+  signedCookies: Record<string, string>,
+  URLSearchParams: CustomURLSearchParams
   entries: () => IterableIterator<[string, string]>
   keys: () => IterableIterator<string>;
   values: () => IterableIterator<string>;
@@ -58,11 +61,8 @@ export interface MyContext<T = {}> extends Record<string, unknown> {
   forEach: (callback: (value: string, name: string, parent?: Headers | CustomURLSearchParams | undefined) => void) => void
   delete: (name: string) => void
   getAll: (name: string[]) => string[]
-  cookies?: Record<string, string>
-  signedCookies: Record<string, string>,
   get?: (name: string) => string | null | undefined
   accepts: (types: string | string[] | undefined) => (string | false | null)[] | undefined
-  URLSearchParams: CustomURLSearchParams
   [Symbol.iterator](): IterableIterator<[string, string]>;
 }  
 

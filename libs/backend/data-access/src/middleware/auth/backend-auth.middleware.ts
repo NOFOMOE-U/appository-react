@@ -46,6 +46,7 @@ import { UserWithAccessToken } from '../../modules/user/user'
         email: user.email,
         username: user.username,
         // posts: user.posts,
+        accessTier: user.accessTier,
         roles: user.roles,
         userProfileId: user.userProfileId as number,
         createdAt: user.createdAt,

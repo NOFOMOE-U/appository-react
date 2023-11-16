@@ -1,13 +1,75 @@
     import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { createLogger, format, transports } from 'winston';
+import { CustomURLSearchParams } from '../../context/my-context';
 import { CustomRequest } from '../../interfaces/user/custom-request';
 import { UserBehaviorController } from '../../modules/user/user-behavior-controller';
+import UserManagerService from '../../modules/user/user-manager';
 import userBehaviorData from './logging-behavior';
+
+UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Response, next: NextFunction) => {
+  const user = req.user
+  const action = req.url
+  const url = require('url').URLSearchParams
+  if (this.userBehaviorController) {
+    this.userBehaviorController.trackUserBehavior(user, action)
+  }
+
+  next()
+}
+
+
+
+
     const { combine, timestamp, printf, json, splat, errors, simple, colorize } = format
-    @Injectable()
-    export class LoggingMiddleware implements NestMiddleware {
-      userBehaviorController: UserBehaviorController = new UserBehaviorController()
+  @Injectable()
+  export class LoggingMiddleware implements NestMiddleware {
+    private logger = createLogger({
+
+    })
+
+    private userBehaviorController: UserBehaviorController; 
+      constructor(
+        userBehaviorController: UserBehaviorController,
+        private readonly userManagerService: UserManagerService,
+        private readonly url: CustomURLSearchParams
+      ) {
+        this.userBehaviorController = userBehaviorController;
+        this.userManagerService = userManagerService;
+      }
+
+    
+    static creaateMiddelware(
+      loggingMiddleware: LoggingMiddleware,
+      userManagerService: UserManagerService,
+    ) { 
+      return async (req: CustomRequest, res: Response, next: NextFunction) => {
+        userManagerService.trackUserBehavior(req, res, next);
+
+
+        res.on('finish', async() => {
+          
+          const { ip, method, url, user } = req;
+          const logData = {
+            level: 'info',
+            message: `${method} ${url} - ${user?.name || ip}`,
+            timestamp: Date.now()
+          };
+  
+          this.getEndpointStat(logData);
+        })
+
+        next();
+      }
+    }
+    static getEndpointStat(logData: { level: string; message: string; timestamp: number; }) {
+      throw new Error('Method not implemented.');
+    }
+
+
+
+
+
       private logger = createLogger({
         level: 'info',
         format: combine(
@@ -87,6 +149,13 @@ import userBehaviorData from './logging-behavior';
         res.on('finish', () => {
           const responseTime = new Date().getTime() - start
           const logMessage = `Request ${method} ${originalUrl} ${res.statusCode} ${responseTime}ms`;
+
+          // Log user behavior data
+          const userBehaviorData = prepareBehaviorData(req, res)
+          
+          // send the user behavior data to the service
+          LoggingMiddleware.userBehaviorController(userBehaviorData, req)
+          this.userBehaviorController.trackUserBehavior(userBehaviorData);
           if(res.statusCode >= 500) {
             this.logger.error(logMessage)
           }
@@ -98,12 +167,18 @@ import userBehaviorData from './logging-behavior';
         })
         next()
       }
+    static userBehaviorController(userBehaviorData: any, req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>) {
+      throw new Error('Method not implemented.');
+    }
+    
 
-      
+     getEndpointStat(logData: ) { 
+      const { url, method } = logData;
+      const endpoint = `${method} ${url}`;
 
-      getEndpointStat(){
-        return this.stats
-      }
+      this.incrementStats(endpoint, 'success');;
+    }
+   
     }
 
 

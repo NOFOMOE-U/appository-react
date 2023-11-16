@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, ValidationPipe } from '@nestjs/common';
 import { convertUserToUserWithAccessToken } from '../../interfaces/auth/authenticate';
 import { UserWithoutSensitiveData } from './user';
 import { UserService } from './user.service';
@@ -26,5 +26,23 @@ export class UserController {
     @Param(new ValidationPipe({validateCustomDecorators: true}))email: string) {
     return this.userService.getUserByEmail(email);
   }
+
+  @Post('register')
+  async register(@Body(new ValidationPipe({ validateCustomDecorators: true })) userData: any) {
+    try {
+      // Validate the user registration data
+      // You can use the userData to create a new user or perform other registration logic
+      const newUser = await this.userService.validateUserSchema(userData);
+      return {
+        message: 'User registered successfully',
+        user: convertUserToUserWithAccessToken(newUser),
+      };
+    } catch (error) {
+      return {
+        error: 'Failed to register user',
+      };
+    }
+  }
+}
 
 }

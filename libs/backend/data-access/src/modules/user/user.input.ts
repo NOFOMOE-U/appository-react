@@ -53,6 +53,7 @@ export class UserInput {
 
   @Field({nullable: false})
 
+
   @Field(() => UserRole, { nullable: true })
   role?: UserRole
 

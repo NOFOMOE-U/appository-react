@@ -1,4 +1,4 @@
-
+// todo set up payment system
 type Payment = {
 
 }
@@ -6,7 +6,7 @@ type Payment = {
 type PaymentRequest = {
     paymentId: ''
     paymentDetails: Payment
-    options?: ['']
+    options?: string[]
 }
 
 

@@ -9,7 +9,7 @@ export const isReadingOwnUser= rule()(async (_parent, args, context) => {
 
 
 // 1. User profile page: create a user profile page where users can view their own 
-//profile information.Use thhis rule to ensure that a user can only view their own profile and not other users' profiles.
+//profile information. Use thhis rule to ensure that a user can only view their own profile and not other users' profiles.
 
 // 2. Friend request: create a friend request system where users can send friend requests 
 //to other users.Use thhis rule to ensure that a user can only view friend requests that are sent to them and not other users' friend requests.

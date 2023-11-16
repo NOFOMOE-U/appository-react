@@ -10,24 +10,28 @@ import {
   PermissionsMiddleware,
   PermissionsModule,
   PermissionsModuleOptions,
-  UserService,
   UserWithAccessToken,
   YourRequestObject,
   getContext,
   makeRequest,
   nexusSchema
 } from '@appository/backend/data-access'
+import { PrismaClient } from '@prisma/client'
 import { NextFunction, Request, Response } from 'express'
 import session from 'express-session'
 import { applyMiddleware } from 'graphql-middleware'
+import { url } from 'inspector'
 import { makeSchema } from 'nexus'
 import { Namespace, Server } from 'socket.io'; // Import the necessary types
-// import { AccessTier } from './make-api/api-config/access-tier'
+import { AccessTier } from './make-api/api-config/access-tier'
 import { processRequest } from './make-api/default-options'
 import { ApiRequestFunction, makeApiRequest } from './make-api/make-api-request'
+import { CustomRequestOptions } from './make-api/requests/custom-request-init'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
+import { isAccessTier } from './middleware/permissions/type-guards/access-tier-guard'
 import userRegistrationSchema from './middleware/validation-yup-schemas/validate-registration'
+import UserManagerService from './modules/user/user-manager'
  
 
   require('dotenv').config()
@@ -47,8 +51,7 @@ import userRegistrationSchema from './middleware/validation-yup-schemas/validate
     }),
   )
 
-  let userService: UserService
-  const httpServer = http.createServer(app) // Create an HTTP server for your Express app
+  export const httpServer = http.createServer(app) // Create an HTTP server for your Express app
 
   const io = new Server(httpServer) // Create a Socket.IO server instance
 
@@ -140,7 +143,25 @@ import userRegistrationSchema from './middleware/validation-yup-schemas/validate
     },
   } as ApolloServerOptionsWithSchema<BaseContext>)
 
-  app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware()))
+
+let prismaService = new PrismaClient()
+const userService: UserManagerService = new UserManagerService(prismaService)
+const userManagerService = new UserManagerService(userService)
+
+
+
+app.use(
+  LoggingMiddleware.createMiddleware(
+    new LoggingMiddleware(
+      url,
+      userManagerService,
+      userBehaviorController
+      // Add missing third argument here
+    ),
+  ),
+)
+
+
   app.use(require('express').json())
 
   // Move the `path` property here
@@ -179,11 +200,12 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
 // Express route handling the payment confirmation
 app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithContext<MyContext>>, res: Response, next: NextFunction) => {
   try {
-    const userId = req.body.; // Retrieve the user ID from the payment request
+    const userId = await userService.getUserIdFromPayment(req); // Get user ID from payment request
+      // req.user?.id // Retrieve theb user ID from the payment request
     // const newAccessTier = accessTier.PREMIUM; // Or the access tier from the payment
 
     // Assuming 'userService' is an instance of your UserService
-    const updatedUser = await userService.updateUserAccessTier(userId);
+    const updatedUser = await userService.updateUserAccessTier(userId, data);
 
     if (updatedUser) {
       res.status(200).json({ message: 'Access tier updated successfully' });
@@ -206,14 +228,14 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
         name: user.name,
         email: user.email,
         username: user.username,
+        accessTier: user.accessTier,
         passwordHash: user.passwordHash || undefined,
         roles: user.roles,
         createdAt: user.createdAt, 
         updatedAt: user.updatedAt, 
-        userProfileId:  user.userProfileId,
-        accessToken: user.accessToken,
+        userProfileId:  user.userProfileId as number,
+        accessToken: null,
         resetPasswordToken: undefined,
-        accessTier: user.accessTier
       };
 
       res.json({ currentUser });
@@ -241,11 +263,11 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
       } else {
 
         // verify if a user is stored in the session
-        const user: UserWithAccessToken | undefined = req.session.user
+        const currentUser: UserWithAccessToken | undefined = req.session.currentUser
         
-        if (user) {
+        if (currentUser) {
           //if user found, set it in the req.user property
-          req.user = user
+          req.user = currentUser
         }
         // authentication success,
         next
@@ -281,31 +303,45 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
   // Other route handlers
   // ...
 
-  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: AccessTier) => {
-    processRequest(req, res, next, accessTier)
+  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: AccessTier | string) => {
+
+    if (isAccessTier(accessTier)) {
     
-    // Create an instance of MyCustomRequest and provide the required properties
+      accessTierToUse = accessTier
+      processRequest(req, res, next, accessTierToUse)
+    } else{
+    
+
+      const accessTierString: string = accessTier
+      accessTierToUse = accessTierStriing
+    const myCustomRequestOptions: CustomRequestOptions = {
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body,
+      userService: userService,
+      accessTier: accessTierString,
+      user: req.user
+      }
+      // Create an instance of MyCustomRequest and provide the required properties
     try {
       const myCustomReq: MyCustomRequest<MyContext> = new MyCustomRequest({
-        session: req.session,
-        body: req.session.body,
-        query: req.session.query,
-        params: req.session.params,
-        accepts: req.session.accepts,
-        request: req.session.request,
-        user: req.session.user,
-        accessTier: req.session.accessTier,
-        customCache: req.session.customCache, // Provide your customCache data here
-        requestBody: req.session.requestBody,
-        URLSearchParams: req.URLSearchParams,
-        userService: req.session.userServicce, // pass user service instance
-        // accessTier: req.session.accessTier
-        // Add other required properties
+        method: 'POST',
+        url: '/some-route',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: {} as BodyInit | null | undefined, 
+        userService: userService,
+        accessTier: accessTierString,
+        user: req.user,
+        accepts: req.accepts,
+        // other missing properties
       },
       userService, // pass userService instance
       context,
       )
-
+      
       await makeRequest(myCustomReq)
       // Handle success or response from makeRequest if needed
       res.status(200).send('Request sent successfully')
@@ -314,10 +350,12 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
       console.error(error)
       res.sendStatus(500) // Changed to sendStatus() instead of status()
     }
+  }
   })
 
 
-  app.get('/make-api-request', async (req: CustomRequestWithContext<MyContext<{}>>, res: Response, next: NextFunction, apiRequestFunction: ApiRequestFunction) => {
+
+  app.get('/make-api-request', async (req: string, res: Response, next: NextFunction, apiRequestFunction: ApiRequestFunction) => {
       try {
         await makeApiRequest(req,
           userService.getApiUrl as ApiRequestFunction,

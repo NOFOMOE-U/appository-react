@@ -26,7 +26,7 @@
               //types
               {
                 "sourceTag": "type:app",
-                "onlyDependOnLibsWithTags": ["typ:data-access", "type:feature", "type:ui", "type:util"]
+                "onlyDependOnLibsWithTags": ["type:data-access", "type:feature", "type:ui", "type:util"]
               },
               {
                 "sourceTag": "type:feature",
@@ -53,7 +53,12 @@
               {
                 "sourceTag": "scope:dashboard",
                 "onlyDependOnLibsWithTags": ["scope:shared", "scope:dashboard"]
+              },
+              {
+                "sourceTag": "scope:shared-features",
+                "onlyDependOnLibsWithTags": ["type: data-access", "type:feature", "type:ui", "type:util"]
               }
+              
               // ,
               // {
               //   "sourceTag": "scope:shared",

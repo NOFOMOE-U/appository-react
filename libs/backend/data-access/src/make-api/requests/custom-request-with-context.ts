@@ -13,41 +13,55 @@ import { BodyContent, CustomRequestInit } from './custom-request-init'
 
 export class YourRequestObject<T> {
   private readonly prismaService: PrismaService
-  private readonly request: BodyInit | null | undefined
+  private readonly req: BodyInit | null | undefined
   readonly requestBody: BodyContent | null | undefined
-  private readonly req: CustomRequest
+  private readonly request: CustomRequest
   private readonly accessTier: AccessTier
+  // private readonly context: Context
   // private readonly session: CustomSessionType
 
   // accessTier?: AccessTier
   customProp: string
+  route: string
+  method: string
+  documentContent?: string
   headers: CustomContextHeaders
   query: Record<string, string>
   user: UserWithoutSensitiveData | null
   params: { [key: string]: string }
   customCache: CustomSessionType
   session: CustomSessionType
-  accepts: CustomSessionType
   body: BodyInit | null | undefined
   URLSearchParams: CustomURLSearchParams
+  accepts: (types: string | string[] | undefined) => (string | false | null)[] | undefined
 
   constructor() {
-    this.customProp = ''
+    this.customProp = 'custom-prop'
     this.prismaService = prismaService
-    this.req = {} as CustomRequest
-    this.request = {} as URLSearchParams
+    this.documentContent = 'document-content'
+    // this.context = createContext(prisma, this.req) as Context
+    this.method = 'GET'
+    this.route = '/route'
+    this.req ={} as URLSearchParams
+    this.request =  {} as CustomRequest 
     this.body = {} as BodyInit
     this.requestBody = {} as BodyContent
-    this.headers = {}  as CustomContextHeaders// Initialize headers if necessary
+    this.headers = {} as CustomContextHeaders // Initialize headers if necessary
     this.accessTier = {} as AccessTier
-    this.params = {} as CustomSessionType
     this.query = {} as CustomSessionType
     this.user = {} as UserWithoutSensitiveData
-    this.accepts = {} as CustomSessionType
     this.session = {} as CustomSessionType
     this.URLSearchParams = {} as CustomURLSearchParams
     this.customCache = {} as CustomSessionType
+    this.params = {} as { [key: string]: string }
+    this.accepts = (types: string | string[] | undefined): (string | false | null)[] | undefined => {
+      if (typeof types === 'string') {
+        return [types]
+      }
+      return types
+    }
   }
+
 }
 
 const prismaService = new PrismaService()
@@ -70,7 +84,6 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   destination: RequestDestination
   passwordHash?: string
   customProp?: string
-  req: CustomRequest
   request: CustomRequest
   context: MyContext<UserWithoutSensitiveData>
   body: any
@@ -81,6 +94,7 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   signedCookies: Record<string, string>
   cache: RequestCache
   headers: CustomContextHeaders
+  req: string
 }
 
 // Middleware function to attach our custom context to the request object

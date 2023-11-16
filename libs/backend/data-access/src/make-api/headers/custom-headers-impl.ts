@@ -1,9 +1,6 @@
 import { CustomHeaders } from '../../context/create-nested-context';
 import { CustomHeadersHandler } from './custom-headers-handler';
 
-interface HeadersData {
-  [key: string]: string | string[];
-}
 
 export class CustomHeadersImpl extends CustomHeadersHandler implements CustomHeaders {
   [key:string]: any

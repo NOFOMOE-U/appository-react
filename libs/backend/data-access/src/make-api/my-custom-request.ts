@@ -44,8 +44,9 @@ export type CustomSessionType = {
   userId: string
   username: string
   currentUser: UserWithAccessToken
+  // user is going to be null if not logged in
+  user: UserWithoutSensitiveData | null
   expires: number
-  user: UserWithAccessToken
   yourSessionKey: string
   [key: string]: any
 }
@@ -61,7 +62,7 @@ export class MyCustomRequest<T extends MyContext<UserWithoutSensitiveData>> exte
   customHeaders: MyCustomHeaders = new MyCustomHeaders()
   customRequestHeaders: Headers = new Headers()
   userService: UserService
-  user: UserWithoutSensitiveData | null
+  user: UserWithoutSensitiveData
   //Constructor
   constructor(
     options: CustomRequestOptions,

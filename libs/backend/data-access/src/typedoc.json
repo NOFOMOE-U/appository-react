@@ -1,0 +1,19 @@
+{
+    "out": "./docs",
+    "src": ["./src"],
+    "entryPoints": ["./src"],
+    "exclude": ["**/*.spec.ts"],
+    "mode": "file",
+    "includeDeclarations": true,
+    "ignoreCompilerErrors": true,
+    "excludeExternals": true,
+    "excludeNotExported": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "includeVersion": true,
+    "tsconfig": "./tsconfig.lib.json"
+  }
+
+  //review
+  //This file specifies the output directory for 
+  //documentation, entry points (source files), and the TypeScript configuration.

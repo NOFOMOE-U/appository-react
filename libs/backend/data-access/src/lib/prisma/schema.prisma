@@ -56,6 +56,8 @@ model User {
   personas           Persona[]  @relation("user_personas")
   backgroundJobs     HeadlessJob[] @relation("background_jobs")
   payments           Payment[]  @relation("user_payments")
+  confirmPassword    String
+  confirmPasswordMatch String
 }
 
 model Password {
@@ -442,6 +444,111 @@ model NotificationPreferences{
 
   @@unique([userId])
   }
+
+
+
+model Document {
+  id              Int      @id @default(autoincrement())
+  title           String
+  content         String
+  htmlContent     String
+  authorId        String
+  authorName      String
+  creationDate    DateTime
+  lastModifiedDate DateTime
+
+  pdfDocumentId   String    @unique
+  pdfDocument     PDFDocument[]   @relation("user-docs")// PDF file path
+
+  markdownDocumentId  String @unique
+  markdownDocument    MarkdownDocument[] @relation("markdown-documents")// PDF file path
+}
+
+model PDFDocument {
+  id              Int      @id @default(autoincrement())
+  
+  document        Document?  @relation("user-docs", fields: [documentId], references: [id])
+  documentId      Int 
+} 
+
+
+model MarkdownDocument {
+  id              Int      @id @default(autoincrement())
+  visibility      String   // 'public', 'private', 'shared'
+  permissions     String   // Define permissions as needed
+  categories      String[]
+  tags            String[]
+  versionNumber   Int
+  attachedFiles   String[]
+  comments        String[]
+  relatedDocuments String[]
+  accessLogs      String[]
+  customFields    Json     // Use JSON type for custom fields
+  reviewStatus    String
+  language        String
+  expiryDate      DateTime
+
+  document        Document? @relation("markdown-documents", fields: [documentId], references: [id])
+  documentId      Int    @unique
+}
+
+// //review implement more tools for markdown
+// The additional content properties for a document can vary based on the type of document and the specific requirements of your application. However, here are some common properties that you might consider for a document object, such as a Markdown document:
+
+// 1. **Author/User Information:**
+//    - **Author ID:** If your application supports multiple users, associating a document with its author can be valuable.
+//    - **Author Name:** The name of the user who created the document.
+
+// 2. **Metadata:**
+//    - **Creation Date:** The timestamp when the document was created.
+//    - **Last Modified Date:** The timestamp when the document was last modified.
+
+// 3. **Visibility and Permissions:**
+//    - **Visibility Level:** Public, private, or shared with specific users/groups.
+//    - **Permissions:** Define who can view, edit, or delete the document.
+
+// 4. **Categories and Tags:**
+//    - **Categories:** Categorize documents to make it easier for users to organize and find them.
+//    - **Tags:** Add tags to documents for more granular organization and search.
+
+// 5. **Versioning:**
+//    - **Version Number:** If your application supports versioning, keeping track of different versions of the document.
+
+// 6. **Attachments:**
+//    - **Attached Files:** If documents can have associated files or attachments.
+
+// 7. **Comments and Discussion:**
+//    - **Comments:** Allow users to leave comments on the document.
+
+// 8. **Related Documents:**
+//    - **Related Documents:** Links or references to other documents that are related to the current one.
+
+// 9. **Access Logs:**
+//    - **Access Logs:** Keep a record of who accessed the document and when.
+
+// 10. **Custom Fields:**
+//     - **Custom Fields:** Allow users to define additional custom fields based on their specific needs.
+
+// 11. **Review Status:**
+//     - **Review Status:** If documents go through a review process, track their review status.
+
+// 12. **Localization:**
+//     - **Language:** Specify the language in which the document is written.
+
+// 13. **Expiry Date:**
+//     - **Expiry Date:** If documents have a limited validity, specify an expiry date.
+
+// These are just examples, and the specific properties you need will depend on the nature of your application and the requirements of your users. Consider the use cases and workflows in your application to determine which properties are most relevant and beneficial for your users.
+
+
+
+
+
+
+
+
+
+
 
 //todo st up payment system- make sure to ask what other propeties are needed basd on the type of app being set up
 model Payment {

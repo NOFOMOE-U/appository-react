@@ -11,7 +11,18 @@ export const Task = objectType({
     t.string('description', {
     //   nullable: true
     })
+    t.field('status', {type: 'TaskStatus' })
+    t.string('creatorId')
+    t.field('creator', {type: 'User'})
+    t.string('assigneId')
+    t.field('assigner', {type: 'User'})
+    t.string('assigneToId')
+    t.field('assignedTo', {type: 'User'})
+    t.string('teamId')
+    t.field('team', {type: 'Team'})
     t.boolean('completed')
+    t.string('createdAt')
+    t.string('updatedAt')
     t.string('dueDate', {
       // nullable: true
     })
@@ -26,6 +37,8 @@ export const Task = objectType({
           .assignedTo()
       },
     })
+    t.list.field('tasks', {type: 'Task'})
+
     t.list.field('teams', {type: 'Team'})
     t.field('team', {
       type: 'Team',
@@ -83,7 +96,7 @@ export const TaskMutation = extendType({
         dueDate: stringArg({
           // nullable: true
         }),
-        assignedTo: stringArg({
+        assignedToId: stringArg({
           // nullable: true
         }),
         teamId: stringArg({
@@ -101,18 +114,14 @@ export const TaskMutation = extendType({
             description: args.description,
             dueDate: args.dueDate,
             completed: false,
-            // assignedTo: args.assignedTo,
+            assignedToId: args.assignedToId,
             status: args.status,
             creatorId: args.creatorId,
             assigneeId: args.assigneeId,
             assignerId: args.assignerId,
-            assignedToId: args.assignedToId,
             teamId: args.teamId,
             createdAt: args.createdAt,
-            updatedAt: args.updatedAt
-            
-            // team: args.teamId || undefined,
-            // createdBy: {connect: {id: userId}},
+            updatedAt: args.updatedAt,
           })
         } catch (err) {
           const validationError = err as yup.ValidationError
@@ -125,9 +134,10 @@ export const TaskMutation = extendType({
             description: args.description,
             dueDate: args.dueDate,
             completed: false,
-            assignedTo: args.assignedTo
+            assignedTo: args.assigneTo,
+            assignedToId: args.assignedToId
               ? {
-                  connect: { id: args.assignedTo },
+                  connect: { id: args.assignedToId },
                 }
               : undefined,
             team: args.teamId
@@ -144,6 +154,7 @@ export const TaskMutation = extendType({
     })
   },
 })
+
 
 
 export default nullable(Task)

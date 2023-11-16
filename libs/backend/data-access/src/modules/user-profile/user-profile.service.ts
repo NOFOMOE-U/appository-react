@@ -1,42 +1,62 @@
-// // user-profile/user-profile.service.ts
+// user-profile/user-profile.service.ts
 
-// import { Injectable } from '@nestjs/common';
-// import { Prisma, UserProfile } from '@prisma/client';
-// import { PrismaService } from '../../lib/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { Prisma, UserProfile } from '@prisma/client';
+import { PrismaService } from '../../lib/prisma/prisma.service';
 
-// @Injectable()
-// export class UserProfileService {
-//   constructor(private prisma: PrismaService) {}
+@Injectable()
+export class UserProfileService  {
+    constructor(
+      private readonly prisma: PrismaService,
+      private readonly userProfile: UserProfile,
+    ) { }
 
-//   async create(data: Prisma.UserProfileCreateInput): Promise<UserProfile> {
-//     return this.prisma.userProfile.create({
-//       data,
-//     });
-//   }
+  async create(data: Prisma.UserProfileCreateInput): Promise<UserProfile> {
+    return await this.prisma.getUserProfile.create({
+      data,
+    });
+  }
 
-//   async findAll(): Promise<UserProfile[]> {
-//     return this.prisma.userProfile.findMany();
-//   }
+  async findAll(): Promise<UserProfile[]> {
+    return (await this.prisma);
+  }
 
-//   async findOne(id: number): Promise<UserProfile> {
-//     return this.prisma.userProfile.findUnique({
-//       where: { id },
-//     });
-//   }
+  async findUserProfileByName(id: number): Promise<UserProfile> {
+    const user = await this.prisma.getUserById(id  as unknown as string);
+    return this.prisma.userProfile.findUnique({
+      where: {
+        id,
+        user: {
+          id: user.id
+        }
+      }
+    })
+      
+  }
 
-//   async update(
-//     id: number,
-//     data: Prisma.UserProfileUpdateInput,
-//   ): Promise<UserProfile> {
-//     return this.prisma.userProfile.update({
-//       where: { id },
-//       data,
-//     });
-//   }
+  async getUserProfilesByUserId(userId: string): Promise<UserProfile[]> {
+    return this.prisma.userProfile.findMany({
+      where: {
+        user: {
+          id: userId
+        }
+      }
+    });
+  }
 
-//   async remove(id: number): Promise<void> {
-//     return this.prisma.userProfile.delete({
-//       where: { id },
-//     });
-//   }
-// }
+  async update(
+    id: number,
+    data: Prisma.UserProfileUpdateInput,
+  ): Promise<UserProfile> {
+    return this.prisma.userProfile.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number): Promise<void> {
+    return this.prisma.userProfile.delete({
+      where: { id },
+    });
+  }
+}

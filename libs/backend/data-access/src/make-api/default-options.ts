@@ -48,6 +48,7 @@ interface CommonUserProperties {
   username: string
   passwordHash: string | null
   accessToken: string
+  accessTier: string
   email: string
   name: string
   roles: UserRole[]
@@ -63,7 +64,7 @@ let myRequest: MyCustomRequest<MyContext> | null = null
 let currentUser: CommonUserProperties | null | undefined
 
 if (currentUser) {
-  const userWithPasswordHash = currentUser as CommonUserProperties
+  const userWithPasswordHash = currentUser as User
 
   if (!userWithPasswordHash.passwordHash) {
     throw new Error('User is missing passwordHash')
@@ -75,14 +76,9 @@ if (currentUser) {
   }
 
   if (userWithPasswordHash !== undefined) {
-    const userWithPasswordHash: User = currentUser
+    const userWithPasswordHash: User = currentUser as User
     const token = generateToken(userWithPasswordHash)
   }
-}
-
-if (currentUser) {
-  const userWithPasswordHash: User = currentUser
-  const token = generateToken(userWithPasswordHash)
 }
 
 function initializeCommonHeaders(socket: Socket): CustomContextHeaders {
@@ -112,7 +108,7 @@ export let myContext:
 
 let commonHeaders: CustomContextHeaders = {}
 
- export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: AccessTier) {
+ export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: string) {
   const socketId = 'yourSocketId'
    let specificSocket
    

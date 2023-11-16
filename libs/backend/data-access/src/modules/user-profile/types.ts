@@ -1,5 +1,6 @@
 import { objectType } from "nexus"
 import { Context } from "../../context/context"
+import { UserWithoutSensitiveData } from "../user/user"
 
 export const UserProfileType = objectType({
     name: 'UserProfile',
@@ -9,22 +10,9 @@ export const UserProfileType = objectType({
       t.nonNull.string('coverImageUrl')
       t.nonNull.field('createdAt', { type: 'DateTime' })
       t.field('updatedAt', { type: 'DateTime' })
-    },
-  })
-  
-  export const UserType = objectType({
-    name: 'User',
-    definition(t) {
-      t.nonNull.string('id')
-      t.nonNull.string('name')
-      t.nonNull.string('email')
-      t.list.field('posts', { type: 'Post' })
-      t.field('role', { type: 'UserRoleEnum' })
-      t.nonNull.field('createdAt', { type: 'DateTime' })
-      t.field('updatedAt', { type: 'DateTime' })
-      t.nonNull.field('profile', {
+      t.nonNull.field('userProfile', {
         type: 'UserProfile',
-        resolve: async (parent, _args, ctx: Context) => {
+        resolve: async (parent: UserWithoutSensitiveData, _args, ctx: Context) => {
           const userProfile = await ctx.getPrisma().userProfile.findUnique({
             where: {
               userId: parent.id,
@@ -38,4 +26,8 @@ export const UserProfileType = objectType({
       })
     },
   })
+  
+
+
+
   

@@ -5,8 +5,12 @@ import {
   CommonContextModule,
   ContextService,
   CustomURLSearchParams,
+  MyContext,
   PrismaClient,
   PrismaModule,
+  UserService,
+  UserWithoutSensitiveData,
+  YourRequestObject,
   createCustomContextWithRequest
 } from '@appository/backend/data-access';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -14,6 +18,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GqlModuleOptions, GraphQLModule as NestGraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
+import { CustomRequestInitWithGet } from '../make-api/requests/custom-request-init';
+
+import { CustomContextType } from '../context/custom-context-type';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -24,38 +31,41 @@ import { join } from 'path';
   ],
 })
 export class GraphQLModule {}
+let user: UserWithoutSensitiveData
 
 @Module({
   imports: [
-NestGraphQLModule.forRootAsync<ApolloDriverConfig>({
+    NestGraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: (configService: ConfigService, contextService: ContextService): GqlModuleOptions => ({
         autoSchemaFile: join(process.cwd(), 'libs/backend/data-access/src/graphql/schema.graphql'),
         context: ({ req }: { req: any }) => {
           const prisma = new PrismaClient()
-
           const createContext = createCustomContextWithRequest(prisma, {
             id: '',
-            userId: req.params.user.id,
-            request: req.params.user.request,
-            ctx: req.params.user.ctx,
-            prisma,
-            user: req.params.user,
-            userService: req.params.user.userService,
-            body: req.params.user.body,
-            requestBody: req.params.user.requestBody,
-            accessToken: null,
             url: '',
+            size: 0,
+            user,
+            userService: {} as UserService,
+            request: {} as YourRequestObject<CustomRequestInitWithGet>,
+            body: undefined,
+            requestBody: undefined,
+            accessToken: null,
             signedCookies: {} as Record<string, string>,
             URLSearchParams: {} as CustomURLSearchParams,
-            size: 0,
+            ctx: {} as CustomContextType<MyContext>,
+
             session: {
-              userId: req.session.user.id,
-              username: req.session.user.username,
-              currentUser: req.session.isAuthenticatedUser,
+              user,
+              currentUser: req.headers.authorization,
+              userId: req.headers.authorization
+                ? req.headers.authorization.split('Bearer ')[1]
+                : null,
+              username: req.headers.authorization
+                ? req.headers.authorization.split('Bearer ')[1]
+                : user?.username,
               expires: 0,
-              user: req.session.user.expirationTime,
-              yourSessionKey: req.session.user.yourSessionKey,
+              yourSessionKey: 'sessionKey',
             },
             entries: function (): IterableIterator<[string, string]> {
               throw new Error('Function not implemented.')
@@ -78,7 +88,9 @@ NestGraphQLModule.forRootAsync<ApolloDriverConfig>({
             sort: function (key: string, value: string): void {
               throw new Error('Function not implemented.')
             },
-            forEach: function (callback: (value: string, name: string, parent?: Headers | CustomURLSearchParams | undefined) => void): void {
+            forEach: function (
+              callback: (value: string, name: string, parent?: Headers | CustomURLSearchParams | undefined) => void,
+            ): void {
               throw new Error('Function not implemented.')
             },
             delete: function (name: string): void {
@@ -92,7 +104,7 @@ NestGraphQLModule.forRootAsync<ApolloDriverConfig>({
             },
             [Symbol.iterator]: function (): IterableIterator<[string, string]> {
               throw new Error('Function not implemented.')
-            }
+            },
           }) as unknown as () => { prisma: PrismaClient; currentUser: any }
 
           const context = createContext()

@@ -26,7 +26,7 @@ export class TaskService {
       assigneeId: 'assignee-id',
       assignerId: 'assigner-id',
       teamId: 'team-id',
-      createdAt: new Date()
+      createdAt: new Date(Date.now()),
     },
     {
       id: '2',
@@ -41,7 +41,7 @@ export class TaskService {
       assigneeId: '3 letters of username+id',
       assignerId: '3 letters of username+id',
       teamId: 'team-id',
-      createdAt: new Date()
+      createdAt: new Date(Date.now()),
     },
     {
       id: '3',
@@ -86,6 +86,15 @@ export class TaskService {
   //   return this.prismaService.getPrismaClient().task.findUnique({
   //     where:{creatorId: user?.id}
   //   })
+  // }
+
+
+  // //todo set up tasks and connect how to find user by task id.
+  // async getUserByTaskId(id: string): Promise<Task | null> {
+  //   const userTask = await this.prisma.user.findUnique({where: {id}})
+  //   return userTask ? {...userTask,
+  // accessTier: user.accessTier
+  // } : null
   // }
 
   //todo set up team tasks

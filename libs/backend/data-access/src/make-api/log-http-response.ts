@@ -60,7 +60,7 @@ export async function makeRequest(req: MyCustomRequest<MyContext<MyContext>>) {
   const request: MyCustomRequest<MyContext<MyContext>> = new MyCustomRequest(
     {
       userService: userService,
-      accessTier: accessTier,
+      // accessTier: accessTier,
       url: 'https://jsonplaceholder.typicode.com/posts/1',
       method: 'GET',
       headers: requestHeaders as HeadersInit,

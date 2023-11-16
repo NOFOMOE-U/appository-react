@@ -22,20 +22,6 @@ export const UserType = objectType({
     //todo update payment
     // t.list.field('payments', { type: 'Payment' }) // Define the relationship to payments
 
-  //   t.nonNull.field('userProfile', {
-  //     type: 'UserProfile',
-  //     resolve: async (parent: UserWithoutSensitiveData, _args, ctx: Context) => {
-  //       const userProfile = await ctx.getPrisma().userProfile.findUnique({
-  //         where: {
-  //           userId: parent.id,
-  //         },
-  //       })
-  //       if (!userProfile) {
-  //         throw new Error(`User with ID ${parent.id} does not have a profile`)
-  //       }
-  //       return userProfile
-  //     },
-  //   })
   },
 })
 
@@ -56,7 +42,20 @@ const User = objectType({
     t.nullable.field('resetPasswordToken', {
       type: 'String'
       }) // Reset password token can be nullable
-    t.nullable.field('userProfileId', { type: 'Int'}) // User profile ID is nullable
+    t.field('userProfile', {
+      type: 'UserProfile', // Reference to UserProfile type
+      resolve: async (parent, _args, ctx: Context) => {
+        const userProfile = await ctx.getPrisma().userProfile.findUnique({
+          where: {
+            userId: parent.id,
+          },
+        })
+        if (!userProfile) {
+          throw new Error(`User with ID ${parent.id} does not have a profile`)
+        }
+        return userProfile
+      },
+    })
     // todo update user payment
     // t.list.field('payments', { type: 'Payment' }) // Define the relationship to payments
   },

@@ -1,17 +1,13 @@
+import path from 'path'
 import { MyContext } from '../context/my-context'
-import { ExtendedCustomRequest } from '../interfaces/user/custom-request'
+import { generateMarkdown } from '../generate-docs/generate-markdown'
+import { generatePDF } from '../generate-docs/generate-pdf'
 import errorMessages from '../middleware/permissions/error-messages'
+import { MyOptions } from '../middleware/permissions/shield/my-options.interface'
 import { RequestOptions, getDefaultAxiosOptions } from './default-options'
 import { CustomRequestWithContext } from './requests/custom-request-with-context'
-// import {
-//   generatePDF,
-//   generateDocx,
-//   generateMarkdown,
-//   generateRTF,
-//   shareViaCloudStorage,
-//   shareViaCollaborationTool,
-//   shareViaDocumentHosting,
-// } from '../generate-docs/generate-pdf'
+
+const filePath = path.join(__dirname, 'output.pdf') // define the file path
 
 export type ApiRequestFunction = (endpoint: string) => Promise<string>
 
@@ -21,13 +17,19 @@ interface APIRequestOptions extends RequestOptions {
   additionalProperty?: string
 }
 
+type CustomRequestSearchParams = CustomRequestWithContext<MyContext<{}>> & URLSearchParams
+
 export async function makeApiRequest(
   endpoint: string,
-  req: CustomRequestWithContext<MyContext<{}>>,
+  req: BodyInit | null | undefined,
+  options: MyOptions,
   apiRequestFunction: ApiRequestFunction,
 ) {
-  // Create an instance of ExtendedCustomRequest using defaultOptions
-  const options = getDefaultAxiosOptions(req) as unknown as ExtendedCustomRequest
+  if (req && req !== '') {
+    // Create an instance of ExtendedCustomRequest using defaultOptions
+    const options = getDefaultAxiosOptions(
+      req as CustomRequestSearchParams) 
+  }
   // Add any additional headers/params as needed
   try {
     // Use axios to make a GET request to the API endpoint
@@ -37,15 +39,16 @@ export async function makeApiRequest(
     console.log(responseData)
 
 
-    // todo doc generation
     // // Generate PDF
-    // generatePDF(responseData)
+    generatePDF(responseData, options, filePath)
 
+    // // Generate .md
+    generateMarkdown(responseData, filePath)
+
+    // todo doc generation for docx and rtf
     // // Generate .docx
     // generateDocx(responseData)
 
-    // // Generate .md
-    // generateMarkdown(responseData)
 
     // // Generate .rtf
     // generateRTF(responseData)

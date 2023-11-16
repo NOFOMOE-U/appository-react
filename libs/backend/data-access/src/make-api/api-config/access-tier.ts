@@ -132,7 +132,7 @@ export function mapAccessTierToUserWithAccessToken(accessTier: string): UserWith
 
 
 //todo set up prisma type and add to schema
-
+//done
 // FREE Tier:
 
 // Basic task management: Create tasks, assign them to oneself or a team.

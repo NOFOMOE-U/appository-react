@@ -11,7 +11,6 @@ import { PrismaModule } from './prisma/prisma.module'
 
 @Module({
   
-
   controllers: [PrismaController],
   providers: [
     {

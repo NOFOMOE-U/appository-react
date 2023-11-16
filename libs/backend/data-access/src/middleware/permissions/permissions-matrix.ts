@@ -1,10 +1,16 @@
-export const permissionsMatrix: {
-  [key: string]: {
-    [key: string]: {
-      [key: string]: boolean
+export interface PermissionsMatrix {
+  [tier: string]: {
+    [route: string]: {
+      [method: string]: boolean
     }
   }
-} = {
+} 
+
+export async function checkPermissions(tier: string, route: string, method: string): Promise<boolean> {
+  return permissionMatrix[tier][route][method] || false;
+}
+
+export const permissionMatrix: PermissionsMatrix = {
   ADMIN: {
     PROJECT: {
       create: true,
