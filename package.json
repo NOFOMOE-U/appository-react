@@ -26,7 +26,7 @@
     "docker1": "commands",
     "dockers:dev": "docker-compose -f tools/nofomoe-environment/dev.docker-compose.yml up -d --no-recreate --remove-orphans",
     "prisma2": "commands",
-    "generate": "prisma generate --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
+    "generate": "prisma generate --schema ./libs/backend/data-access/src/lib/prisma/schema/schema.prisma",
     "migrate-save": "prisma migrate dev --create-only --preview-feature --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
     "migrate-up": "prisma migrate dev --preview-feature --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
     "migrate-reset": "npx prisma migrate reset --preview-feature --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
@@ -35,13 +35,10 @@
     "db-pull": "prisma db pull --schema ./libs/backend/data-access/src/lib/prisma/schema.prisma",
     "db:migrate:dev": "npx env-cmd -f .local.env npx prisma migrate dev",
     "db:studio": "npx env-cmd -f .local.env npx prisma studio",
-
-    
-    "**create-docs**":"-*docs",
+    "**create-docs**": "-*docs",
     "docs": "typedoc",
-    "generate-docs":"run-docs",
-    "run-docs":""
-
+    "generate-docs": "run-docs",
+    "run-docs": ""
   },
   "private": true,
   "devDependencies": {
@@ -136,6 +133,7 @@
     "@storybook/theming": "^6.5.16",
     "@types/express-serve-static-core": "^4.17.37",
     "@types/jsonwebtoken": "^9.0.3",
+    "@types/qs": "^6.9.10",
     "apollo-server": "^3.12.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -160,6 +158,7 @@
     "nexus-prisma": "^1.0.18",
     "npm": "^9.9.0",
     "playwright": "^1.39.0",
+    "qs": "^6.11.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-element-to-jsx-string": "^15.0.0",

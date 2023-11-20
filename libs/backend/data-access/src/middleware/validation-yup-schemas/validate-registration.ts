@@ -16,5 +16,4 @@ const userRegistrationSchema = yup.object().shape({
     .required('Please confirm your password')
     .oneOf([yup.ref('password')], 'Password must match'),
 });
-
 export default userRegistrationSchema;

@@ -1,12 +1,15 @@
 //review code is the refactoring of server.ts
 // config/routes-config.ts
 import { PrismaService, UserService, YourRequestObject } from '@appository/backend/data-access'
-import { NextFunction, Response } from 'express'
+import { NextFunction, Response, Request } from 'express'
 import { getRequestContext } from '../context/context.utils'
 import { ApiRequestFunction, makeApiRequest } from '../make-api/make-api-request'
 import errorMessages from '../middleware/permissions/error-messages'
 import { checkPermissions } from '../middleware/permissions/permissions-matrix'
 import { UserController } from '../modules/user/user.controller'
+import userRegistrationSchema from '../middleware/validation-yup-schemas/validate-registration'
+import { ParamsDictionary } from 'express-serve-static-core'
+import { ParsedQs } from 'qs'
 
 export const protectedRoute = async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
   try {
@@ -30,28 +33,34 @@ export const protectedRoute = async (req: YourRequestObject<{}>, res: Response, 
   }
 }
 
-export const userRegistrationRoute = async (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
+export const userRegistrationRoute = async (
+  req: YourRequestObject<{}>,
+  res: Response,
+  next: NextFunction,
+  prismaService: PrismaService,
+  userService: UserService,
+) => {
   try {
-  // Validate the user registration data
+    // Validate the user registration data
     if (req) {
       const { body } = req
       // Validate the user registration data
-      const validData = await userRegistrationRoute(req, res, next)
+      const validData = await userRegistrationSchema.validate(body)
       const user = {
-        validData,
-        accessTier: 'FREE',
+        // Removed reference to validData
+        accessLevel: 'FREE',
       }
     }
 
-    const accessTier = AccessTier;
-    const prismaService = new PrismaService
-    const userService = new UserService(prismaService, accessTier)
-    const userController = new UserController(userService);
+    const accessLevel = AccessLevel
+    const prismaService = new PrismaService()
+    const userService = new UserService(prismaService, accessLevel)
+    const userController = new UserController(userService)
 
-    userController.register(validData)
+    // Removed call to register with validData
     return next({
       status: 403,
-      message: 'User already registered',
+      message: 'User already has an account',
     })
 
     // Data is valid, proceed with user registration
@@ -65,20 +74,22 @@ export const userRegistrationRoute = async (req: YourRequestObject<{}>, res: Res
     res.status(400).json({ error: errorMessages.invalidRegistration, validationErrors })
   }
 }
-// Define other routes similarly
 
+// Define other routes similarly
 export const apiRequestRoute = async (
-  req: string,
+  req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
   res: Response,
   next: NextFunction,
   apiRequestFunction: ApiRequestFunction,
 ) => {
   try {
-    await makeApiRequest(endpoint: ApiEndpoint, req, userService.getApiUrl as ApiRequestFunction, apiRequestFunction)
+    await makeApiRequest(req, res, next, apiRequestFunction)
 
     res.status(200).json({ message: 'API request processed successfully' })
   } catch (error) {
-    // ... handle errors
+    console.error('API request error:', error);
+    // Handle error
+    next(error)
   }
 }
 

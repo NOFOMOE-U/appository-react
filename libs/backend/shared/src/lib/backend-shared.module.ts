@@ -2,12 +2,15 @@ import { Module } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 
-//1, 1,2,8  17  dif 3,2 ,2, 1 37
-// task.service, schema.prisma, validateTask, types.ts 
 
-//not needed; assignedToId String? [assignedToId]; yup.string(), assignedToId: null; task.assignedToId
+
+// note do not add any modues connected to BackendDataAccess or core as it wi cause circular dependency issues
+//use common-modules for extending
 @Module({
-  imports: [GraphQLModule],
+  imports: [
+    GraphQLModule,
+    // AquaModule
+  ],
 providers: [
     HttpAdapterHost
   ],

@@ -9,8 +9,8 @@ import UserManagerService from "../../modules/user/user-manager"
      const parsedUrl = new URL(req.url, 'http://example.com')
      const userBehaviorController = new UserBehaviorController()
 // private userBehaviorController = UserBehaviorController
-    
-
+   userBehaviorController.trackUserBehavior(user, parsedUrl.pathname)
+   
   if (userBehaviorController) {
     userBehaviorController.trackUserBehavior(user)
   }

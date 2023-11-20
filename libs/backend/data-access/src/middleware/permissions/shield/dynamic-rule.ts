@@ -6,8 +6,8 @@ import { isAuthenticatedUser } from "../rules/is-authenticated-user";
 //todo add to admin board- usermanager
 // Define configuration for features and their access levels
 const featureConfig = {
-    freeTier: ['hello', 'me', 'users', 'user', 'session'],
-    accessTier: [
+    freeLevel: ['hello', 'me', 'users', 'user', 'session'],
+    accessLevel: [
       'hello',
       'me',
       'users',
@@ -21,7 +21,7 @@ const featureConfig = {
       'deleteUser',
       'revokeRefreshTokensForUser',
     ],
-    adminTier: ['isAuthenticatedAdmin'],
+    adminLevel: ['isAuthenticatedAdmin'],
   };
   
   // Create dynamic rules based on the configuration
@@ -42,9 +42,9 @@ const featureConfig = {
   
   // Create dynamic rules for each feature
   const dynamicRules = {
-    freeTier: createDynamicRule(featureConfig.freeTier),
-    accessTier: createDynamicRule(featureConfig.accessTier),
-    adminTier: createDynamicRule(featureConfig.adminTier),
+    freeLevel: createDynamicRule(featureConfig.freeLevel),
+    accessLevel: createDynamicRule(featureConfig.accessLevel),
+    adminLevel: createDynamicRule(featureConfig.adminLevel),
   };
 
 
@@ -52,5 +52,5 @@ const featureConfig = {
 export const isAuthenticatedAdmin = chain(
     isAuthenticatedUser,
     isAdmin,
-    dynamicRules.adminTier
+    dynamicRules.adminLevel
   );

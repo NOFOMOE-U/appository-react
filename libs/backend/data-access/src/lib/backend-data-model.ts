@@ -8,6 +8,8 @@ import { join } from 'path'
 import { UserModule } from '../modules/user/user.module'
 import prisma from './prisma/prisma'
 import { PrismaModule } from './prisma/prisma.module'
+//todo aqua
+import { AquaModule } from 'libs/backend/communication/src/aqua/aqua.module'
 
 @Module({
   
@@ -35,6 +37,7 @@ import { PrismaModule } from './prisma/prisma.module'
     UserModule,
     // PostModule,
     CommonContextModule,
+    AquaModule // added aqua
   ],
   exports: ['PrismaClient','CONTEXT', PrismaModule], //changed based on dev/graphql, from PrismaService to PrismaClient
 })

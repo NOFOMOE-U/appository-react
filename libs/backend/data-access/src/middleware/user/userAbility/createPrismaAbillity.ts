@@ -13,9 +13,9 @@ const req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>> = 
   Record<string, any>
 >
 const user = {} as User
-const accessTier = 'free'
+const accessLevel = 'free'
 const abilityForUser = createForUser(user)
-const abilityForPrisma = await createForPrisma(prisma, req, accessTier)
+const abilityForPrisma = await createForPrisma(prisma, req, accessLevel)
 
 export { abilityForPrisma, abilityForUser }
 
@@ -45,15 +45,14 @@ export { abilityForPrisma, abilityForUser }
 
 // import { PrismaClient } from '@prisma/client';
 // import { createForPrisma, createForUser } from './caslAbilities';
-import ability from './defineAbilities'
 
 // const prisma = new PrismaClient();
 // const req: Request = {} as Request;
-// const accessTier = 'free';
+// const accessLevel = 'free';
 
 // // Create abilities
 // const user = {}; // Replace this with the actual user
 // const abilityForUser = createForUser(user);
-// const abilityForPrisma = await createForPrisma(prisma, req, accessTier);
+// const abilityForPrisma = await createForPrisma(prisma, req, accessLevel);
 
 // export { abilityForUser, abilityForPrisma }; // Export the abilities

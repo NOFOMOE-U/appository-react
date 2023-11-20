@@ -1,10 +1,20 @@
 //Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/main.ts
-import { CustomRequestWithContext, LoggingMiddleware, MyContext, MyCustomRequest, UserService, YourRequestObject, initContext } from '@appository/backend/data-access'
+import { AquaService } from '@appository/backend/communication'
+import { CustomURLSearchParams, MyContext, initContext, } from '@appository/backend/context-system'
+import {
+  CustomRequestWithContext,
+  LoggingMiddleware,
+  MyCustomRequest,
+  UserService,
+  YourRequestObject,
+} from '@appository/backend/data-access'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-import { CustomContextType } from 'libs/backend/data-access/src/context/custom-context-type'
+import { CustomContextType } from 'libs/backend/context-system/src/context/custom-context-type'
 import { BodyContent } from 'libs/backend/data-access/src/make-api/requests/custom-request-init'
+import { UserBehaviorController } from 'libs/backend/data-access/src/modules/user/user-behavior-controller'
+import UserManagerService from 'libs/backend/data-access/src/modules/user/user-manager'
 import { AppModule } from './app/app.module'
 
 
@@ -13,8 +23,13 @@ async function bootstrap() {
 
   //initial the context using init
   let userService: UserService
-  let requestBody: BodyContent | null | undefined
+  let requestBody: BodyContent | null | undefined,
 
+  aquaService: AquaService,
+  userBehaviorController: UserBehaviorController,
+  userManagerService:UserManagerService,
+  url: CustomURLSearchParams
+  
   const myContext = await initContext(req)
 
   // Fixed error by changing userService to requestBody
@@ -62,7 +77,12 @@ async function bootstrap() {
   // https://dev.to/tugascript/nestjs-graphql-image-upload-to-a-s3-bucket-1njg
   const globalPrefix = 'api'
   app.setGlobalPrefix(globalPrefix)
-  app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware()))
+  app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware(
+    userBehaviorController,
+    aquaService,
+    userManagerService,
+    url
+  )))
 
   //Enable CORS and body pargins middleware as needed
   const port = process.env.PORT || 3333

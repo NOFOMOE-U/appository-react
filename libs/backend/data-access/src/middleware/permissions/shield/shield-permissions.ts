@@ -8,26 +8,26 @@ import { isOwner } from '../rules/is-owner'
 import { isReadingOwnSession } from '../rules/is-reading-own-session'
 import { isReadingOwnUser } from '../rules/is-reading-own-user'
 
-const isAuthenticatedFreeTier = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+const isAuthenticatedFreeLevel = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
   const user = await ctx.getUser()
 
   if(!user) {
     throw new Error(errorMessages.notAuthenticated)
   }
 
-  if(!isFreeTier(user.accessTier)) {
+  if(!isFreeLevel(user.accessLevel)) {
     throw new Error(errorMessages.notAuthorized)
   }
 
   return true
 })
-const isAuthenticatedAccessTier = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+const isAuthenticatedAccessLevel = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
   const user = await ctx.getUser()
   if (!user) {
     throw new Error(errorMessages.notAuthenticated)
   }
 
-  if (!isPaidTier(user.accessTier)) {
+  if (!isPaidLevel(user.accessLevel)) {
     throw new Error(errorMessages.notAuthenticated)
   } else {
     return true
@@ -35,8 +35,8 @@ const isAuthenticatedAccessTier = rule({ cache: 'contextual' })(async (parent, a
 })
 
 //heper functions to check the users tier
-const isFreeTier = (accessTier: string) => accessTier === 'free'
-const isPaidTier = (accessTier: string) => accessTier === 'standard' || accessTier === 'premium' || accessTier === 'enterprise'
+const isFreeLevel = (accessLevel: string) => accessLevel === 'free'
+const isPaidLevel = (accessLevel: string) => accessLevel === 'standard' || accessLevel === 'premium' || accessLevel === 'enterprise'
 
 export const permissions: IRuleTypeMap = {
   Query: {
@@ -50,23 +50,23 @@ export const permissions: IRuleTypeMap = {
       return true
     }),
     me: isAuthenticatedUser,
-    users: or(isAuthenticatedUser, isAdmin, and(isEditor, isOwner), isAuthenticatedAccessTier),
-    user: and(isAuthenticatedUser, isReadingOwnUser, isAuthenticatedAccessTier),
-    session: and(isAuthenticatedUser, isReadingOwnSession, isAuthenticatedAccessTier),
+    users: or(isAuthenticatedUser, isAdmin, and(isEditor, isOwner), isAuthenticatedAccessLevel),
+    user: and(isAuthenticatedUser, isReadingOwnUser, isAuthenticatedAccessLevel),
+    session: and(isAuthenticatedUser, isReadingOwnSession, isAuthenticatedAccessLevel),
   } as IRuleFieldMap,
 
   Mutation: {
     signUp: not(isAuthenticatedUser),
     login: not(isAuthenticatedUser),
     logout: not(isAuthenticatedUser),
-    createUser: and(isAuthenticatedUser, isOwner, or(isAdmin), isAuthenticatedAccessTier),
-    updateMyProfile: and(isAuthenticatedUser, isOwner, isAuthenticatedAccessTier),
-    deleteUser: or(isAdmin, and(isOwner, isAuthenticatedUser), isAuthenticatedAccessTier),
-    revokeRefreshTokensForUser: and(isAuthenticatedUser, isReadingOwnUser, isAuthenticatedAccessTier),
+    createUser: and(isAuthenticatedUser, isOwner, or(isAdmin), isAuthenticatedAccessLevel),
+    updateMyProfile: and(isAuthenticatedUser, isOwner, isAuthenticatedAccessLevel),
+    deleteUser: or(isAdmin, and(isOwner, isAuthenticatedUser), isAuthenticatedAccessLevel),
+    revokeRefreshTokensForUser: and(isAuthenticatedUser, isReadingOwnUser, isAuthenticatedAccessLevel),
   },
   User: {
-    secret: and(isOwner, isAuthenticatedFreeTier),
+    secret: and(isOwner, isAuthenticatedFreeLevel),
   },
 }
 
-export const isAuthenticatedAdmin = chain(isAuthenticatedUser, isAdmin, isAuthenticatedAccessTier)
+export const isAuthenticatedAdmin = chain(isAuthenticatedUser, isAdmin, isAuthenticatedAccessLevel)

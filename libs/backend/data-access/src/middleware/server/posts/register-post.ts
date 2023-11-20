@@ -13,7 +13,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
         // Data is valid, proceed with user registration
         const user = {
           ...validData,
-          accessTier: 'FREE'
+          accessLevel: 'FREE'
         }
         // userController.register(validData);
         res.status(201).json({ message: 'User registered successfully' });

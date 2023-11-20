@@ -1,41 +1,120 @@
+// import { AccessLevel } from '@appository/backend/data-access';
+import { AccessLevel } from '@appository/backend/api-system';
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient, User, UserProfile } from '@prisma/client';
+import path from 'path';
 import { PrismaContext } from '../../interfaces/prisma/prisma.interface';
-import { permissionsMatrix } from '../../middleware/permissions/permissions-matrix';
 import { CustomPrismaClient } from './prisma';
+
  
+interface PrismaClientOptions {
+  /**
+   * Optional configuration for datasources.
+   */
+  datasources?: {
+    [key: string]: {
+      /**
+       * The URL for the datasource.
+       */
+      url?: string | undefined;
+    };
+  };
+
+  /**
+   * Optional path to the Prisma schema file.
+   */
+  schema: string
+  
+  // ... other optional configuration properties can be added here
+}
+
+
+
+class TenantService {
+  private tenantClients: Map<string, CustomPrismaClient> = new Map();
+
+ 
+ getPrismaClient(tenantId: string, options: PrismaClientOptions): CustomPrismaClient {
+    if (!this.tenantClients.has(tenantId)) {
+      const { schema, ...restOptions } = options
+      const client = new PrismaClient({
+        datasources: {
+          db: {
+            url: `tenant-specific-database-url-for-${tenantId}`,
+          },
+        },
+        // removed to figure out how to fix the error when it is set
+        // causing it to be considered 'never'
+        // schema: schema || 'default',
+        ...restOptions,
+      }) as CustomPrismaClient
+
+      this.tenantClients.set(tenantId, client)
+    }
+
+    return this.tenantClients.get(tenantId)! as CustomPrismaClient
+  }
+}
+
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  private prisma: CustomPrismaClient
-  private permissionsMatrix: {
-    [key: string]: {
-      [key: string]: {
-        [key: string]: boolean
-      }
-    }
-  } = {}
+  private prisma!: CustomPrismaClient
+  private isConnected: boolean = false
   private userId: string | null = null
   private taskId: string | null = null
+  private tenantService: TenantService
+  tenantId!: string
 
-  constructor() {
-    this.prisma = new PrismaClient()
+  constructor(private permissionsMatrix: Record<string, Record<string, Record<string, boolean>>> = {}) {
+    this.tenantService = new TenantService()
     this.initPermissionsMatrix()
   }
 
   private initPermissionsMatrix() {
-    this.permissionsMatrix = permissionsMatrix
+    this.permissionsMatrix = this.permissionsMatrix
+  }
+
+  setConnectionStatus(status: boolean) {
+    // Implement logic to set the connection status
+    // For example, store the status in a class property
+    this.isConnected = status
+  }
+
+  getConnectionStatus(): boolean {
+    // Getter method to retrieve the connection status
+    return this.isConnected
   }
 
   async onModuleInit() {
-    await this.prisma.$connect()
+    await this.connectPrisma('example-tenant-id')
+    this.setConnectionStatus(true)
   }
 
   async onModuleDestroy() {
     await this.prisma.$disconnect()
+    this.setConnectionStatus(false)
   }
 
   async getClient() {
-    await this.prisma
+    this.prisma
+  }
+
+  async getTenantId(tenantId: string) {
+    this.tenantId = tenantId
+  }
+
+  async getUsersByAccessLevel(userId: string, accessLevel: AccessLevel): Promise<User[] | null> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: userId
+      }
+    })
+
+    const currentUsersAccessLevels = users.map((user) => ({
+      ...user,
+      accessLevel: accessLevel.toString()
+    }))
+    return currentUsersAccessLevels
   }
 
   async getUserById(id: string): Promise<User | null> {
@@ -43,7 +122,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return user
       ? {
           ...user,
-          accessTier: user.accessTier,
+          accessLevel: user.accessLevel as User['accessLevel'],
         }
       : null
   }
@@ -64,9 +143,17 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return user
       ? {
           ...user,
-          accessTier: user.accessTier,
+          accessLevel: user.accessLevel,
         }
       : null
+  }
+
+  private async connectPrisma(tenantId: string) {
+    const options: PrismaClientOptions = {
+      schema: path.join(__dirname, 'schema', 'schema.prisma'),
+    }
+    this.prisma = this.tenantService.getPrismaClient(tenantId, options)
+    await this.prisma.$connect()
   }
 
   setUserId(userId: string | null) {
@@ -89,14 +176,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.user.update({
       where: { id },
       data,
-      /// todo how do I add       accessTier: user.accessTier
+      /// todo how do I add       accessLevel: user.accessLevel
     })
   }
 
   isAuthorized(user: User | undefined, resourceType: string, action: string): boolean {
     if (user) {
       const userRole = user.roles
-      const permissions = permissionsMatrix.userRole
+      const permissions = this.permissionsMatrix[userRole as unknown as string]
 
       if (permissions && permissions[resourceType] && permissions[resourceType][action]) {
         return permissions[resourceType][action]
@@ -106,15 +193,3 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return false
   }
 }
-
-export const getContext = async (): Promise<PrismaContext> => {
-  const prismaService = new PrismaService()
-  const prisma = await prismaService.getContext()
-  return prisma
-}
-
-// todo
-// In the isAuthorized method:
-  // user represents the user object for whom you want to check authorization.
-  // resourceType is the type of resource (e.g., 'project', 'task').
-  // action is the specific action (e.g., 'create', 'read', 'update', 'delete').

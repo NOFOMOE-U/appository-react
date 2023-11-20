@@ -6,23 +6,28 @@ import { CustomContextType } from '../../../context/custom-context-type'
 import { CustomURLSearchParams, MyContext } from '../../../context/my-context'
 import { hashPassword } from '../../../interfaces/auth/user-with-password-hash'
 import prisma from '../../../lib/prisma/prisma'
-import { axiosRequest } from '../../../make-api/api-config/axios-request'
 import { CustomSessionType } from '../../../make-api/my-custom-request'
 import { BodyContent } from '../../../make-api/requests/custom-request-init'
 import errorMessages from '../error-messages'
 import { MyOptions } from './my-options.interface'
+import { getUserId } from '../../../utils/backend-auth.utils'
 
 
+const userId = await getUserId()
 const mockDataEntries: Record<string, string> = {
     key1: 'value1',
     key2: 'value2',
     key3: 'value3',
   }
   
-  const options: MyOptions = {
+  export const options: MyOptions = {
     documentHelper: DocumentHelper,
     debug: true,
-    document: document.implementation.createDocument(options,namespace, qualifiedName),
+    namespace: '',
+    qualifiedName: '',
+    //todo update {tite as part of path}
+    userFilePath: `/user/${userId}/generated-pdf/{title}`,
+    document: document.implementation.createDocument(namespace, qualifiedName, null),
     dirname: __dirname,
     relativePath: '',
     relativeEnvPaths: [],
@@ -42,18 +47,15 @@ const mockDataEntries: Record<string, string> = {
       requestBody: {} as BodyContent | null | undefined,
       cache: {} as RequestCache,
       accessToken: null,
-      url: '',
+      url: 'url',
       size: 0,
-      request: {
-        id: 'user-id',
-        user: { id: 'user-id' } as UserWithoutSensitiveData,
-        body: {},
-        // #todo verify axiosRequest is accurately being used
-        headers: axiosRequest,
-        prisma: prisma,
-        currentUser: null,
-        accessToken: null,
-        context: {} as MyContext,
+        request: {
+          headers: {},
+          body: {} as BodyInit | null | undefined,
+          method: 'GET',
+          url: '',
+          query: {},
+          params: {},
         ...({} as any),
       },
       accepts: (types: string | string[] | undefined) => {
@@ -108,7 +110,6 @@ const mockDataEntries: Record<string, string> = {
       const hashedPassword = await hashPassword(dataToHash)
       return hashedPassword
     },
-    namespace: '',
     datasourceNames: '',
     activeProvider: '',
     dataProxy: false,
@@ -584,6 +585,5 @@ const mockDataEntries: Record<string, string> = {
       throw new Error('Function not implemented.')
     }
   }
-
 
 export default options

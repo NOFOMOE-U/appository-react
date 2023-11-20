@@ -59,7 +59,8 @@ validatePasswordAsync('');
 
 
 const validateUserRule = rule()(async (parent, args, context: yup.TestContext) => {
-  await validateRule(validateUser)(args, context)
+  //assuming user is 'valid' returns a boolean indicating success
+  const validateRule(validateUser)(args)
 
   return true
 })

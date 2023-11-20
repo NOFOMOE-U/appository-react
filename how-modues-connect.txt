@@ -1,3 +1,4 @@
+library set up
 AppModule (app.module.ts):
 
 Integrates various modules into the main application.

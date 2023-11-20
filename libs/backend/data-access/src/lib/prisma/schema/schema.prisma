@@ -1,0 +1,792 @@
+// import * as User from './schema/user.schema'
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/client"
+  // binaryTargets- Prisma detects your operating system and 
+  // finds the right binary file for it based on the 
+  // list of supported operating systems 
+  binaryTargets = ["native"]
+
+  // previewFeatures = ["multiSchema"]
+}
+
+
+
+generator nexusPrisma {
+  provider = "nexus-prisma"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+  // schemas  = ["base", "communication"]
+  
+}
+
+
+
+model User {
+  id                   String           @id @default(uuid())
+  name                 String
+  email                String           @unique
+  username             String           @unique
+  passwordHash         String           @db.VarChar(255)
+  accessLevel          String
+  roles                UserRole[]       @default([USER])
+  posts                Post[]
+  groups               Group[]
+  groupId              Int?
+  teamMemberships      TeamMembership[]
+  assignedTasks        Task[]           @relation("assignee")
+  assignedTasksBy      Task[]           @relation("assigner")
+  assignedToTask       Task[]           @relation("assigned_to")
+  createdBy            Task?            @relation("created_by")
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @default(now())
+  resetPasswordToken   String?          @default(value: "")
+  settings             UserSettings?    @relation("settings")
+  userProfile          UserProfile?     @relation("user_profile")
+  userProfileId        Int?
+  password             Password?        @relation("password")
+  personas             Persona[]        @relation("user_personas")
+  backgroundJobs       HeadlessJob[]    @relation("background_jobs")
+  payments             Payment[]        @relation("user_payments")
+  confirmPassword      String?
+  confirmPasswordMatch String?
+}
+  
+
+model Configuration {
+  id       Int     @id @default(autoincrement())
+  headless Boolean
+  
+}
+
+//todo set up
+// Add a new "pin" mode model
+model HeadlessJob {
+  id         Int      @id @default(autoincrement())
+  // Add any fields necessary for your background job
+  // For example, you can store job type, parameters, status, etc.
+  jobType    String
+  parameters Json
+  status     String
+  createdAt  DateTime @default(now())
+  users      User[]   @relation("background_jobs")
+}
+
+// model User {
+//   id                   String           @id @default(uuid())
+//   name                 String
+//   email                String           @unique
+//   username             String           @unique
+//   passwordHash         String           @db.VarChar(255)
+//   accessLevel          String
+//   roles                UserRole[]       @default([USER])
+//   posts                Post[]
+//   groups               Group[]
+//   groupId              Int?
+//   teamMemberships      TeamMembership[]
+//   assignedTasks        Task[]           @relation("assignee")
+//   assignedTasksBy      Task[]           @relation("assigner")
+//   assignedToTask       Task[]           @relation("assigned_to")
+//   createdBy            Task?            @relation("created_by")
+//   createdAt            DateTime         @default(now())
+//   updatedAt            DateTime         @default(now())
+//   resetPasswordToken   String?          @default(value: "")
+//   settings             UserSettings?    @relation("settings")
+//   userProfile          UserProfile?     @relation("user_profile")
+//   userProfileId        Int?
+//   password             Password?        @relation("password")
+//   personas             Persona[]        @relation("user_personas")
+//   backgroundJobs       HeadlessJob[]    @relation("background_jobs")
+//   payments             Payment[]        @relation("user_payments")
+//   confirmPassword      String?
+//   confirmPasswordMatch String?
+// }
+
+model Group {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  members     User[]
+  memberId    String?  @map("memberId")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model Password {
+  userId         String   @id
+  hashedPassword String
+  salt           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+
+  user User @relation("password", fields: [userId], references: [id])
+}
+
+model Post {
+  id         String            @id @default(uuid())
+  published  Boolean           @default(false)
+  title      String
+  content    String
+  authorId   String
+  author     User?             @relation(fields: [authorId], references: [id])
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  categories CommentsOnPosts[]
+}
+
+model Team {
+  id          String           @id @default(uuid())
+  name        String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  teamMembers TeamMembership[]
+  teamTasks   Task[]
+}
+
+model TeamMembership {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus
+
+  creatorId String @unique
+  creator   User   @relation("created_by", fields: [creatorId], references: [id])
+
+  assigneeId String?
+  assignee   User?   @relation("assignee", fields: [assigneeId], references: [id])
+
+  assignerId String?
+  assigner   User?   @relation("assigner", fields: [assignerId], references: [id])
+
+  assignedToId String?
+  assignedTo   User?   @relation("assigned_to", fields: [assignedToId], references: [id])
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  dueDate   DateTime?
+  completed Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([creatorId], name: "task_creator")
+}
+
+model Comment {
+  id    String            @id @default(uuid())
+  name  String
+  posts CommentsOnPosts[]
+}
+
+model CommentsOnPosts {
+  id         Int      @default(autoincrement())
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     String // Use String instead of Int
+  comment    Comment  @relation(fields: [commentId], references: [id])
+  commentId  String // Use String instead of Int
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([postId, commentId])
+  @@unique([id])
+}
+
+model UserProfile {
+  id              Int       @id @default(autoincrement())
+  phoneNumber     String?
+  address         String?
+  city            String?
+  state           String?
+  zipCode         String?
+  country         String?
+  dateOfBirth     DateTime?
+  gender          String?
+  occupation      String?
+  education       String?
+  bio             String?
+  website         String?
+  profileImage    String?
+  twitterHandle   String?
+  facebookProfile String?
+  linkedinProfile String?
+  instagramHandle String?
+  tiktokHandle    String?
+  snapchatHandle  String?
+  youtubeChannel  String?
+  interests       String[]
+  hobbies         String[]
+  favoriteMovies  String[]
+  favoriteMusic   String[]
+  favoriteBooks   String[]
+  favoriteTVShows String[]
+  favoriteGames   String[]
+  favoriteQuotes  String[]
+  skills          String[]
+  certifications  String[]
+  awards          String[]
+  languages       String[]
+  otherDetails    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user     User      @relation("user_profile", fields: [userId], references: [id])
+  userId   String    @unique
+  personas Persona[] @relation("profile_personas")
+
+  userSettings   UserSettings? @relation("user_settings", fields: [userSettingsId], references: [id])
+  userSettingsId String?       @unique
+}
+
+model Persona {
+  id         Int           @id @default(autoincrement())
+  name       String?
+  attributes Json?
+  profiles   UserProfile[] @relation("profile_personas")
+  users      User[]        @relation("user_personas")
+}
+
+model UserSettings {
+  id         String  @id @default(uuid())
+  language   String? @default("en")
+  timeFormat String? @default("24")
+  dateFormat String? @default("YYYY-MM-DD")
+  timeZone   String? @default("UTC")
+
+  emailNotifications   Boolean? @default(true)
+  pushNotifications    Boolean? @default(true)
+  desktopNotifications Boolean? @default(true)
+  audioNotifications   Boolean? @default(false)
+  messageNotifications Boolean? @default(true)
+  videoNotifications   Boolean? @default(false)
+  autoPlayVideos       Boolean? @default(false)
+  theme                String?  @default("light")
+  font                 String?  @default("Roboto")
+  fontSize             Int?     @default(16)
+  showCompletedTasks   Boolean? @default(false)
+  userPreferences      String?
+  darkMode             Boolean?
+  reminders            Boolean?
+  defaultView          String?
+  twoFactorAuth        Boolean?
+  passwordReset        Boolean?
+  exportData           Boolean?
+  importData           Boolean?
+  activityLog          Boolean?
+  socialMediaSharing   Boolean?
+  connectedAccounts    String?
+  quickAddButton       Boolean?
+  contactList          Boolean?
+  keyboardShortcuts    String?
+  timeTrackings        Boolean?
+  languageSettings     String?
+  invoiceSettings      Boolean?
+  feedback             Boolean?
+  taskSortOrder        String?  @default("priority")
+  taskSortDirection    String?  @default("asc")
+  goalTrackMode        String?  @default("countdown")
+  dailyGoal            Int?     @default(0)
+  weeklyGoal           Int?     @default(0)
+  monthlyGoal          Int?     @default(0)
+  yearlyGoal           Int?     @default(0)
+  autoRefresh          Boolean? @default(false)
+  autoRefreshInterval  Int?     @default(10)
+  fileAttachments      Boolean  @default(false)
+  quickAdd             Boolean  @default(false)
+  soundEffects         Boolean  @default(true)
+  dataVisualization    Boolean  @default(false)
+  teamSettings         Boolean  @default(false)
+  timeTracking         Boolean  @default(false)
+  helpCenter           Boolean  @default(false)
+  videoTutorials       Boolean  @default(false)
+  exportUserData       Boolean  @default(false)
+  socialMediaLinks     Boolean  @default(false)
+  emailSignature       String?  @default("")
+  contactInformation   Boolean  @default(false)
+  habitTracking        Boolean  @default(false)
+  customFields         Boolean  @default(false)
+  imageUploads         Boolean  @default(false)
+  videoUploads         Boolean  @default(false)
+  documentUploads      Boolean  @default(false)
+  taskTemplates        Boolean  @default(false)
+  projectTemplates     Boolean  @default(false)
+  customStatuses       Boolean  @default(false)
+  communityForum       Boolean  @default(false)
+  timeBlocking         Boolean  @default(false)
+  customLabels         Boolean  @default(false)
+  emailIntegration     Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now())
+  user                 User     @relation("settings", fields: [userId], references: [id])
+
+  userId                    String                    @map(name: "user_id")
+  userProfile               UserProfile?              @relation("user_settings")
+  notificationPreferences   NotificationPreferences[] @relation("notificationPreferences")
+  notificationPreferencesId String                    @map(name: "notification_preferences_id")
+
+  // id: Unique identifier for the user settings.
+  // user: User to whom the settings belong.
+  // userId: Foreign key that connects user settings to user.
+  // language: Allows the user to set their  preferred language.
+  // timeFormat: Allows the user to set their preferred time format (12-hour or 24-hour).
+  // dateFormat: Allows the user to set their preferred date format.
+  // timeZone: Allows the user to set their time zone so that deadlines and events are shown in their local time.
+  // emailNotifications: Allows the user to turn on or off email notifications for various actions within the app.
+  // pushNotifications: Allows the user to turn on or off push notifications for various actions within the app.
+  // desktopNotifications: Whether the user wants to receive desktop notifications.
+  // audioNotifications: Whether the user wants to receive audio notifications.
+  // messageNotifications: Whether the user wants to receive message notifications.
+  // videoNotifications: Whether the user wants to receive video notifications.
+  // autoPlayVideos: Whether the user wants videos to autoplay.
+  // theme: User's preferred theme (e.g. light or dark).
+  // font: User's preferred font.
+  // fontSize: User's preferred font size.
+  // showCompletedTasks: Whether the user wants completed tasks to be shown.
+  // taskSortOrder: User's preferred task sort order (e.g. priority or deadline).
+  // taskSortDirection: User's preferred task sort direction (ascending or descending).
+  // goalTrackMode: User's preferred goal tracking mode (e.g. countdown or progress).
+  // dailyGoal: User's daily goal (if any).
+  // weeklyGoal: User's weekly goal (if any).
+  // monthlyGoal: User's monthly goal (if any).
+  // yearlyGoal: User's yearly goal (if any).
+  // autoRefresh: Whether the user wants the app to automatically refresh.
+  // autoRefreshInterval: How often the user wants the app to automatically refresh.
+  // createdAt: Date and time when the user settings were created.
+  // updatedAt: Date and time when the user settings were last updated
+  // darkMode: Allows the user to switch to a dark theme to reduce eye strain.
+  // reminders: Allows the user to set reminders for tasks or events.
+  // defaultView: Allows the user to set their default view when they first log in.
+  // twoFactorAuthentication: Allows the user to enable two-factor authentication for added security.
+  // passwordReset: Allows the user to reset their password if they forget it.
+  // exportData: Allows the user to export their data for backup purposes.
+  // importData: Allows the user to import data from other productivity apps or sources.
+  // connectedAccounts: Allows the user to connect their productivity app account to other third-party apps.
+  // socialMediaSharing: Allows the user to share their achievements or progress on social media.
+  // activityLog: Allows the user to view a log of all their activity within the app.
+  // contactList: Allows the user to manage their contacts within the app.
+  // keyboardShortcuts: Allows the user to use keyboard shortcuts to perform actions within the app.
+  // languageSettings: Allows the user to change the language of the app.
+  // userPreferences: Allows the user to set various preferences for the app, such as font size or color scheme.
+  // feedback: Allows the user to provide feedback or suggestions to the app developers.
+
+  // fileAttachments: Allows the user to attach files to tasks or events.
+  // quickAdd: Allows the user to quickly add tasks or events without navigating to a separate screen.
+  // soundEffects: Allows the user to turn on or off sound effects for various actions within the app.
+  // dataVisualization: Allows the user to view their data in various charts or graphs.
+  // teamSettings: Allows the user to manage team settings, if applicable.
+  // timeTracking: Allows the user to track the time spent on tasks or projects.
+  // invoiceSettings: Allows the user to generate invoices for clients or team members, if applicable.
+  // helpCenter: Provides access to a help center with articles and tutorials on how to use the app.
+  // videoTutorials: Provides access to video tutorials on how to use the app.
+  // exportUserData: Allows the user to export their data from their user profile for backup purposes.
+  // socialMediaLinks: Allow users to add their social media links for others to connect with them on different platforms.
+  // emailSignature: Users can set a default signature to be added to their emails within the app.
+  // contactInformation: Allow users to add and edit their contact information (phone number, email, etc.).
+  // habitTracking: Option for users to track daily or weekly habits within the app.
+  // customFields: Allow users to add custom fields to tasks or projects to track additional information.
+  // imageUploads: Allow users to upload images to tasks or projects to provide additional context.
+  // videoUploads: Allow users to upload videos to tasks or projects to provide additional context.
+  // documentUploads: Allow users to upload documents to tasks or projects to provide additional context.
+  // taskTemplates: Allow users to create and save task templates for easy replication in the future.
+  // projectTemplates: Allow users to create and save project templates for easy replication in the future.
+  // customStatuses: Allow users to create and edit custom statuses for tasks or projects.
+  // communityForum: Provides access to a community forum where users can discuss the app and share tips.
+  // timeBlocking: Allow users to set time blocks in their calendar for specific tasks or activities.
+
+  // customLabels: Allow users to create and edit custom labels to help organize tasks or projects.
+  // emailIntegration: Allow users to integrate their email accounts into
+
+  //#todo update settings based on who can update what.
+  // user specific items that only the user should be updating vs userProfile items that can be updated by an admin
+  // Settings specific to a user that they only can/should be able to update:
+
+  // language
+  // timeFormat
+  // dateFormat
+  // timeZone
+  // emailNotifications
+  // pushNotifications
+  // desktopNotifications
+  // audioNotifications
+  // messageNotifications
+  // videoNotifications
+  // autoPlayVideos
+  // theme
+  // font
+  // fontSize
+  // showCompletedTasks
+  // userPreferences
+  // darkMode
+  // reminders
+  // defaultView
+  // twoFactorAuth
+  // passwordReset
+  // exportData
+  // importData
+  // activityLog
+  // socialMediaSharing
+  // connectedAccounts
+  // quickAddButton
+  // contactList
+  // keyboardShortcuts
+  // timeTrackings
+  // languageSettings
+  // invoiceSettings
+  // feedback
+  // taskSortOrder
+  // taskSortDirection
+  // goalTrackMode
+  // dailyGoal
+  // weeklyGoal
+  // monthlyGoal
+  // yearlyGoal
+  // autoRefresh
+  // autoRefreshInterval
+  // fileAttachments
+  // quickAdd
+  // soundEffects
+  // dataVisualization
+  // emailSignature
+  // Settings that can be considered apart of the UserProfile that can be edited by both a manager/supervisor and the user:
+
+  // contactInformation
+  // habitTracking
+  // customFields
+  // imageUploads
+  // videoUploads
+  // documentUploads
+  // taskTemplates
+  // projectTemplates
+  // customStatuses
+  // communityForum
+  // timeBlocking
+  // customLabels
+  // emailIntegration
+  // socialMediaLinks
+  // Note: The above lists may not be exhaustive and may vary depending on the specific requirements of your project.
+
+  @@unique([userId])
+}
+
+model NotificationPreferences {
+  id     String @id @default(uuid())
+  userId String
+
+  userSettings   UserSettings? @relation("notificationPreferences", fields: [userId], references: [id])
+  userSettingsId String?
+  email          Boolean
+  push           Boolean
+  desktop        Boolean
+  audio          Boolean
+  message        Boolean
+  video          Boolean
+  autoPlay       Boolean
+  // Add other notification preferences here
+
+  @@unique([userId])
+}
+
+model Document {
+  id               Int      @id @default(autoincrement())
+  title            String
+  content          String
+  htmlContent      String
+  authorId         String
+  authorName       String
+  creationDate     DateTime
+  lastModifiedDate DateTime
+
+  pdfDocumentId String        @unique
+  pdfDocument   PDFDocument[] @relation("user-docs") // PDF file path
+
+  markdownDocumentId String             @unique
+  markdownDocument   MarkdownDocument[] @relation("markdown-documents") // PDF file path
+}
+
+model PDFDocument {
+  id Int @id @default(autoincrement())
+
+  document   Document? @relation("user-docs", fields: [documentId], references: [id])
+  documentId Int
+}
+
+model MarkdownDocument {
+  id               Int      @id @default(autoincrement())
+  visibility       String // 'public', 'private', 'shared'
+  permissions      String // Define permissions as needed
+  categories       String[]
+  tags             String[]
+  versionNumber    Int
+  attachedFiles    String[]
+  comments         String[]
+  relatedDocuments String[]
+  accessLogs       String[]
+  customFields     Json // Use JSON type for custom fields
+  reviewStatus     String
+  language         String
+  expiryDate       DateTime
+
+  document   Document? @relation("markdown-documents", fields: [documentId], references: [id])
+  documentId Int       @unique
+}
+
+// //review implement more tools for markdown
+// The additional content properties for a document can vary based on the type of document and the specific requirements of your application. However, here are some common properties that you might consider for a document object, such as a Markdown document:
+
+// 1. **Author/User Information:**
+//    - **Author ID:** If your application supports multiple users, associating a document with its author can be valuable.
+//    - **Author Name:** The name of the user who created the document.
+
+// 2. **Metadata:**
+//    - **Creation Date:** The timestamp when the document was created.
+//    - **Last Modified Date:** The timestamp when the document was last modified.
+
+// 3. **Visibility and Permissions:**
+//    - **Visibility Level:** Public, private, or shared with specific users/groups.
+//    - **Permissions:** Define who can view, edit, or delete the document.
+
+// 4. **Categories and Tags:**
+//    - **Categories:** Categorize documents to make it easier for users to organize and find them.
+//    - **Tags:** Add tags to documents for more granular organization and search.
+
+// 5. **Versioning:**
+//    - **Version Number:** If your application supports versioning, keeping track of different versions of the document.
+
+// 6. **Attachments:**
+//    - **Attached Files:** If documents can have associated files or attachments.
+
+// 7. **Comments and Discussion:**
+//    - **Comments:** Allow users to leave comments on the document.
+
+// 8. **Related Documents:**
+//    - **Related Documents:** Links or references to other documents that are related to the current one.
+
+// 9. **Access Logs:**
+//    - **Access Logs:** Keep a record of who accessed the document and when.
+
+// 10. **Custom Fields:**
+//     - **Custom Fields:** Allow users to define additional custom fields based on their specific needs.
+
+// 11. **Review Status:**
+//     - **Review Status:** If documents go through a review process, track their review status.
+
+// 12. **Localization:**
+//     - **Language:** Specify the language in which the document is written.
+
+// 13. **Expiry Date:**
+//     - **Expiry Date:** If documents have a limited validity, specify an expiry date.
+
+// These are just examples, and the specific properties you need will depend on the nature of your application and the requirements of your users. Consider the use cases and workflows in your application to determine which properties are most relevant and beneficial for your users.
+
+//todo st up payment system- make sure to ask what other propeties are needed basd on the type of app being set up
+model Payment {
+  id     String        @id @default(uuid())
+  amount Float
+  method PaymentMethod
+  userId String
+  user   User?         @relation("user_payments", fields: [userId], references: [id])
+  // Other payment details and relationships
+}
+
+// todo add additional properties to order
+model Order {
+  id     String      @id @default(uuid())
+  // ... other fields
+  status OrderStatus
+  // ... other fields
+}
+
+//ENUMS
+
+//User Enums
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+  EDITOR
+  MANAGER
+  SUPER_ADMIN
+}
+
+//UserSettings Enums
+enum Language {
+  EN
+  ES
+  FR
+  DE
+  IT
+  JA
+  KO
+  PT
+  ZH
+}
+
+enum TimeFormat {
+  TWELVE
+  TWENTY_FOUR
+}
+
+enum DateFormat {
+  YYYY_MM_DD
+  MM_DD_YYYY
+  DD_MM_YYYY
+  YYYY_MM_DD_HH_MM_SS
+  MM_DD_YYYY_HH_MM_SS
+  DD_MM_YYYY_HH_MM_SS
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+enum Font {
+  ROBOTO
+  ARIAL
+  TIMES_NEW_ROMAN
+  VERDANA
+}
+
+enum View {
+  LIST
+  BOARD
+  CALENDAR
+}
+
+enum SortOrder {
+  PRIORITY
+  DUE_DATE
+  CREATED_DATE
+  TITLE
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum TrackMode {
+  COUNTDOWN
+  COUNTUP
+}
+
+//todo set up enums
+// // Product Enums
+// enum ProductType {
+// PHYSICAL
+// DIGITAL
+// }
+
+// enum ProductCategory {
+// ELECTRONICS
+// CLOTHING
+// BEAUTY
+// HOME_APPLIANCES
+// SPORTS_AND_OUTDOORS
+// }
+
+// enum ProductStatus {
+// IN_STOCK
+// OUT_OF_STOCK
+// DISCONTINUED
+// }
+
+// Order Enums
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// Blog Enums
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PostType {
+  NEWS
+  REVIEWS
+  HOW_TO_GUIDES
+  OPINIONS
+}
+
+// Chat Enums
+enum ChatStatus {
+  ONLINE
+  OFFLINE
+  BUSY
+  AWAY
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+// Headless
+// This TypeScript code appears to be a Nest.js application's main entry point (main.ts). It sets up and initializes various components required for the application to run. Here's an overview of the key elements in this code:
+
+// Import Statements: You're importing various modules, types, and services required for your Nest.js application. These include custom request types, middleware, services, and the main AppModule.
+
+// Bootstrap Function: The bootstrap function serves as the entry point for your application. It's marked as async, indicating it contains asynchronous operations.
+
+// Context Initialization: You start by defining a request object (req) and then initialize a context object using the initContext function. This context is used to handle requests and set up your application's environment.
+
+// Nest.js Setup: You create the Nest.js application using NestFactory.create(AppModule), configure it, and get the ConfigService instance.
+
+// Environment Checks: There's a commented-out section with a HEADLESS mode check. It appears to handle different behaviors based on whether your application is running in headless mode. It includes background tasks for tracking milestones in teams.
+
+// Global Prefix: You set a global API prefix to the application.
+
+// Middleware: You configure and use the LoggingMiddleware as global middleware for the application.
+
+// Server Start: The application listens on a specified port, and log messages are generated to indicate that the application is running and in which environment mode.
+
+// Please note that there are some commented-out code sections, such as the HEADLESS mode check and GraphQL file upload, which you may need to uncomment and complete according to your application's requirements.
+
+// This code represents the typical structure of a Nest.js application entry point. If you have specific questions or need further assistance with a particular aspect of this code, please feel free to ask.

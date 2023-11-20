@@ -1,0 +1,25 @@
+{
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+
+      // "python.analysis.stubPath": ["${workspaceFolder}/stubs", "${workspaceFolder}/.stubs"],
+  "python.analysis.typeshedPaths": ["${workspaceFolder}/typeshed", "${workspaceFolder}/.typeshed"],
+  "python.autoComplete.extraPaths": ["${workspaceFolder}/src"],
+  "python.experiments.optInto": ["pythonREPLSmartSend"],  
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  
+
+  "[python]": { "editor.defaultFormatter": "charliermarsh.ruff" },
+
+
+  "python.testing.pytestArgs": ["-sv"],
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestArgs": ["-v"],
+  "python.testing.unittestEnabled": true,
+ 
+  "python.languageServer": "Pylance",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
+  "python.analysis.completeFunctionParens": true,
+
+}

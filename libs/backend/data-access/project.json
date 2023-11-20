@@ -20,5 +20,7 @@
       }
     }
   },
+  "the-statistics": {}
+  ,
   "tags": ["type:data-access", "type:util", "scope:shared"]
 }

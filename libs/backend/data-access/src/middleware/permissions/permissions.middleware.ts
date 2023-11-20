@@ -34,8 +34,8 @@ export class PermissionsMiddleware implements NestMiddleware {
     @Context() context: Request,
     next: NextFunction,
   ) {
-    const accessTier = context.user?.accessTier
-    const ability = await createForPrisma(prisma, context, accessTier)
+    const accessLevel = context.user?.accessLevel
+    const ability = await createForPrisma(prisma, context, accessLevel)
 
     const fieldPath = info.path
     const fieldTypeName = info.parentType.name

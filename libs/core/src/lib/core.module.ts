@@ -1,4 +1,7 @@
-import { ContextService, createContext } from '@appository/backend/data-access'
+import {
+  ContextService,
+  createContext
+} from '@appository/backend/context-system'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'

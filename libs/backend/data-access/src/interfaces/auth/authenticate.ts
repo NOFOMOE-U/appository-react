@@ -26,7 +26,7 @@ export function convertUserToUserWithAccessToken(user: User): UserWithAccessToke
     accessToken: generateToken(user),
     userProfileId: user.id as unknown as number,
     passwordHash: undefined,
-    accessTier: user.accessTier ,
+    accessLevel: user.accessLevel ,
     username: user.username, // Add username property
   }
 }
@@ -40,9 +40,11 @@ export const initalizeUser = (): User => ({
   createdAt: new Date(),
   updatedAt: new Date(),
   userProfileId: 98098087,
-  accessTier: 'FREE',
+  accessLevel: 'FREE',
   passwordHash: generateRandomHash(), // Replace with an actual hashed password
   resetPasswordToken: `undefined`, // Replace with an actual reset token or use undefined
+  confirmPassword: `undefined`, // Replace with an actual reset token or use undefined
+  confirmPasswordMatch: `undefined`, // Replace with an actual reset token or use undefined
 })
 
 const user: User = initalizeUser()
@@ -51,7 +53,7 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
   let context: MyContext = {
     prisma,
     user: convertUserToUserWithAccessToken(user),
-    accessTier: {} as AccessTier,
+    accessLevel: {} as AccessLevel,
     userService: {} as UserService,
     body: {} as BodyInit | null,
     requestBody: {} as BodyContent | null | undefined,
@@ -227,7 +229,7 @@ export const createUser = async (
   const allowedRoles = Object.values(UserRole)
   const validRoles = roles.filter((role) => allowedRoles.includes(role))
 
-  const { name, email, username,passwordHash, accessTier, id } = userWithPasswordHash
+  const {id, name, email, username,passwordHash, accessLevel, confirmPassword, confirmPasswordMatch } = userWithPasswordHash
 
   const user = await prisma.user.create({
     data: {
@@ -235,8 +237,10 @@ export const createUser = async (
       name,
       email,
       username,
-      accessTier,
+      accessLevel,
       passwordHash,
+      confirmPassword,
+      confirmPasswordMatch,
       roles: {
         set: validRoles,
       },

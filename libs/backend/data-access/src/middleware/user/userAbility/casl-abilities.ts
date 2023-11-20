@@ -45,7 +45,7 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
   }
 
 
-  export const createForPrisma = async (prisma: PrismaClient, req: Request, accessTier: string): Promise<AppAbility> => {
+  export const createForPrisma = async (prisma: PrismaClient, req: Request, accessLevel: string): Promise<AppAbility> => {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(createPrismaAbility)
     can('read', 'Post')
 
@@ -58,9 +58,9 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
       can(['update', 'delete'], 'Post', { authorId: user }),
     ]
 
-    const additionalRules = accessTier
+    const additionalRules = accessLevel
       ? // Rules for specific packages
-        accessTier === 'free'
+        accessLevel === 'free'
         ? [
             {
               subject: 'FreeResource',
@@ -68,7 +68,7 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
               condition: { id: user },
             },
           ]
-        : accessTier === 'standard'
+        : accessLevel === 'standard'
         ? [
             {
               subject: 'StandardResource',
@@ -76,7 +76,7 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
               condition: { id: user },
             },
           ]
-        : accessTier === 'premium'
+        : accessLevel === 'premium'
         ? [
             {
               subject: 'PremiumResource',
@@ -86,7 +86,7 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
           ]
         : []
       : []
-    // const additionalRules = accessTier ? [
+    // const additionalRules = accessLevel ? [
     //       {
     //         subject: 'SpecialResource',
     //         actions: ['read', 'create', 'update', 'delete'],

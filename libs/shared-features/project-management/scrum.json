@@ -1,0 +1,36 @@
+{
+    "Framework": {
+      "Description": "Scrum is a specific Agile framework designed to facilitate the development and delivery of high-quality products.",
+      "Features": [
+        "It provides a set of roles, events, and artifacts to structure and guide the work of a development team."
+      ]
+    },
+    "Roles": {
+      "Description": "Scrum defines specific roles, including Product Owner, Scrum Master, and Development Team.",
+      "RolesDetails": {
+        "ProductOwner": "The Product Owner represents the stakeholders.",
+        "ScrumMaster": "The Scrum Master facilitates the process.",
+        "DevelopmentTeam": "The Development Team consists of professionals doing the work."
+      }
+    },
+    "Events": {
+      "Description": "Scrum introduces events such as Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective to organize and coordinate the work.",
+      "SprintsDetails": {
+        "SprintsDuration": "Sprints are time-boxed iterations (usually 2-4 weeks).",
+        "ProductIncrement": "A potentially shippable product increment is delivered at the end of each sprint."
+      }
+    },
+    "Artifacts": {
+      "Description": "Scrum defines artifacts like the Product Backlog, Sprint Backlog, and Increment to manage and visualize the work.",
+      "ArtifactsDetails": {
+        "ProductBacklog": "The Product Backlog is a prioritized list of features.",
+        "SprintBacklog": "The Sprint Backlog is a subset selected for the sprint.",
+        "Increment": "The Increment is the product functionality delivered at the end of each sprint."
+      }
+    }
+  }
+  
+
+
+
+

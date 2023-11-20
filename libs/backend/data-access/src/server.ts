@@ -1,9 +1,9 @@
   //Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/server.ts
   import { ApolloServer, ApolloServerOptionsWithSchema, BaseContext } from '@apollo/server'
-import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import {
   CustomRequestWithContext,
+  CustomURLSearchParams,
   LoggingMiddleware,
   MyContext,
   MyCustomRequest,
@@ -18,19 +18,21 @@ import {
 } from '@appository/backend/data-access'
 import { PrismaClient } from '@prisma/client'
 import { NextFunction, Request, Response } from 'express'
+import { ParamsDictionary } from 'express-serve-static-core'
 import session from 'express-session'
 import { applyMiddleware } from 'graphql-middleware'
-import { url } from 'inspector'
 import { makeSchema } from 'nexus'
+import { ParsedQs } from 'qs'
 import { Namespace, Server } from 'socket.io'; // Import the necessary types
-import { AccessTier } from './make-api/api-config/access-tier'
+import { AccessLevel } from './make-api/api-config/access-tier'
 import { processRequest } from './make-api/default-options'
 import { ApiRequestFunction, makeApiRequest } from './make-api/make-api-request'
 import { CustomRequestOptions } from './make-api/requests/custom-request-init'
 import errorMessages from './middleware/permissions/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
-import { isAccessTier } from './middleware/permissions/type-guards/access-tier-guard'
+import { isAccessLevel } from './middleware/permissions/type-guards/access-tier-guard'
 import userRegistrationSchema from './middleware/validation-yup-schemas/validate-registration'
+import { UserBehaviorController } from './modules/user/user-behavior-controller'
 import UserManagerService from './modules/user/user-manager'
  
 
@@ -51,12 +53,12 @@ import UserManagerService from './modules/user/user-manager'
     }),
   )
 
-  export const httpServer = http.createServer(app) // Create an HTTP server for your Express app
+  const httpServer = http.createServer(app) // Create an HTTP server for your Express app
 
   const io = new Server(httpServer) // Create a Socket.IO server instance
 
-  //export socket connected in default options
-  export { io as socket }
+  //export socket and httpServer connected in default options
+  export { httpServer, io as socket }
 
   // Define a Namespace instance (provide appropriate values)
   const nsp: Namespace = io.of('/yourNamespaceName')
@@ -145,17 +147,17 @@ import UserManagerService from './modules/user/user-manager'
 
 
 let prismaService = new PrismaClient()
-const userService: UserManagerService = new UserManagerService(prismaService)
-const userManagerService = new UserManagerService(userService)
-
-
+const userManagerService: UserManagerService = new UserManagerService(prismaService)
+const url =  new UserBehaviorController // url of the API
+const userCustomSearchParams= {} as CustomURLSearchParams // Custom params
 
 app.use(
   LoggingMiddleware.createMiddleware(
     new LoggingMiddleware(
       url,
       userManagerService,
-      userBehaviorController
+      userCustomSearchParams,
+
       // Add missing third argument here
     ),
   ),
@@ -167,16 +169,18 @@ app.use(
   // Move the `path` property here
   const graphqlPath = '/graphql'
 
-  app.use(
-    graphqlPath,
-    require('express').urlencoded({ extended: true }),
-    require('express').json(),
-    require('express').text(),
-    expressMiddleware(apolloServer),
-  )
 
+//review moved to app.use()
+//   app.use(
+//     graphqlPath,
+//     require('express').urlencoded({ extended: true }),
+//     require('express').json(),
+//     require('express').text(),
+//     expressMiddleware(apolloServer),
+//   )
 
-
+// app.use('/register')
+app.post('/register')
 app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {
   const { body } = req;
   
@@ -186,7 +190,7 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
       // Data is valid, proceed with user registration
       const user = {
         ...validData,
-        accessTier: 'FREE'
+        accessLevel: 'FREE'
       }
       // userController.register(validData);
       res.status(201).json({ message: 'User registered successfully' });
@@ -200,12 +204,12 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
 // Express route handling the payment confirmation
 app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithContext<MyContext>>, res: Response, next: NextFunction) => {
   try {
-    const userId = await userService.getUserIdFromPayment(req); // Get user ID from payment request
+    const userId = await userManagerService.getUserIdFromPayment(req); // Get user ID from payment request
       // req.user?.id // Retrieve theb user ID from the payment request
-    // const newAccessTier = accessTier.PREMIUM; // Or the access tier from the payment
+    // const newAccessLevel = accessLevel.PREMIUM; // Or the access tier from the payment
 
-    // Assuming 'userService' is an instance of your UserService
-    const updatedUser = await userService.updateUserAccessTier(userId, data);
+    // Assuming 'userManagerService' is an instance of your userManagerService
+    const updatedUser = await userManagerService.updateUserAccessLevel(userId, data);
 
     if (updatedUser) {
       res.status(200).json({ message: 'Access tier updated successfully' });
@@ -228,7 +232,7 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
         name: user.name,
         email: user.email,
         username: user.username,
-        accessTier: user.accessTier,
+        accessLevel: user.accessLevel,
         passwordHash: user.passwordHash || undefined,
         roles: user.roles,
         createdAt: user.createdAt, 
@@ -275,6 +279,20 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
     }
   }
 
+
+
+// // Register your routes
+// app.post('/register', userRegistrationRoute);
+// app.post('/confirm-payment', paymentConfirmationRoute);
+// app.post('/login', loginRoute);
+// app.post('/logout', logoutRoute);
+// app.get('/protected', protectedRoute);
+// app.get('/profile', profileRoute);
+// app.get('/make-api-request', apiRequestRoute);
+// app.get('/example', exampleRoute);
+
+
+
   export function authenticationMiddlware(req: YourRequestObject<{}>, res: Response, next: NextFunction) {
     ensureAuthenticated(req, res, next)
   }
@@ -303,24 +321,24 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
   // Other route handlers
   // ...
 
-  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction, accessTier: AccessTier | string) => {
+  app.get('/your-route', async (req: YourRequestObject<{}>, res: Response, next: NextFunction, accessLevel: AccessLevel | string) => {
 
-    if (isAccessTier(accessTier)) {
+    if (isAccessLevel(accessLevel)) {
     
-      accessTierToUse = accessTier
-      processRequest(req, res, next, accessTierToUse)
+      accessLevelToUse = accessLevel
+      processRequest(req, res, next, accessLevelToUse)
     } else{
     
 
-      const accessTierString: string = accessTier
-      accessTierToUse = accessTierStriing
+      const accessLevelString: string = accessLevel
+      accessLevelToUse = accessLevelStriing
     const myCustomRequestOptions: CustomRequestOptions = {
       method: req.method,
       url: req.url,
       headers: req.headers,
       body: req.body,
-      userService: userService,
-      accessTier: accessTierString,
+      userManagerService: userManagerService,
+      accessLevel: accessLevelString,
       user: req.user
       }
       // Create an instance of MyCustomRequest and provide the required properties
@@ -332,13 +350,13 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
           'Content-Type': 'application/json'
         },
         body: {} as BodyInit | null | undefined, 
-        userService: userService,
-        accessTier: accessTierString,
+        userManagerService: userManagerService,
+        accessLevel: accessLevelString,
         user: req.user,
         accepts: req.accepts,
         // other missing properties
       },
-      userService, // pass userService instance
+      userManagerService, // pass userManagerService instance
       context,
       )
       
@@ -355,10 +373,18 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
 
 
 
-  app.get('/make-api-request', async (req: string, res: Response, next: NextFunction, apiRequestFunction: ApiRequestFunction) => {
+app.get('/make-api-request', async (
+  req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response,
+  method: 'GET',
+  next: NextFunction,
+  apiRequestFunction: ApiRequestFunction
+) => {
       try {
-        await makeApiRequest(req,
-          userService.getApiUrl as ApiRequestFunction,
+        await makeApiRequest(
+          req,
+          'GET',
+          userManagerService.getApiUrl as ApiRequestFunction,
           apiRequestFunction);
 
         res.status(200).json({ message: 'API request processed successfully' })

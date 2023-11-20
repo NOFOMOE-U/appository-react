@@ -1,3 +1,4 @@
+import { AquaModule } from '@appository/backend/communication';
 import {
   PERMISSIONS_MODULE_OPTIONS,
   PermissionsModule,
@@ -31,6 +32,8 @@ class PermissionsModuleConfig implements PermissionsModuleOptionsFactory {
     PermissionsModule.forRootAsync({
       useClass: PermissionsModuleConfig,
     }),
+    //todo aqua
+    AquaModule
   ],
   providers: [
     PrismaService,

@@ -93,7 +93,7 @@ export class TaskService {
   // async getUserByTaskId(id: string): Promise<Task | null> {
   //   const userTask = await this.prisma.user.findUnique({where: {id}})
   //   return userTask ? {...userTask,
-  // accessTier: user.accessTier
+  // accessLevel: user.accessLevel
   // } : null
   // }
 

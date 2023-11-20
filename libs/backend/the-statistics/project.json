@@ -20,5 +20,5 @@
       }
     }
   },
-  "tags": ["scope:statistics"]
+  "tags": ["type:util", "scope:statistics"]
 }

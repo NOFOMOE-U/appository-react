@@ -6,7 +6,7 @@
   - You are about to drop the column `role` on the `User` table. All the data in the column will be lost.
   - A unique constraint covering the columns `[username]` on the table `User` will be added. If there are existing duplicate values, this will fail.
   - Made the column `authorId` on table `Post` required. This step will fail if there are existing NULL values in that column.
-  - Added the required column `accessTier` to the `User` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `accessLevel` to the `User` table without a default value. This is not possible if the table is not empty.
   - Added the required column `passwordHash` to the `User` table without a default value. This is not possible if the table is not empty.
   - Added the required column `username` to the `User` table without a default value. This is not possible if the table is not empty.
   - Made the column `name` on table `User` required. This step will fail if there are existing NULL values in that column.
@@ -94,7 +94,7 @@ DROP SEQUENCE "Post_id_seq";
 -- AlterTable
 ALTER TABLE "User" DROP CONSTRAINT "User_pkey",
 DROP COLUMN "role",
-ADD COLUMN     "accessTier" TEXT NOT NULL,
+ADD COLUMN     "accessLevel" TEXT NOT NULL,
 ADD COLUMN     "passwordHash" VARCHAR(255) NOT NULL,
 ADD COLUMN     "resetPasswordToken" TEXT DEFAULT '',
 ADD COLUMN     "roles" "UserRole"[] DEFAULT ARRAY['USER']::"UserRole"[],

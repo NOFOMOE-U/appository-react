@@ -1,4 +1,4 @@
-    import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { createLogger, format, transports } from 'winston';
 import { CustomURLSearchParams } from '../../context/my-context';
@@ -6,39 +6,54 @@ import { CustomRequest } from '../../interfaces/user/custom-request';
 import { UserBehaviorController } from '../../modules/user/user-behavior-controller';
 import UserManagerService from '../../modules/user/user-manager';
 import userBehaviorData from './logging-behavior';
-
-UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Response, next: NextFunction) => {
-  const user = req.user
-  const action = req.url
-  const url = require('url').URLSearchParams
-  if (this.userBehaviorController) {
-    this.userBehaviorController.trackUserBehavior(user, action)
-  }
-
-  next()
-}
+import { prepareBehaviorData } from '../behavior/prepare-behavior-data';
 
 
 
 
-    const { combine, timestamp, printf, json, splat, errors, simple, colorize } = format
+const { combine, timestamp, printf, json, splat, errors, simple, colorize } = format
   @Injectable()
   export class LoggingMiddleware implements NestMiddleware {
+    private userBehaviorController: UserBehaviorController
+
+    constructor(
+      userBehaviorController: UserBehaviorController,
+      private readonly userManagerService: UserManagerService,
+      private readonly url: CustomURLSearchParams
+    ) {
+      this.userBehaviorController = userBehaviorController;
+      this.userManagerService = userManagerService;
+    }
+
+  
     private logger = createLogger({
+      level: 'info',
+      format: combine(
+        errors({ stack: true }),
+        splat(),
+        json()
+      ),
+      defaultMeta: { service: 'my-service' },
+      transports: [
+        new transports.File({ filename: 'error.log', level: 'error' }),
+        new transports.File({ filename: 'warn.log', level: 'warn' }),
+        new transports.File({ filename: 'warn.info', level: 'info' }),
+        new transports.File({ filename: 'combined.log' }) ,
+        //creates an instance of the winston Console for stdout/stderr
+        // greate for real-time debugging
+        new transports.Console({
+          format: combine(
+            colorize(),
+            simple(),
+            timestamp(),
+            printf(({ level, message, timestamp }) => {
+              return `${timestamp} [${level.toUpperCase()}]: ${message}`
+            }),
+          ),
+        })
+      ],
+    });
 
-    })
-
-    private userBehaviorController: UserBehaviorController; 
-      constructor(
-        userBehaviorController: UserBehaviorController,
-        private readonly userManagerService: UserManagerService,
-        private readonly url: CustomURLSearchParams
-      ) {
-        this.userBehaviorController = userBehaviorController;
-        this.userManagerService = userManagerService;
-      }
-
-    
     static creaateMiddelware(
       loggingMiddleware: LoggingMiddleware,
       userManagerService: UserManagerService,
@@ -67,41 +82,12 @@ UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Respo
     }
 
 
-
-
-
-      private logger = createLogger({
-        level: 'info',
-        format: combine(
-          errors({ stack: true }),
-          splat(),
-          json()
-        ),
-        defaultMeta: { service: 'my-service' },
-        transports: [
-          new transports.File({ filename: 'error.log', level: 'error' }),
-          new transports.File({ filename: 'warn.log', level: 'warn' }),
-          new transports.File({ filename: 'warn.info', level: 'info' }),
-          //creates an instance of the winston Console for stdout/stderr
-          // greate for real-time debugging
-          new transports.Console({
-            format: combine(
-              colorize(),
-              simple(),
-              timestamp(),
-              printf(({ level, message, timestamp }) => {
-                return `${timestamp} [${level.toUpperCase()}]: ${message}`
-              }),
-            ),
-          })
-        ],
-      });
-
       private stats: Record<string, { success: number; failure: number }> = {}
 
       static createMiddleware(loggingMiddleware: LoggingMiddleware) {
         return async (req: CustomRequest, res: Response, next: NextFunction) => {
           const { method, originalUrl, query, body } = req;
+          const userBehaviorData = prepareBehaviorData(req, res)
           req.startTime = Date.now()
 
           res.on('finish', () => {
@@ -142,7 +128,7 @@ UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Respo
         this.stats[endpoint][type]++
       }
 
-      use(req: Request, res: Response, next: NextFunction) {
+      use(req: CustomRequest<unknown>, res: Response, next: NextFunction) {
         const { method, originalUrl } = req
         const start = new Date().getTime()
 
@@ -172,7 +158,7 @@ UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Respo
     }
     
 
-     getEndpointStat(logData: ) { 
+     getEndpointStat(logData: endpoints.LogData) { 
       const { url, method } = logData;
       const endpoint = `${method} ${url}`;
 
@@ -182,3 +168,16 @@ UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Respo
     }
 
 
+    UserManagerService.prototype.trackUserBehavior = (req: CustomRequest, res: Response, next: NextFunction) => {
+      const user = req.user
+      const action = req.url
+      const userBehaviorController= new UserBehaviorController()
+      const url = require('url').URLSearchParams
+      if (userBehaviorController) {
+        userBehaviorController.trackUserBehavior(user, action)
+      }
+    
+      next()
+    }
+    
+    

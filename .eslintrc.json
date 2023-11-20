@@ -57,6 +57,14 @@
               {
                 "sourceTag": "scope:shared-features",
                 "onlyDependOnLibsWithTags": ["type: data-access", "type:feature", "type:ui", "type:util"]
+              },
+              {
+                "sourceTag": "scope:statistics",
+                "onlyDependOnLibsWithTags": ["type: data-access", "type:util"]
+              },
+              {
+                "sourceTag": "scope:communication",
+                "onlyDependOnLibsWithTags": ["type:util", "scope:shared", "type:data-access"]
               }
               
               // ,

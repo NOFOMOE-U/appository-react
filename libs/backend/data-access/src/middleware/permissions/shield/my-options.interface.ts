@@ -80,7 +80,6 @@ export interface MyOptions extends IOptions {
   title: string
   visibilityState: string
   vlinkColor: string
-  
   baseURI: string
   childNodes: NodeListOf<ChildNode>
   firstChild: null
@@ -358,7 +357,7 @@ export interface MyOptions extends IOptions {
   getElementsByTagNS: (namespaceURI: string, localName: string) => HTMLCollectionOf<HTMLElement> 
   createDocument: () => Document
  
-  }
+}
 
 const currentUserRequestsPasswordHash = true // Replace with your logic to determine if passwordHash should be included
 let user: User
@@ -374,6 +373,6 @@ user = {
   updatedAt: new Date(),
   resetPasswordToken: null,
   passwordHash: `undefined`,
-  accessTier: 'access-tier',
+  accessLevel: 'access-tier',
   // add any additional fields as necessary
 }
