@@ -3,9 +3,8 @@ import {
   LoggingModule,
   PermissionsModule,
   PrismaModule,
-  // PrismaService,
-  UserModule
 } from '@appository/backend/data-access'
+import { UserModule } from '@appository/backend/users'
 // import { CoreModule } from '@appository/core'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'

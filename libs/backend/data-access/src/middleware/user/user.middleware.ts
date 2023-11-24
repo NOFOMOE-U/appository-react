@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { NextFunction, Response } from 'express';
+import { CustomRequest } from '../../../../request-options/src/custom-request/custom-request';
 import { createContext } from '../../context/create-context';
 import { CustomContextType } from '../../context/custom-context-type';
 import { MyContext } from '../../context/my-context';
 import { convertUserToUserWithAccessToken } from '../../interfaces/auth/authenticate';
-import { CustomRequest } from '../../interfaces/user/custom-request';
 import { UserWithAccessToken } from '../../modules/user/user';
 // Instantiate a new Prisma client
 const prisma = new PrismaClient();

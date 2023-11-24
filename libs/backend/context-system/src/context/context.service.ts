@@ -1,10 +1,12 @@
-import { CustomRequest, UserWithAccessToken, UserWithoutSensitiveData, YourRequestObject } from '@appository/backend/data-access'
 import { Injectable } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import type { Request } from 'express-serve-static-core'
-import { CustomRequestInit } from 'libs/backend/data-access/src/make-api/requests/custom-request-init'
-import { getUserById } from 'libs/backend/data-access/src/modules/user/user-queries/get-user-by-id'
 import { CustomURLSearchParams, MyContext } from './my-context'
+
+
+import { CustomRequest, CustomRequestInit, YourRequestObject } from '@appository/backend/request-options'
+import { UserWithAccessToken, UserWithoutSensitiveData, getUserById } from '@appository/backend/users'
+
 @Injectable()
 export class ContextService {
   constructor(private readonly context: MyContext, private readonly req: CustomRequest<MyContext<{}>>) {}
@@ -100,7 +102,7 @@ export class ContextService {
     return undefined
   }
 
-  async getUserById(userId: string, prisma: PrismaClient): Promise<UserWithoutSensitiveData | null> {
+  async getUserById(userId: string): Promise<UserWithoutSensitiveData | null> {
     //user the imported getUserById function
     const user = this.req.currentUser ? await getUserById(userId) : null
     return user

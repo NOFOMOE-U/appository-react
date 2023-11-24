@@ -1,5 +1,5 @@
 import { BodyContent } from 'libs/backend/data-access/src/make-api/requests/custom-request-init';
-import { CustomRequest } from "../../interfaces/user/custom-request";
+import { CustomRequest } from "../../../../request-options/src/custom-request/custom-request";
 
 
 interface UserBehaviorData {

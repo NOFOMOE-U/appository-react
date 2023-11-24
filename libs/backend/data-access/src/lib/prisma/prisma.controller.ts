@@ -1,7 +1,7 @@
+import { CustomRequest } from '@appository/backend/request-options';
 import { Controller, Get, Inject, Req } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaContext } from '../../interfaces/prisma/prisma.interface';
-import { CustomRequest } from '../../interfaces/user/custom-request';
 import { PrismaService } from './prisma.service';
 @Controller('prisma')
 export class PrismaController {

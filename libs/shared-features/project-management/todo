@@ -1,0 +1,34 @@
+<!-- src/
+|-- product-management/
+|   |-- products/
+|   |   |-- products.service.ts
+|   |   |-- products.controller.ts
+|   |   |-- products.module.ts
+|   |   |-- products.dto.ts
+|
+|-- planning/
+|   |-- roadmap/
+|   |   |-- roadmap.service.ts
+|   |   |-- roadmap.controller.ts
+|   |   |-- roadmap.module.ts
+|   |   |-- roadmap.dto.ts
+|
+|-- agile/
+|   |-- sprints/
+|   |   |-- sprints.service.ts
+|   |   |-- sprints.controller.ts
+|   |   |-- sprints.module.ts
+|   |   |-- sprints.ts
+|-- task-management/
+|   |-- tasks.service.ts
+|   |-- tasks.controller.ts
+|   |-- tasks.module.ts
+|   |-- tasks.dto.ts
+|
+|-- team-management/
+|   |-- teams.service.ts
+|   |-- teams.controller.ts
+|   |-- **teams**.module.ts
+|   |-- teams.dto.ts
+|
+|-- ... -->

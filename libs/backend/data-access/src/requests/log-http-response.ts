@@ -1,11 +1,8 @@
-import { CustomURLSearchParams, MyContext } from '../context/my-context'
-import { UserWithAccessToken } from '../modules/user/user'
-import { UserService } from '../modules/user/user.service'
-import { SessionData } from '../types/express'
-import { AccessLevel } from './api-config/access-tier'
-import { MyCustomRequest } from './my-custom-request'
-import { BodyContent, CustomRequestInit } from './requests/custom-request-init'
-import { YourRequestObject } from './requests/custom-request-with-context'
+import { CustomURLSearchParams, MyContext } from '@appository/backend/context-system'
+import { BodyContent, CustomRequestInit, MyCustomRequest, YourRequestObject } from '@appository/backend/request-options'
+import { UserService, UserWithAccessToken } from '@appository/backend/users'
+import { SessionData } from '../../../users/src/types/express'
+import { AccessLevel } from '../interfaces/auth/access-level'
 
 export interface ParsedUrl {
   protocol: string

@@ -1,13 +1,13 @@
-import { User } from '@prisma/client';
 import { CustomPrismaClient } from '../../lib/prisma/prisma';
 import { PrismaService } from '../../lib/prisma/prisma.service';
+import { User } from '@appository/backend/data-access';
+
 
 let prisma: CustomPrismaClient;
 export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
   password?: string
   passwordHash?: never
   resetPasswordToken?: null | string
-  groupId: number | null
   id: string
 }
 

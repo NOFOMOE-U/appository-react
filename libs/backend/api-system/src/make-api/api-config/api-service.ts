@@ -1,7 +1,8 @@
+import { MyContext } from '@appository/backend/context-system';
+import { UserService } from '@appository/backend/users';
 import { Injectable, Logger } from '@nestjs/common';
-import { MyContext } from '../../context/my-context';
-import { UserService } from '../../modules/user/user.service'; // Import your user service
-import { ApiRequestFunction, makeApiRequest } from '../make-api-request'; // Import your API request function
+import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface';
+import { APIRequestOptions, ApiRequestFunction, makeApiRequest } from '../make-api-request'; // Import your API request function
  // Import your API
 @Injectable()
 export class ApiService {
@@ -14,8 +15,10 @@ export class ApiService {
   async getUsers(
     endpoint: string,
     user: MyContext['user'],
-    req: BodyInit | string,
+    req: APIRequestOptions,
+    options: MyOptions,
     requestBody: MyContext['requestBody'],
+    apiRequestFunction: ApiRequestFunction
   ) {
     try {
       // Perform any necessary authentication or authorization checks here
@@ -23,7 +26,7 @@ export class ApiService {
 
       // Make an API request using your custom logic
       const endpointSelected = await this.userService.getApiUrl(endpoint)
-      const users = await makeApiRequest(endpointSelected, req, this.apiRequestFunction)
+      const users = await makeApiRequest(endpointSelected, req, options, apiRequestFunction)
 
       // Process the response data or perform additional operations
       // ...

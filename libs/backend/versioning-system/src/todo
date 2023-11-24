@@ -1,0 +1,39 @@
+src/
+|-- versioning/
+|   |-- api-versions/
+|   |   |-- api-versions.service.ts
+|   |   |-- api-versions.controller.ts
+|   |   |-- api-versions.module.ts
+|   |   |-- api-versions.dto.ts
+|   |-- create-version/
+|   |   |-- create-version.service.ts
+|   |   |-- create-version.controller.ts
+|   |   |-- create-version.module.ts
+|   |   |-- create-version.dto.ts
+|
+|   |-- init-version/
+|   |   |-- init-version.service.ts
+|   |   |-- init-version.controller.ts
+|   |   |-- init-version.module.ts
+|   |   |-- init-version.dto.ts
+|
+|   |-- snapshots/
+|   |   |-- snapshots.service.ts
+|   |   |-- snapshots.controller.ts
+|   |   |-- snapshots.module.ts
+|   |   |-- snapshots.dto.ts
+|
+|   |-- history-entries/
+|   |   |-- history-entries.service.ts
+|   |   |-- history-entries.controller.ts
+|   |   |-- history-entries.module.ts
+|   |   |-- history-entries.dto.ts
+|
+|-- ...
+
+
+# Now, the api-versions/ section is dedicated to 
+# handling API versions within the versioning system. You can adjust the structure based on the specific features and functionalities you plan to include in the API versioning module
+
+# adjust this to how the api-versions works since api does control the request, we can have it handling the versioninig system:
+# This structure focuses on versioning-specific components, such as creating versions, initializing versions, managing snapshots, and handling history entries. If there are additional versioning-related features or functionalities you plan to implement, you can create dedicated folders within the versioning/ 

@@ -1,5 +1,6 @@
+import { getUserById } from '@appository/backend/users'
+import { UserRole } from '@prisma/client'
 import { rule } from 'graphql-shield'
-import { getUserById } from '../../../modules/user/user-queries/get-user-by-id'
 import errorMessages from '../error-messages'
 
 export const isAuthenticatedUser = rule()(async (_, __, { request, prisma }) => {
@@ -13,6 +14,16 @@ export const isAuthenticatedUser = rule()(async (_, __, { request, prisma }) => 
 
   return true // Allow access if the user is authenticated
 })
+
+
+
+
+export const hasRole = (role: UserRole) => rule({ cache: 'strict' })(
+  async (parent, args, ctx, info) => {
+    // Check if the user has the required role
+    return ctx.user && ctx.user.roles.includes(role);
+  }
+);
 
 // todo set up
 // import { MyCustomRequest } from 'path-to-my-custom-request';

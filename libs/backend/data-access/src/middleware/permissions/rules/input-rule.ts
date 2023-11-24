@@ -4,7 +4,7 @@ import { rule } from 'graphql-shield';
 import { IRuleConstructorOptions, ShieldRule } from 'graphql-shield/typings/types';
 import * as yup from 'yup';
 import { Schema } from 'yup';
-import { UserRoleEnum } from '../../../modules/user/types';
+import { UserRoleEnum } from '../../../../../users/src/user/types';
 import errorMessages from '../error-messages';
 
 interface InputRuleFuncParams {

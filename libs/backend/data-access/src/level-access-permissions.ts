@@ -23,7 +23,7 @@ export function checkFreeAccess(): boolean {
   }
   
   
-  export function authenticateEnterpriseUser(): boolean {
+  export function verifyEnterpriseUser(): boolean {
     // Authenticate enterprise access
     const hasPremiumAccess = verifyPremiumAccess(); // Incorporate premium access
     // Add logic for enterprise access

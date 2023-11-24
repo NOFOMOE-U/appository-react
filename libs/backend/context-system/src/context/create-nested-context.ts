@@ -1,6 +1,6 @@
 import { CustomContextHeaders, CustomSessionType, UserWithoutSensitiveData, jest } from '@appository/backend/data-access'
 import { PrismaClient } from '@prisma/client'
-import { Request, Session, SessionData } from 'libs/backend/data-access/src/types/express'
+import { Request, Session, SessionData } from 'libs/backend/users/src/types/express'
 import { CustomContextType } from './custom-context-type'
 import { MyContext } from './my-context'
 export type HeadersWithIndexSignature = Record<string, string>

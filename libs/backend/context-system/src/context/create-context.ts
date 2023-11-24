@@ -1,14 +1,17 @@
-  import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User} from '@prisma/client';
+  
 import { IncomingMessage } from 'http';
-import { convertUserToUserWithAccessToken } from '../interfaces/auth/authenticate';
-import { CustomRequest } from '../interfaces/user/custom-request';
-import { PrismaService } from '../lib/prisma/prisma.service';
-import { CustomSessionType } from '../make-api/my-custom-request';
-import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init';
-import { YourRequestObject } from '../make-api/requests/custom-request-with-context';
-import { UserWithAccessToken, UserWithoutSensitiveData } from '../modules/user/user';
+import { convertUserToUserWithAccessToken } from 'libs/backend/data-access/src/interfaces/auth/authenticate';
+import {  RequestCache } from '@appository/backend/data-access';
+import {CustomRequest} from '@appository/backend/request-options'
+import { PrismaService } from '@appository/backend/data-access';
+import { CustomSessionType } from '@appository/backend/data-access';
+import { BodyContent, CustomRequestInit } from 'libs/backend/data-access/src/make-api/requests/custom-request-init';
+import { YourRequestObject } from '@appository/backend/data-access';
+import { UserWithAccessToken, UserWithoutSensitiveData} from '@appository/backend/data-access';
 import createCustomContext, { CustomContextProps, CustomContextType } from './custom-context-type';
 import { CustomURLSearchParams, MyContext } from './my-context';
+import { valid } from 'joi';
  
 let prismaService: PrismaService 
 
@@ -69,38 +72,40 @@ let prismaService: PrismaService
       userId: sessionData.user?.id as string,
       user: currentUserWithAccessToken as unknown as UserWithAccessToken,
       entries: function (): IterableIterator<[string, string]> {
-        throw new Error('Function not implemented.');
+        return this.req.url.split('&').map((p: string) => p.split('=')).entries()
       },
       keys: function (): IterableIterator<string> {
-        throw new Error('Function not implemented.');
-      },
-      values: function (): IterableIterator<string> {
-        throw new Error('Function not implemented.');
+        return this.req.url.split('&').map((p: string) => p.split('=')[0]).values()
       },
       append: function (key: string, value: string): void {
         this.set(key, this.get(key) ? `${this.get(key)},${value}` : value);
       },
+      values: function (): IterableIterator<string> {
+        return this.req.url.split('&').map((p: string) => p.split('=')[1]).values()
+      },
       has: function (key: string): boolean {
-        throw new Error('Function not implemented.');
+        return Object.keys(this).includes(key);
       },
       set: function (key: string, value: string): void {
-        throw new Error('Function not implemented.');
+        this[key] = value;
       },
       sort: function (key: string, value: string): void {
-        throw new Error('Function not implemented.');
+        this.set(key, [...this.get(key)].sort().join(','))
       },
       forEach: function (callback: (value: string, name: string, parent?: CustomURLSearchParams | Headers | undefined) => void): void {
-        throw new Error('Function not implemented.');
+        Object.keys(this).forEach(key => {
+          callback(this[key], key, this);
+        });
       },
       delete: function (name: string): void {
-        throw new Error('Function not implemented.');
+        delete this[name];
       },
       getAll: function (names: string[]): string[] {
-        throw new Error('Function not implemented.');
+        return names.map(name => this.get(name) as string);
       },
       [Symbol.iterator]: function (): IterableIterator<[string, string]> {
         throw new Error('Function not implemented.');
-      }
+      },
     }
 
     type YourContextRequestObject = YourRequestObject<CustomRequestInit>
@@ -113,6 +118,7 @@ let prismaService: PrismaService
       cookie: customReq.cookie,
       request: customReq.request as YourContextRequestObject,
       ctx: customReq.ctx,
+      cache: {} as RequestCache,
       size: 0,
       user: customReq.user as UserWithAccessToken,
       userService: customReq.userService,
@@ -122,8 +128,7 @@ let prismaService: PrismaService
       session: customReq.session as CustomSessionType,
       body: customReq.body,
       currentUser: customReq.currentUser,
-      cache: customReq.cache,
-      accepts: customReq.accepts,
+     accepts: customReq.accepts,
       config: customReq.config,
       signedCookies: {} as Record<string, string>,
       // userId: customReq.currentUserWithAccessToken,

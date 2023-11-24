@@ -2,26 +2,35 @@
 //module provides a higher-level abstraction that exposes specific user-related functionality (e.g. creating, updating, and deleting users) vs backendDataAccessService
 
 // responsible for handling business logic and validation,
-import { CustomRequestWithContext, YourRequestObject, emailUniquenessRule, validateUser } from '@appository/backend/data-access'
+import {
+
+  emailUniquenessRule, validateUser
+} from '@appository/backend/data-access'
+
+import { CustomRequestWithContext } from '@appository/backend/request-options'
+
 import { Injectable } from '@nestjs/common'
-import { Prisma, User } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { validate } from 'class-validator'
-import { createUser, deleteUser } from '../../../dist/libs/backend/data-access/src/interfaces/auth/authenticate'
-import { MyContext } from '../../context/my-context'
-import { hashPassword } from '../../interfaces/auth/user-with-password-hash'
-import prisma from '../../lib/prisma/prisma'
-import { PrismaService } from '../../lib/prisma/prisma.service'; //added because of dev/graphql
-import { AccessLevel } from '../../make-api/api-config/access-level'
-import { CustomRequestInit } from '../../make-api/requests/custom-request-init'
-import errorMessages from '../../middleware/permissions/error-messages'
-import { emailSchema } from '../../middleware/validation-yup-schemas/validate-email'
+import { createUser } from './create-user' 
+import { deleteUser } from '@appository/backend/data-access'
+import { MyContext } from '@appository/backend/context-system'
+import { hashPassword } from 'libs/backend/data-access/src/interfaces/auth/user-with-password-hash'
+import prisma from 'libs/backend/data-access/src/lib/prisma/prisma'
+import { PrismaService } from '@appository/backend/data-access'
+import { AccessLevel } from '@appository/backend/data-access'
+import { CustomRequestInit } from '@appository/backend/request-options'
+import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
+import { emailSchema } from '../../../data-access/src/middleware/validation-yup-schemas/validate-email' 
 import userRegistrationSchema from '../../middleware/validation-yup-schemas/validate-registration'
 import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user'
-import { validatePasswordAsync } from '../../middleware/validation-yup-schemas/validate-userInput'
-import { BaseService } from '../../services/base-service'
+import { validatePasswordAsync } from '@appository/backend/data-access'
 import { UserWithAccessToken, UserWithoutSensitiveData } from './user'
 import { getAllUsers } from './user-queries/get-all-users'
 import { UserInput } from './user.input'
+import { YourRequestObject } from '@appository/backend/request-options';
+import { User } from '@appository/backend/data-access';
+import { BaseService } from '../../../data-access/src/services/base-service';
 
 
 
@@ -56,7 +65,6 @@ export class UserService extends BaseService {
       createdAt: new Date(Date.now()),
       updatedAt: new Date(),
       resetPasswordToken: null,
-      passwordHash: undefined,
       confirmPassword: null,
       confirmPasswordMatch: null
     },

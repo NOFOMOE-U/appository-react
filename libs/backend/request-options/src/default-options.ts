@@ -1,24 +1,27 @@
 import { AppConfiguration, CustomContextType, CustomURLSearchParams, MyContext } from '@appository/backend/context-system'
 import {
-  PrismaService,
-  User,
-  UserRole,
-  UserService,
-  UserWithAccessToken,
-  UserWithoutSensitiveData,
+    PrismaService,
+    User,
+    UserRole,
 } from '@appository/backend/data-access'
+import {
+  BodyContent,
+  CustomRequestInit,
+  CustomRequestOptions
+} from './custom-requests/custom-request-init'
+import { UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/users'
 import { NextFunction, ParamsDictionary, Request, Response } from 'express-serve-static-core'
+import prisma, { CustomPrismaClient } from '../../data-access/src/lib/prisma/prisma'
 import { ParsedQs } from 'qs'
 import { Socket } from 'socket.io'
 //move to 
+import { UserService } from '@appository/backend/users'
+import { AccessLevel } from 'libs/backend/data-access/src/interfaces/auth/access-level'
 import generateToken from 'libs/backend/data-access/src/utils/generate-token.utils'
-import prisma, { CustomPrismaClient } from '../../../data-access/src/lib/prisma/prisma'
-import { AccessLevel } from '../interfaces/auth/access-level'
-import { BodyContent, CustomRequestInit, CustomRequestOptions } from '../requests/custom-request-init'
-import { CustomContextHeaders, CustomRequestWithContext, YourRequestObject } from '../requests/custom-request-with-context'
-import { CustomSessionType, MyCustomRequest } from '../requests/my-custom-request'
-import { authenticationMiddlware, socket } from '../server'
-import { specificSocket } from '../socket/socket'
+import { CustomSessionType, MyCustomRequest } from './custom-requests/my-custom-request' 
+import { authenticationMiddlware, socket  } from 'libs/backend/data-access/src/server'
+import { CustomContextHeaders, CustomRequestWithContext, YourRequestObject } from './custom-requests/custom-request-with-context'
+import { specificSocket } from '../../data-access/src/socket/socket';
 
 type CustomRequestType = CustomRequestWithContext<
   MyContext<{} | Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>>
@@ -61,12 +64,12 @@ interface CommonUserProperties {
 
 type CustomRequestTypeOptions = CustomRequestType & Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 
-let myRequest: MyCustomRequest<MyContext> | null = null
+const myRequest: MyCustomRequest<MyContext> | null = null
 // let currentUser: CommonUserProperties
 
 let currentUser: CommonUserProperties | undefined
 if (myRequest && 'currentUser' in myRequest) {
-  const currentUser = ('currentUser' in myRequest) as UserWithAccessToken
+  const currentUser = ('currentUser' in myRequest)
 }
 
 if (currentUser) {
@@ -111,14 +114,14 @@ export let myContext:
     >
   | undefined
 
-let commonHeaders: CustomContextHeaders = {}
+const commonHeaders: CustomContextHeaders = {}
 
 export function processRequest(req: YourRequestObject<{}>, res: Response, next: NextFunction, accessLevel: AccessLevel) {
   const socketId = 'yourSocketId'
-  let specificSocket
   const prismaService = new PrismaService()
-  let userService: UserService = new UserService(prismaService, accessLevel)
-  let requestBody: BodyContent | null = null
+  const userService: UserService = new UserService(prismaService, accessLevel)
+  const requestBody: BodyContent | null = null
+  let specificSocket: any = null
 
   if (req) {
     // Initialize common headers
@@ -284,6 +287,6 @@ export function getDefaultAxiosOptions(req: CustomRequestWithContext<MyContext<{
     },
     headers: { ...filteredCommonHeaders },
   }
-
+  
   return options
 }

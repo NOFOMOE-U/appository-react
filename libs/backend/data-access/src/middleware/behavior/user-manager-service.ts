@@ -1,5 +1,5 @@
 import { NextFunction } from "express"
-import { CustomRequest } from "../../interfaces/user/custom-request"
+import { CustomRequest } from "../../../../request-options/src/custom-request/custom-request"
 import { UserBehaviorController } from "../../modules/user/user-behavior-controller"
 import UserManagerService from "../../modules/user/user-manager"
 

@@ -1,11 +1,12 @@
   //Users/dixiejones/Development/main-app/appository-react/apps/backend/api/src/server.ts
   import { ApolloServer, ApolloServerOptionsWithSchema, BaseContext } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import { CustomURLSearchParams, MyContext } from '@appository/backend/context-system'
 import {
   CustomRequestWithContext,
-  CustomURLSearchParams,
+
   LoggingMiddleware,
-  MyContext,
+
   MyCustomRequest,
   PermissionsMiddleware,
   PermissionsModule,
@@ -13,7 +14,7 @@ import {
   UserWithAccessToken,
   YourRequestObject,
   getContext,
-  makeRequest,
+
   nexusSchema
 } from '@appository/backend/data-access'
 import { PrismaClient } from '@prisma/client'
@@ -24,17 +25,19 @@ import { applyMiddleware } from 'graphql-middleware'
 import { makeSchema } from 'nexus'
 import { ParsedQs } from 'qs'
 import { Namespace, Server } from 'socket.io'; // Import the necessary types
-import { AccessLevel } from './make-api/api-config/access-tier'
+import { initAqua } from '../../communication/src/aqua/init-aqua'
+import { CustomPrismaClient } from './lib/prisma/prisma'
+import { AccessLevel } from './make-api/api-config/access-level'
 import { processRequest } from './make-api/default-options'
 import { ApiRequestFunction, makeApiRequest } from './make-api/make-api-request'
 import { CustomRequestOptions } from './make-api/requests/custom-request-init'
-import errorMessages from './middleware/permissions/error-messages'
+import errorMessages from './middleware/error-messages'
 import { permissions } from './middleware/permissions/shield/shield-permissions'
-import { isAccessLevel } from './middleware/permissions/type-guards/access-tier-guard'
+import { isAccessLevel } from './middleware/permissions/type-guards/access-level-guard'
 import userRegistrationSchema from './middleware/validation-yup-schemas/validate-registration'
 import { UserBehaviorController } from './modules/user/user-behavior-controller'
 import UserManagerService from './modules/user/user-manager'
- 
+import { makeRequest } from './requests/log-http-response'
 
   require('dotenv').config()
   const json = require('body-parser')
@@ -53,6 +56,7 @@ import UserManagerService from './modules/user/user-manager'
     }),
   )
 
+  const prisma = {} as CustomPrismaClient
   const httpServer = http.createServer(app) // Create an HTTP server for your Express app
 
   const io = new Server(httpServer) // Create a Socket.IO server instance
@@ -155,6 +159,7 @@ app.use(
   LoggingMiddleware.createMiddleware(
     new LoggingMiddleware(
       url,
+      initAqua,
       userManagerService,
       userCustomSearchParams,
 
@@ -204,15 +209,21 @@ app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunc
 // Express route handling the payment confirmation
 app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithContext<MyContext>>, res: Response, next: NextFunction) => {
   try {
-    const userId = await userManagerService.getUserIdFromPayment(req); // Get user ID from payment request
-      // req.user?.id // Retrieve theb user ID from the payment request
-    // const newAccessLevel = accessLevel.PREMIUM; // Or the access tier from the payment
+    // Get user ID from request context
+    const userId = req.context.user.id;
+    // If your AccessLevel is updated from one to anther Level, 
+    // update to new AccessLevel
+    await userManagerService.updateUserAccessLevel(userId, accessLevel);
+    // const userId = await userManagerService.getUserIdFromPayment(req); // Get user ID from payment request
+    // req.user?.id // Retrieve theb user ID from the payment request
+    const accessLevel = await userManagerService.updateUserAccessLevel(userId, AccessLevel.PAID);
+
 
     // Assuming 'userManagerService' is an instance of your userManagerService
-    const updatedUser = await userManagerService.updateUserAccessLevel(userId, data);
+    const updatedUser = await userManagerService.updateUserAccessLevel(userId, accessLevel);
 
     if (updatedUser) {
-      res.status(200).json({ message: 'Access tier updated successfully' });
+      res.status(200).json({ message: 'Access level updated successfully' });
     } else {
       res.status(404).json({ error: errorMessages.userNotFound });
     }
@@ -222,24 +233,42 @@ app.post('/confirm-payment', async (req: YourRequestObject<CustomRequestWithCont
 });
 
 
+
   app.post('/login', ensureAuthenticated, async (req: MyContext<UserWithAccessToken>, res: Response, next: NextFunction) => {
     // Assuming user data is already stored in the session during authentication
     const user = req.session.user;
 
     if (user) {
-      const currentUser: UserWithAccessToken  = {
-        id: user.id,
+      await prisma.user.findUnique({
+        where: {
+          id: user.id
+        }
+      })
+      .then(foundUser => {
+        if (foundUser) {
+          // generate JWT
+          const token = jwt.sign({ id: foundUser.id }, process.env.JWT_SECRET as string);
+
+          res.json({
+            user: foundUser,
+            token: token
+          });
+        } else {
+          res.status(404).send('User not found');
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).send('Error retrieving user');
+      })
+      const currentUser: UserWithAccessToken = {
+        id: getUserId(),
         name: user.name,
         email: user.email,
-        username: user.username,
-        accessLevel: user.accessLevel,
-        passwordHash: user.passwordHash || undefined,
-        roles: user.roles,
-        createdAt: user.createdAt, 
-        updatedAt: user.updatedAt, 
-        userProfileId:  user.userProfileId as number,
-        accessToken: null,
-        resetPasswordToken: undefined,
+        accessToken: generateAccessToken(user),
+      };
+        email: user.email as email,
+        accessToken: generateAccessToken(user),
       };
 
       res.json({ currentUser });

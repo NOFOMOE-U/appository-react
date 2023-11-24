@@ -21,3 +21,8 @@ Run `npx nx connect-to-nx-cloud` to enable [remote caching](https://nx.app) and 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
 
 # appository-react
+
+
+<!-- //todo ensure to update with github information to connect created documentation pnpm run generate-docs - generates docs -->
+
+[Link to Documentation](https://your-github-username.github.io/your-project-name/docs)

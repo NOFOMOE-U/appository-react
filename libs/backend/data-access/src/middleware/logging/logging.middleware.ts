@@ -1,14 +1,11 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { createLogger, format, transports } from 'winston';
+import { CustomRequest } from '../../../../request-options/src/custom-request/custom-request';
 import { CustomURLSearchParams } from '../../context/my-context';
-import { CustomRequest } from '../../interfaces/user/custom-request';
 import { UserBehaviorController } from '../../modules/user/user-behavior-controller';
 import UserManagerService from '../../modules/user/user-manager';
-import userBehaviorData from './logging-behavior';
 import { prepareBehaviorData } from '../behavior/prepare-behavior-data';
-
-
 
 
 const { combine, timestamp, printf, json, splat, errors, simple, colorize } = format
@@ -17,7 +14,9 @@ const { combine, timestamp, printf, json, splat, errors, simple, colorize } = fo
     private userBehaviorController: UserBehaviorController
 
     constructor(
+      
       userBehaviorController: UserBehaviorController,
+      private readonly aquaService: initAqua,
       private readonly userManagerService: UserManagerService,
       private readonly url: CustomURLSearchParams
     ) {
@@ -155,10 +154,11 @@ const { combine, timestamp, printf, json, splat, errors, simple, colorize } = fo
       }
     static userBehaviorController(userBehaviorData: any, req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>) {
       throw new Error('Method not implemented.');
+      
     }
     
 
-     getEndpointStat(logData: endpoints.LogData) { 
+     getEndpointStat(logData: LogData): void { 
       const { url, method } = logData;
       const endpoint = `${method} ${url}`;
 

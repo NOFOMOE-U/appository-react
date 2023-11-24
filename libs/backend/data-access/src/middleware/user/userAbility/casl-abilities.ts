@@ -1,8 +1,9 @@
 import { AbilityBuilder, AbilityOptionsOf, ClaimRawRule, PureAbility } from '@casl/ability'
 import { PrismaQuery, Subjects, createPrismaAbility } from '@casl/prisma'
-import { Prisma, PrismaClient, User, User as UserType } from '@prisma/client'
+import { Prisma, PrismaClient, User, UserRole, User as UserType } from '@prisma/client'
 import { Request } from 'express'
 import { getUserId } from '../../../utils/backend-auth.utils'
+import { hasRole } from '../../permissions/rules/is-authenticated-user'
 
 
 type SubjectRawRule = {
@@ -58,34 +59,50 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
       can(['update', 'delete'], 'Post', { authorId: user }),
     ]
 
-    const additionalRules = accessLevel
-      ? // Rules for specific packages
-        accessLevel === 'free'
-        ? [
-            {
-              subject: 'FreeResource',
-              actions: ['read', 'create'],
-              condition: { id: user },
-            },
-          ]
-        : accessLevel === 'standard'
-        ? [
-            {
-              subject: 'StandardResource',
-              actions: ['read', 'create', 'update', 'delete'],
-              condition: { id: user },
-            },
-          ]
-        : accessLevel === 'premium'
-        ? [
-            {
-              subject: 'PremiumResource',
-              actions: ['read', 'create', 'update', 'delete'],
-              condition: { id: user },
-            },
-          ]
-        : []
-      : []
+
+    const accessLevelString = Object.values(accessLevel).join(', ')
+    const roles: UserRole[] = accessLevelString.split(',') as UserRole[]
+    
+    ////todo verify mapping is accurate to remove the additionalRules 
+    //that isn't dynamic under it
+
+    const additionalRules = accessLevelString
+    ? roles.map((role) => hasRole(role))
+    : [];
+
+
+    // commented out code for each level
+
+    // const additionalRules = accessLevel
+    //   // how to set up rohasRolees for users to have specific permission
+    //   ? // Rules for specific packages
+    //     hasRole(accessLevel)
+    //     ? [
+    //         {
+    //           subject: 'FreeResource',
+    //           actions: ['read', 'create'],
+    //           condition: { id: user },
+    //         },
+    //       ]
+    //     : accessLevel === 'standard'
+    //       ? [
+        
+    //         {
+    //           subject: 'StandardResource',
+    //           actions: ['read', 'create', 'update', 'delete'],
+    //           condition: { id: user },
+    //         },
+    //       ]
+    //     : accessLevel === 'premium'
+    //     ? [
+    //         {
+    //           subject: 'PremiumResource',
+    //           actions: ['read', 'create', 'update', 'delete'],
+    //           condition: { id: user },
+    //         },
+    //       ]
+    //     : []
+    //   : []
     // const additionalRules = accessLevel ? [
     //       {
     //         subject: 'SpecialResource',

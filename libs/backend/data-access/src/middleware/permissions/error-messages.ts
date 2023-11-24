@@ -1,4 +1,4 @@
-export default {
+const errorMessages = {
   //user not registers
   userNotRegistered: 'You must signed up if you want to proceed forward',
   //permission errors
@@ -43,13 +43,13 @@ export default {
   customError2: 'Another custom error message for unique situations.',
 
 
-
-
+  // User variations
+  userNotFound: 'Sorry, this user profile was not found, please ensure user exists',
+  authorNotFound: 'Author not found',
 
 
 
    // User management errors
-   userNotFound: 'Sorry, this user profile was not found, please ensure user exists',
    userAlreadyExists: 'A user with this email or username already exists.',
    unableToUpdateUser: 'Unable to update user information. Please try again later.',
    unableToCreateUser: 'Unable to create a new user. Please check the provided information.',
@@ -99,3 +99,4 @@ export default {
   invalidDocument: 'Problem creating the document, please try again'
 } as { [key: string]: string }
  
+export default errorMessages

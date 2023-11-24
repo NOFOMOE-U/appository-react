@@ -1,5 +1,5 @@
 // user.input.ts
-import { UserRole } from '@prisma/client';
+import { UserRole } from '@appository/backend/data-access';
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
 
@@ -12,7 +12,7 @@ function PasswordValidator(value: UserInput): boolean {
 
 // Custom class-validator decorator that utilizes the PasswordValidator function
 export function MatchesPasswordConstraint(ValidationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: unknown, propertyName: string) {
     registerDecorator({
       name: 'matchesPassword',
       target: object.constructor,
@@ -31,13 +31,13 @@ export function MatchesPasswordConstraint(ValidationOptions?: ValidationOptions)
 @InputType()
 export class UserInput {
   @Field({ nullable: false })
-  name: string = ''
+  name = ''
 
   @Field({ nullable: false })
-  email: string = ''
+  email = ''
 
   @Field({ nullable: false })
-  password: string = ''
+  password = ''
 
   @Field({ nullable: false })
   createdAt: Date = new Date()
@@ -46,7 +46,7 @@ export class UserInput {
   updatedAt: Date = new Date()
 
   @Field({ nullable: false })
-  confirmPassword: string = ''
+  confirmPassword = ''
 
   @Field(() => [UserRole], { nullable: true })
   roles?: UserRole
@@ -58,7 +58,7 @@ export class UserInput {
   role?: UserRole
 
   @MatchesPasswordConstraint({ message: 'Passwords do not match' })
-  confirmPasswordMatch: boolean = false
+  confirmPasswordMatch = false
 
   constructor(init?: Partial<UserInput>) {
     Object.assign(this, init);

@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { UserRole } from "@appository/backend/data-access";
 
 export type AppConfiguration = {
     enableVideo: boolean;
@@ -28,7 +28,7 @@ export type AppConfiguration = {
   // Notifications
     enableNotifications: boolean; // Allow users to receive notifications.
 //   todo update prisma to recognize Type
-//   notificationPreferences: NotificationPreferences[]; // Notification preferences.
+  // notificationPreferences: NotificationPreferences[]; // Notification preferences.
 
   // Access Control
   restrictAccessByLocation: boolean; // Restrict access based on user location.

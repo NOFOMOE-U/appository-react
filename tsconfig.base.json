@@ -18,7 +18,6 @@
     "baseUrl": ".",
     "paths": {
       "@appository/backend/api-system": ["libs/backend/api-system/src/index.ts"],
-      "@appository/backend/api-versioning-system": ["libs/backend/api-versioning-system/src/index.ts"],
       "@appository/backend/auth": ["libs/backend/auth/src/index.ts"],
       "@appository/backend/common": ["libs/backend/common/src/index.ts"],
       "@appository/backend/communication": ["libs/backend/communication/src/index.ts"],

@@ -1,16 +1,18 @@
-//backend/data-access/src/lib/backend-data-model.module.ts
-import { CommonContextModule, createContext, CustomRequest, PrismaController, PrismaService } from '@appository/backend/data-access'
+// backend/data-access/src/lib/backend-data-model.module.ts
+import { PrismaController, PrismaService } from '@appository/backend/data-access'
+import { CustomRequest } from '@appository/backend/request-options'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Injectable, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { join } from 'path'
-import { UserModule } from '../modules/user/user.module'
+import { CommonContextModule } from '../common-context/common-context.module'
 import prisma from './prisma/prisma'
 import { PrismaModule } from './prisma/prisma.module'
 //todo aqua
-import { AquaModule } from 'libs/backend/communication/src/aqua/aqua.module'
-
+// import { AquaModule } from 'libs/backend/communication/src/aqua/aqua.module'
+import { createContext } from '@appository/backend/context-system'
+import { UserModule } from '@appository/backend/users'
 @Module({
   
   controllers: [PrismaController],
@@ -23,7 +25,7 @@ import { AquaModule } from 'libs/backend/communication/src/aqua/aqua.module'
   ],
 
   imports: [
-  ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: async () => ({
@@ -33,13 +35,13 @@ import { AquaModule } from 'libs/backend/communication/src/aqua/aqua.module'
       }),
     }),
     
+    // AquaModule // added aqua
     PrismaModule,
     UserModule,
     // PostModule,
     CommonContextModule,
-    AquaModule // added aqua
   ],
-  exports: ['PrismaClient','CONTEXT', PrismaModule], //changed based on dev/graphql, from PrismaService to PrismaClient
+  exports: ['PrismaClient', 'CONTEXT', PrismaModule],
 })
 @Injectable()
 export class BackendDataModelModule {}

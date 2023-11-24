@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import AppAbility from './createPrismaAbillity';
+import AppAbility from './defineAbilities';
 export type AppContext = {
   req: {
     userId: string;

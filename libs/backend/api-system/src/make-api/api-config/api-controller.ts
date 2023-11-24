@@ -1,13 +1,14 @@
-import { Controller, InternalServerErrorException, UnauthorizedException } from '@nestjs/common'
-import { ApiService } from '../api-config/api-service'
+import { Controller, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { ApiService } from '../api-config/api-service';
 // isAuthorized
 // } from 'your-authentication-module'; // Import your authentication module
-import { Response } from 'express'
-import errorMessages from '../../middleware/permissions/error-messages'
-import { UserWithAccessToken } from '../../modules/user/user'
-import { UserService } from '../../modules/user/user.service'
-import { isAuthenticated } from './access-tier'
-
+import { MyContext } from '@appository/backend/context-system';
+import { UserService, UserWithAccessToken } from '@appository/backend/users';
+import { Response } from 'express-serve-static-core';
+import { isAuthenticated } from 'libs/backend/data-access/src/interfaces/auth/access-level';
+import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages';
+import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface';
+import { APIRequestOptions, ApiRequestFunction } from '../make-api-request';
 @Controller('api') // Define the base route for API endpoints
 export class ApiController {
   constructor(
@@ -16,16 +17,24 @@ export class ApiController {
     private readonly requestBody: UserWithAccessToken,
   ) {}
 
-  getUsers(req: 'get-users-request-api-string', res: Response) {
+  getUsers(
+    endpoint: string,
+    user: MyContext['user'],
+    req: APIRequestOptions,
+    res: Response,
+    options: MyOptions,
+    requestBody: MyContext['requestBody'],
+    apiRequestFunction: ApiRequestFunction) {
     try {
-      const accessLevel = this.userService.user?.accessLevel as string
+      const accessLevel = this.userService.exposedUser?.accessLevel as string
       if (!isAuthenticated(accessLevel)) {
         throw new UnauthorizedException('Unauthorized')
       }
 
       if (accessLevel !== undefined) {
         //map access tiers to UserWithAccessToken
-        const users = this.apiService.getUsers(req, this.requestBody, accessLevel, res)
+        const users = this.apiService.getUsers(endpoint, user, req, requestBody,  options, apiRequestFunction)
+
         return res.status(200).json(users)
       }
     } catch (error) {

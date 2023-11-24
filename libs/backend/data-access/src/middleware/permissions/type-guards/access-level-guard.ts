@@ -1,34 +1,48 @@
+import { AccessLevel } from '@appository/backend/data-access';
+import { checkFreeAccess, verifyEnterpriseUser, verifyPremiumAccess, verifyStandardAccess } from '../../../level-access-permissions';
+import { getUserId } from '../../../utils/backend-auth.utils';
 import errorMessages from "../error-messages";
-import { checkFreeAccess } from '../../../level-access-permissions';
-import { AccessLevel } from "../../../interfaces/auth/access-level";
 
- // Custom type guard to ensure that this.accessLevel is a valid key
- const isAccessLevel = (level: string): level is AccessLevel => {
-  return Object.values(AccessLevel).includes(level as unknown as  AccessLevel);
-};
+const accessLevel: string = 'free'
+
+const isAccessLevel = (
+  searchElement: AccessLevel,
+  fromIndex: any,
+  level: string,
+  o: { [subset: string]: AccessLevel } | ArrayLike<AccessLevel>
+): boolean => {
+  console.log( `${getUserId} has ${level} level access`)
+  return Object.values(o).includes(searchElement, fromIndex)
+}
 
 // Use the custom type guard
-if (isAccessLevel(this.accessLevel)) {
-  let baseUrl: string;
+if (isAccessLevel({} as AccessLevel, 'search-element', 'index', [])) {
+  let baseUrl: string
 
-  switch (this.accessLevel) {
-    case AccessLevel.FREE:
-      baseUrl = this.checkFreeAccess() ? 'free' : 'default';
-      break;
-    case AccessLevel.STANDARD:
-      baseUrl = this.verifyStandardAccess() ? 'standard' : 'default';
-      break;
-    case AccessLevel.PREMIUM:
-      baseUrl = this.verifyPremiumAccess() ? 'premium' : 'default';
-      break;
-    case AccessLevel.ENTERPRISE:
-      baseUrl = this.authenticateEnterpriseUser() ? 'enterprise' : 'default';
-      break;
+  switch (accessLevel) {
+    case 'free':
+      baseUrl = checkFreeAccess()
+        ? 'free'
+        : 'default'
+        break
+    case 'standard':
+      baseUrl = verifyStandardAccess()
+          ? 'standard'
+          : 'default'
+      break
+    case 'premium':
+      baseUrl = verifyPremiumAccess()
+        ? 'premium'
+        : 'default'
+      break
+    case 'enterprise':
+      baseUrl = verifyEnterpriseUser()
+          ? 'enterprise'
+          : 'default'
+      break
     default:
-      throw new Error(errorMessages.NoUrlAccess);
+      throw new Error(errorMessages.NoUrlAccess)
   }
-
-  return baseUrl;
 } else {
-  throw new Error(errorMessages.NoUrlAccess);
+  throw new Error(errorMessages.NoUrlAccess)
 }

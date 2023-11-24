@@ -2,95 +2,88 @@
 import { AquaService } from '@appository/backend/communication'
 import { CustomURLSearchParams, MyContext, initContext, } from '@appository/backend/context-system'
 import {
-  CustomRequestWithContext,
-  LoggingMiddleware,
-  MyCustomRequest,
-  UserService,
-  YourRequestObject,
+  LoggingMiddleware
 } from '@appository/backend/data-access'
+import { CustomRequestWithContext, MyCustomRequest, YourRequestObject } from '@appository/backend/request-options'
+import { UserBehaviorController, UserService } from '@appository/backend/users'
+
+import { CustomContextType } from '@appository/backend/context-system'
+import { UserManagerService } from '@appository/backend/users'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
-import { CustomContextType } from 'libs/backend/context-system/src/context/custom-context-type'
-import { BodyContent } from 'libs/backend/data-access/src/make-api/requests/custom-request-init'
-import { UserBehaviorController } from 'libs/backend/data-access/src/modules/user/user-behavior-controller'
-import UserManagerService from 'libs/backend/data-access/src/modules/user/user-manager'
 import { AppModule } from './app/app.module'
 
+import { BodyContent } from '@appository/backend/request-options'
 
-async function bootstrap() {
-  const req = {} as CustomRequestWithContext<MyContext<YourRequestObject<CustomContextType>>>
+  async function bootstrap() {
+    const req = {} as CustomRequestWithContext<MyContext<YourRequestObject<CustomContextType>>>
 
-  //initial the context using init
-  let userService: UserService
-  let requestBody: BodyContent | null | undefined,
+    //initial the context using init
+    let userService: UserService
+    let requestBody: BodyContent | null | undefined,
+      aquaService: AquaService,
+      userBehaviorController: UserBehaviorController,
+      userManagerService: UserManagerService,
+      url: CustomURLSearchParams
 
-  aquaService: AquaService,
-  userBehaviorController: UserBehaviorController,
-  userManagerService:UserManagerService,
-  url: CustomURLSearchParams
-  
-  const myContext = await initContext(req)
+    const myContext = await initContext(req)
 
-  // Fixed error by changing userService to requestBody
-  const myRequest = new MyCustomRequest(myContext, userService, requestBody )
+    // Fixed error by changing userService to requestBody
+    const myRequest = new MyCustomRequest(myContext, userService, requestBody)
 
-  const app = await NestFactory.create(AppModule)
-  const config = app.get(ConfigService)
+    const app = await NestFactory.create(AppModule)
+    const config = app.get(ConfigService)
 
-  // todo add headless check
-  // // Check if HEADLESS mode is enabled
-  // Check if HEADLESS mode is enabled
-  // if (config.headless) {
-  //   // Run in HEADLESS mode
-  //   // Additional code for headless mode
+    myRequest.headers.set('X-Request-Id', myContext.requestId as string)
+    app.use(LoggingMiddleware)
 
-  //   // Background task for milestone tracking
-  //   const teams = fetchTeamsToTrackMilestones();
+    // todo add headless check
+    // // Check if HEADLESS mode is enabled
+    // Check if HEADLESS mode is enabled
+    // if (config.headless) {
+    //   // Run in HEADLESS mode
+    //   // Additional code for headless mode
+    //   // Background task for milestone tracking
+    //   const teams = fetchTeamsToTrackMilestones();
+    //   teams.forEach((team) => {
+    //     const milestones = fetchMilestonesForTeam(team);
+    //     milestones.forEach((milestone) => {
+    //       if (milestone.isAchieved()) {
+    //         sendNotificationToTeam(team, milestone);
+    //         updateProgressForMilestone(milestone);
+    //       }
+    //     });
+    //   });
+    //   console.log("Running in HEADLESS mode for milestone tracking.");
+    // } else {
+    //   // Run in non-HEADLESS mode
+    //   // Additional code for non-headless mode
+    //   // Your app's main functionality, including user interactions and chats
+    //   const userInteractions = listenForUserInteractions();
+    //   console.log("Running in non-HEADLESS mode for user interactions.");
+    // }
+    //#TODO
+    // const { default: graphqlUploadExpress } = await import(
+    //   'graphql-upload/graphqlUploadExpress.mjs'import { permissions } from '../../../../libs/backend/data-access/src/middleware/permissions/permissions';
+    // app.use(graphqlUploadExpress(configService.get<IUploaderMiddlewareOptions>('uploader.middleware')));
+    // https://dev.to/tugascript/nestjs-graphql-image-upload-to-a-s3-bucket-1njg
+    const globalPrefix = 'api'
+    app.setGlobalPrefix(globalPrefix)
+    app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware(
+      userBehaviorController,
+      aquaService,
+      userManagerService,
+      url
+    )))
 
-  //   teams.forEach((team) => {
-  //     const milestones = fetchMilestonesForTeam(team);
-  //     milestones.forEach((milestone) => {
-  //       if (milestone.isAchieved()) {
-  //         sendNotificationToTeam(team, milestone);
-  //         updateProgressForMilestone(milestone);
-  //       }
-  //     });
-  //   });
-
-  //   console.log("Running in HEADLESS mode for milestone tracking.");
-  // } else {
-  //   // Run in non-HEADLESS mode
-  //   // Additional code for non-headless mode
-
-  //   // Your app's main functionality, including user interactions and chats
-  //   const userInteractions = listenForUserInteractions();
-
-  //   console.log("Running in non-HEADLESS mode for user interactions.");
-  // }
-
-  //#TODO
-  // const { default: graphqlUploadExpress } = await import(
-  //   'graphql-upload/graphqlUploadExpress.mjs'import { permissions } from '../../../../libs/backend/data-access/src/middleware/permissions/permissions';
-
-  // app.use(graphqlUploadExpress(configService.get<IUploaderMiddlewareOptions>('uploader.middleware')));
-  // https://dev.to/tugascript/nestjs-graphql-image-upload-to-a-s3-bucket-1njg
-  const globalPrefix = 'api'
-  app.setGlobalPrefix(globalPrefix)
-  app.use(LoggingMiddleware.createMiddleware(new LoggingMiddleware(
-    userBehaviorController,
-    aquaService,
-    userManagerService,
-    url
-  )))
-
-  //Enable CORS and body pargins middleware as needed
-  const port = process.env.PORT || 3333
-  await app.listen(port, () => {
-    Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`)
-    Logger.log(`Running in ${config.get('environment')} mode`)
-  })
-}
+    //Enable CORS and body pargins middleware as needed
+    const port = process.env.PORT || 3333
+    await app.listen(port, () => {
+      Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`)
+      Logger.log(`Running in ${config.get('environment')} mode`)
+    })
+  }
 
   
 
@@ -162,7 +155,9 @@ bootstrap()
 // User Data Export: Allow users to export their data for personal use.
 
 // User Data Import: Enable users to import data from external sources.
+// Feedback Loop Management: Automateimport { UserManagerService } from 'libs/backend/data-access/src/modules/user/user-manager';
+//  the process of gathering and respimport { YourRequestObject } from '@appository/backend/data-access';
+// onding to user feedback.import { LoggingMiddleware } from '@appository/backend/data-access';
 
-// Feedback Loop Management: Automate the process of gathering and responding to user feedback.
 
 // These tools can help streamline and enhance various aspects of your productivity app, making it more efficient and user-friendly. However, the actual implementation of each tool will require specific development and integration work, and you may need to customize them based on your app's unique requirements.

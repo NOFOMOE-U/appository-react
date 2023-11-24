@@ -1,9 +1,12 @@
-import { Prisma, PrismaClient, User, UserRole } from '@prisma/client'
-import { Response } from 'express'
-import { NextFunction } from 'express-serve-static-core'
-import { AccessLevel } from '../../interfaces/auth/access-level'
-import { CustomPrismaClient } from '../../lib/prisma/prisma'
-import errorMessages from '../../middleware/permissions/error-messages'
+import {
+  Prisma,
+  PrismaClient,
+  UserRole
+} from '@prisma/client'
+import { NextFunction, Response } from 'express-serve-static-core'
+import { AccessLevel } from 'libs/backend/data-access/src/interfaces/auth/access-level'
+import { CustomPrismaClient } from 'libs/backend/data-access/src/lib/prisma/prisma'
+import errorMessages from 'libs/backend/data-access/src/middleware/error-messages'
 import { isAuthenticatedUser } from '../../middleware/permissions/rules/is-authenticated-user'
 import { AuthenticatedSession, authenticateUser } from '../../middleware/user/user.middleware'
 import generateToken from '../../utils/generate-token.utils'
@@ -11,7 +14,7 @@ import { UserWithoutSensitiveData } from './user'
 
 const prisma = new PrismaClient()
 
-class UserManagerService {
+export class UserManagerService {
   private prisma: CustomPrismaClient
   trackUserBehavior: any
   userManager: UserManagerService
@@ -22,7 +25,7 @@ class UserManagerService {
   }
 
   // User Registration
-  async createUser(user: Prisma.UserCreateInput): Promise<UserWithoutSensitiveData | null> {
+  async createUser(user: UserManagerService): Promise<UserWithoutSensitiveData | null> {
     // Implement user registration logic here
     // Map User object to UserCreateInput
     const { confirmPassword, confirmPasswordMatch, ...userData } = user

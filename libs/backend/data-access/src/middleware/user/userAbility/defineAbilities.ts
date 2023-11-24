@@ -15,4 +15,6 @@ cannot('read', 'Post', { title: { startsWith: '[WIP]:' } });
 
 const ability = build();
 ability.can('read', 'Post');
- export default ability;
+
+
+export default ability;

@@ -269,3 +269,6 @@ getTeamMembers(teamId: string): User[]: Retrieve a list of team members for a gi
 setTypingStatus(isTyping: boolean): void: Update the typing status.
 
  -->
+
+<!-- todo: NFT APIS -->
+ <!-- [//NFT API](https://github.com/nft-apis/nft) -->

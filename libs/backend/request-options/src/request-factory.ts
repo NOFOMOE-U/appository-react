@@ -2,11 +2,10 @@ import { MyContext } from '@appository/backend/context-system';
 //todo adddress connection to connector so we can fix circuar dependencies
 // import { PrismaService } from '@appository/backend/data-access';
 // import { UserService } from '@appository/backend/data-access';
-import { AccessLevel } from '../api-config/access-level';
-import { EXTERNAL_API_CONFIG_MAP } from '../api-config/external-config';
-import { INTERNAL_API_CONFIG_MAP } from '../api-config/internal-config';
-import { MyCustomRequest } from '../my-custom-request';
-import { BodyContent, CustomRequestInit } from './custom-request-init';
+import { EXTERNAL_API_CONFIG_MAP, INTERNAL_API_CONFIG_MAP } from '@appository/backend/api-system';
+import { AccessLevel } from '@appository/backend/data-access';
+import { BodyContent, CustomRequestInit } from './custom-requests/custom-request-init';
+import { MyCustomRequest } from './custom-requests/my-custom-request';
 
 
 // Define a type for endpoint properties

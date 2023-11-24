@@ -8,6 +8,6 @@
       // "node"
     ]
   },
-  "include": ["src/**/*.ts", "src/interfaces/user/custom-request.ts", "src/graphql/nexus.schema.ts", "../common/src/hashtag/hash-tag.service.ts"],
+  "include": ["src/**/*.ts", "../request-options/src/custom-request/custom-request.ts", "src/graphql/nexus.schema.ts", "../common/src/hashtag/hash-tag.service.ts", "../request-options/src/custom-request/custom-request-with-context.spec.ts", "../request-options/src/custom-request/custom-request-init.ts", "../request-options/src/custom-request/custom-request-with-context.ts", "../request-options/src/custom-request/custom-request-with-session.ts", "../request-options/src/custom-request/my-custom-request.ts", "../request-options/src/custom-request/custom-request.spec.ts", "../request-options/src/mock/mock-options.ts"],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

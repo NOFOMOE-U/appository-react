@@ -1,8 +1,8 @@
 // import { AccessLevel } from '@appository/backend/data-access';
-import { AccessLevel } from '@appository/backend/api-system';
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient, User, UserProfile } from '@prisma/client';
 import path from 'path';
+import { AccessLevel } from '../../interfaces/auth/access-level';
 import { PrismaContext } from '../../interfaces/prisma/prisma.interface';
 import { CustomPrismaClient } from './prisma';
 

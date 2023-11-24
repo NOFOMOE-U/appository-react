@@ -1,9 +1,7 @@
-import { PrismaClient, User, UserRole } from '@prisma/client'
+import { MyContext } from '@appository/backend/context-system'
+import { PrismaClient } from '@prisma/client'
 import { IOptions } from 'graphql-shield/typings/types'
 import DocumentHelper from 'libs/shared-features/documents/src/PDFDocuments'
-import { MyContext } from '../../../context/my-context'
-
-
 
 
 export interface MyOptions extends IOptions {
@@ -357,22 +355,4 @@ export interface MyOptions extends IOptions {
   getElementsByTagNS: (namespaceURI: string, localName: string) => HTMLCollectionOf<HTMLElement> 
   createDocument: () => Document
  
-}
-
-const currentUserRequestsPasswordHash = true // Replace with your logic to determine if passwordHash should be included
-let user: User
-
-user = {
-  id: '1',
-  name: 'tom',
-  email: 'test@example.com',
-  roles: [UserRole.USER],
-  username: 'WhoAmI',
-  userProfileId: 2,
-  createdAt: new Date(Date.now()),
-  updatedAt: new Date(),
-  resetPasswordToken: null,
-  passwordHash: `undefined`,
-  accessLevel: 'access-tier',
-  // add any additional fields as necessary
 }

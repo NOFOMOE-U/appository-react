@@ -65,7 +65,7 @@ function generateApiConfig(apiVersions: ApiVersion[]): { [key: string]: string }
 
 
 
-import { generateUrl } from "../generate-endpint";
+import { generateUrl } from "../generate-endpoint";
 // #todo 
 // 1. can these be added in a function to be use, would that be beneficial.
 //todo 

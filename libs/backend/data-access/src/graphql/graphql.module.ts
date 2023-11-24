@@ -1,26 +1,22 @@
 //libs/backend/data-access/src/graphql/graphql.module.ts
-import {
-  BackendAuthModule,
-  BackendDataModelModule,
-  CommonContextModule,
-  ContextService,
-  CustomURLSearchParams,
-  MyContext,
-  PrismaClient,
-  PrismaModule,
-  UserService,
-  UserWithoutSensitiveData,
-  YourRequestObject,
-  createCustomContextWithRequest
-} from '@appository/backend/data-access';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GqlModuleOptions, GraphQLModule as NestGraphQLModule } from '@nestjs/graphql';
-import { join } from 'path';
-import { CustomRequestInitWithGet } from '../make-api/requests/custom-request-init';
+import { ContextService, MyContext } from '@appository/backend/context-system'
+import { BackendAuthModule, BackendDataModelModule, PrismaClient, PrismaModule } from '@appository/backend/data-access'
 
-import { CustomContextType } from '../context/custom-context-type';
+import { CustomURLSearchParams } from '@appository/backend/context-system'
+import {
+  CustomRequestInitWithGet,
+  YourRequestObject,
+  createCustomContextWithRequest,
+} from '@appository/backend/request-options'
+import { UserService, UserWithoutSensitiveData } from '@appository/backend/users'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { GqlModuleOptions, GraphQLModule as NestGraphQLModule } from '@nestjs/graphql'
+import { join } from 'path'
+
+import { CustomContextType } from '@appository/backend/context-system'
+import { CommonContextModule } from '../common-context/common-context.module'
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -58,12 +54,8 @@ let user: UserWithoutSensitiveData
             session: {
               user,
               currentUser: req.headers.authorization,
-              userId: req.headers.authorization
-                ? req.headers.authorization.split('Bearer ')[1]
-                : null,
-              username: req.headers.authorization
-                ? req.headers.authorization.split('Bearer ')[1]
-                : user?.username,
+              userId: req.headers.authorization ? req.headers.authorization.split('Bearer ')[1] : null,
+              username: req.headers.authorization ? req.headers.authorization.split('Bearer ')[1] : user?.username,
               expires: 0,
               yourSessionKey: 'sessionKey',
             },

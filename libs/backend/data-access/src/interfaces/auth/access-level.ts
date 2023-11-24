@@ -1,4 +1,5 @@
-import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
+// import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
+import { UserWithAccessToken } from '@appository/backend/users'
 
 export function createUserWithAccessToken(name: string, email: string, accessLevel: AccessLevel): UserWithAccessToken {
   return {
@@ -12,12 +13,9 @@ export function createUserWithAccessToken(name: string, email: string, accessLev
 }
 
 //todo set up prisma type and add to schema
-export type AccessLevel = {
-  FREE: 'free'
-  STANDARD: 'standard'
-  PREMIUM: 'premium'
-  ENTERPRISE: 'enterprise'
-}
+export type AccessLevel = 
+'free' | 'standard' | 'premium' | 'enterprise'
+
 
 export function isAuthenticated(accessLevel: string): boolean {
   switch (accessLevel) {
@@ -56,10 +54,9 @@ export function mapAccessLevelToUserWithAccessToken(accessLevel: string): UserWi
         updatedAt: new Date(),
         passwordHash: undefined,
         resetPasswordToken: undefined,
-        groupId:0,
         confirmPassword: null,
         confirmPasswordMatch: null,
-      } as UserWithoutSensitiveData
+      } as UserWithAccessToken
 
     case 'standard':
       // Mapping for a STANDARD user

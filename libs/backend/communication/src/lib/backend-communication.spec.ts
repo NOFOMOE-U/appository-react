@@ -1,12 +1,20 @@
 // import { CommunicationModule } from './backend-communication.module';
-// import { initAqua } from '../aqua/init-aqua';
-import { ContextService } from "@appository/backend/context-system";
+// import { ConnectorService } from "@appository/backend/connector";
+import { initAqua } from "../aqua/init-aqua";
 import { CommunicationModule } from './backend-communication.module';
+// import { ContextModule } from "@appository/backend/context-system";
+
+
+const connectorService = new ConnectorService(
+  ContextModule,
+  backendDataAccessModule,
+  aquaModule)
 describe('CommunicationModule', () => {
   it('should work', () => {
-    const contextService = {} as ContextService;
+    const contextService = connectorService
+    // const contextService = .connectService.ContextService;
       // {} as ContextService
-    expect(new CommunicationModule(contextService)).toEqual('backend-communication')
+    expect(new CommunicationModule()).toEqual('backend-communication')
   })
 
 

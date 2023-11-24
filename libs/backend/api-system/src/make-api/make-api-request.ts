@@ -1,21 +1,23 @@
-import { Request } from 'express'
-import { ParamsDictionary } from 'express-serve-static-core'
+import { generateMarkdown, generatePDF } from '@appository/backend/data-access'
+import {
+  CustomRequestWithContext,
+  RequestOptions,
+  getDefaultAxiosOptions
+} from '@appository/backend/request-options'
+import { ParamsDictionary, Request } from 'express-serve-static-core'
+import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
 import path from 'path'
 import { ParsedQs } from 'qs'
-import { MyContext } from '../context/my-context'
-import { generatePDF } from '../docs/doc-generator/generate-pdf'
-import { generateMarkdown } from '../docs/generate-markdown'
-import { CustomPrismaClient } from '../lib/prisma/prisma'
-import errorMessages from '../middleware/permissions/error-messages'
-import { MyOptions } from '../middleware/permissions/shield/my-options.interface'
-import { RequestOptions, getDefaultAxiosOptions } from './default-options'
-import { CustomRequestWithContext } from './requests/custom-request-with-context'
+
+import { MyContext } from '@appository/backend/context-system'
+import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface'
+import { CustomPrismaClient } from '../../../data-access/src/lib/prisma/prisma'
 
 const filePath = path.join(__dirname, 'output.pdf') // define the file path
 
 export type ApiRequestFunction = (endpoint: string) => Promise<string>
 
-interface APIRequestOptions extends RequestOptions {
+export interface APIRequestOptions extends RequestOptions {
   // Remove the index signature to avoid the errors
   ctx: {
     headers: {
@@ -84,7 +86,7 @@ export async function makeApiRequest(
     downloadLink.download = 'data.json'
     downloadLink.click()
   } catch (error) {
-    console.log('Request Error: ', errorMessages.requestError)
+    console.log('Request Error: ',errorMessages.requestError)
   }
 }
 

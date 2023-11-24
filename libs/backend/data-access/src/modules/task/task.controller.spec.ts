@@ -2,7 +2,7 @@ import { ForbiddenException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TaskStatus } from '@prisma/client'
 import { PermissionsService } from '../../middleware/permissions/permissions.service'
-import { UserService } from '../user/user.service'
+import { UserService } from '@appository/backend/users'
 import { TaskService } from './task.service'
 import { TasksController } from './tasks.controller'
 

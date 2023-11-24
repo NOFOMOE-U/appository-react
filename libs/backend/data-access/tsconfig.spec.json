@@ -16,5 +16,5 @@
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
     "src/**/*.d.ts"
-  ]
+, "../request-options/src/custom-request/custom-request-with-context.spec.ts", "../request-options/src/custom-request/custom-request.spec.ts"  ]
 }
