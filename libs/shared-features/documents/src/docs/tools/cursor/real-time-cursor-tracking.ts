@@ -1,10 +1,11 @@
-import { socket } from 'libs/backend/data-access/src/server'
-import { CollaborationOptions } from '../../collaboration-and-interaction/colab-document-interfaces'
-import { CustomPDFDocument } from '../../custom-pdf-document'
+import { socket } from 'libs/backend/data-access/src/server';
+import { CollaborationOptions } from '../../collaboration-and-interaction/colab-document-interfaces';
+import { CustomPDFDocument } from '../../custom-pdf-document';
+import { COLLISION_ADJUSTMENT, COLLISION_THRESHOLD, MAX_TRAIL_LENGTH } from '../../doc-constants';
+import { otherCursors } from './cursor-labeling';
 
-// Pseudo code for Real-time Updates
+//Real-time Updates
 
-// Pseudo code for CursorPosition
 export interface CursorPosition {
   x: number // X-coordinate of the cursor
   y: number // Y-coordinate of the cursor
@@ -12,6 +13,7 @@ export interface CursorPosition {
   color: string
   userName: string
   fontSize: number
+  size: number
 }
 
 export function displayCursorWithOptiions(
@@ -21,41 +23,48 @@ export function displayCursorWithOptiions(
   showNames: boolean,
   fontSize: number,
 ): void {
+
+  const { color, size } = collaborationOptions
+    
   ;(fontSize = 12), (showNames = true)
-  for (const cursor of cursorPositions) {
-    pdfDoc.fillColor(cursor.color).cursor(cursor.x, cursor.y, 5).fill()
+  for (const cursorPosition of cursorPositions) {
+    // todo: verify fill is set up right with needing any
+    ;(pdfDoc as any).fillColor(cursorPosition.color || color).cursor(cursorPosition.x, cursorPosition.y, cursorPosition.size || size).fill()
 
     if (showNames) {
-      pdfDoc.fontSize(cursor.fontSize || fontSize).text(cursor.userName, cursor.x, cursor.y)
+      ;(pdfDoc)
+        .fontSize(cursorPosition.fontSize || fontSize)
+        .text(cursorPosition.userName, cursorPosition.x, cursorPosition.y)
     }
   }
 }
 
 export function scrollToCursor(pdfDoc: CustomPDFDocument, cursor: CursorPosition): void {
-  const scrollContainer = document.getElementById('scro')
+  const scrollContainer = document.getElementById('scroll')
   if (scrollContainer) {
-    scrollContainer.scrollTo({
+    pdfDoc.scrollTo({
       top: cursor.y,
       left: cursor.x,
-      behavior: 'smooth',
+      behavior: 'smooth'
     })
-  }
+  } 
 }
 
 // Pseudo code for Cursor Trails
 const cursorTrail = []
 
-function updateCursorTrail(cursor) {
+export function updateCursorTrail(cursor: CursorPosition) {
   // Add current cursor position to the trail
   cursorTrail.push(cursor)
 
+  //TODO: UPDATE MAX_TRAIL_LENGTH
   // Limit the trail length to a certain number of points
   if (cursorTrail.length > MAX_TRAIL_LENGTH) {
     cursorTrail.shift() // Remove the oldest point
   }
 }
 
-function drawCursorTrails(pdfDoc) {
+export function drawCursorTrails(pdfDoc: CustomPDFDocument) {
   // Iterate through the cursor trail and draw lines
   for (let i = 1; i < cursorTrail.length; i++) {
     const prevCursor = cursorTrail[i - 1]
@@ -66,7 +75,7 @@ function drawCursorTrails(pdfDoc) {
 }
 
 // Pseudo code for Cursor Collision Handling
-function handleCursorCollision(cursor) {
+export function handleCursorCollision(cursor: CursorPosition) {
   // Check for collisions with other cursors
   for (const otherCursor of otherCursors) {
     if (areCursorsColliding(cursor, otherCursor)) {
@@ -77,21 +86,21 @@ function handleCursorCollision(cursor) {
   }
 }
 
-function areCursorsColliding(cursor1, cursor2) {
+export function areCursorsColliding(cursor1: CursorPosition, cursor2: CursorPosition) {
   // Implement logic to check if two cursors are colliding
   // You might compare the distance between the cursors to a threshold
   const distance = calculateDistance(cursor1, cursor2)
   return distance < COLLISION_THRESHOLD
 }
 
-function calculateDistance(cursor1, cursor2) {
+export function calculateDistance(cursor1: CursorPosition, cursor2: CursorPosition) {
   // Implement distance calculation logic (e.g., Euclidean distance)
   const dx = cursor1.x - cursor2.x
   const dy = cursor1.y - cursor2.y
   return Math.sqrt(dx * dx + dy * dy)
 }
 
-function sendCursorUpdate(cursor) {
+export function sendCursorUpdate(cursor: CursorPosition) {
   // Send cursor position to the server
   socket.emit('cursor-update', cursor)
 }

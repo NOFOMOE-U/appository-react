@@ -1,4 +1,4 @@
-import fs, { NoParamCallback, WriteFileOptions } from 'fs'
+import fs from 'fs'
 import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
 import { getUserByName } from '../../../../backend/data-access/src/utils/backend-auth.utils'
 import { Attachment } from '../../attachments'
@@ -6,15 +6,12 @@ import { CommonDocumentProperties, DocumentOptions } from '../PDFDocuments'
 import { AccessLog } from '../access-log'
 import { CollaborationOptions, StickyNote } from './collaboration-and-interaction/colab-document-interfaces'
 
-type CustomizedWriteOptions = (WriteFileOptions & string) | ArrayBufferView
-type CustomizedWriteParams = fs.WriteFileOptions & NoParamCallback
-
 export interface Document extends DocumentOptions, CommonDocumentProperties {
   getTitle(title: string): Promise<string>
   getAuthor(author: string): Promise<string>
   printInfo(info: string): Promise<string>
   addText(text: string): Promise<string>
-  save(filePath: string, documentContent: string): Promise<string>
+  save(filePath: string, documentContent: string): Promise<void>
   addAttachment(attachment: any): Promise<void>
   clear(element: HTMLElement): void
 }
@@ -33,12 +30,11 @@ export class BaseDocument implements Document {
     this.filePath = options.filePath
     this.htmlContent = options.htmlContent
   }
-  async save(filePath: string, documentContent: string): Promise<string> {
+  async save(filePath: string, documentContent: string): Promise<void> {
     try {
       await this.saveToFile(filePath, documentContent)
       this.filePath = filePath // Update the documentId after saving
       console.log(`Document saved successfully at ${filePath}`)
-      return 'Success'
     } catch (error) {
       console.error(`Error saving document: ${error.message}`)
       throw error
@@ -63,7 +59,7 @@ export class BaseDocument implements Document {
   updatedAt: Date
   sharedWith: string[]
   downloadUrl: string
-  version: string
+  version: number
   comments: string[]
   tags: string[]
   collaborators: string[]
@@ -86,29 +82,39 @@ export class BaseDocument implements Document {
   relatedDocuments: string[]
   customMetadata: Record<string, any>
   attachments: Attachment[]
-  info: string
-  addOutlines(outlines: any[]): void {
+  info: PDFKit.DocumentInfo
+  addOutlines(outlines: Outline[]): void {
     // Add outlines to the document
-    this.info = JSON.stringify(outlines)
+    const info: PDFKit.DocumentInfo = {
+      outlines,
+    }
+    this.info = info
   }
+
+
   addParagraphs(paragraphs: string[]): void {
     this.info = JSON.stringify(paragraphs)
   }
+
   addFlowCharts(flowCharts: string[]): void {
     this.info = JSON.stringify(flowCharts)
   }
+
   addPlanningCharts(planningCharts: string[]): void {
     this.info = JSON.stringify(planningCharts)
   }
+
   addDatabaseDiagrams(databaseDiagrams: string[]): void {
     this.info = JSON.stringify(databaseDiagrams)
   }
+
   addHeader(collaborationOptions: CollaborationOptions, header?: string): void {
     this.info = JSON.stringify({ collaborationOptions, header })
   }
   addFooter(collaborationOptions: CollaborationOptions, footer?: string): void {
     this.info = JSON.stringify({ collaborationOptions, footer })
   }
+  
   addStickyNotes(collaborationOptions: CollaborationOptions, notes?: StickyNote[]): void {
     this.info = JSON.stringify({ collaborationOptions, notes })
   }

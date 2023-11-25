@@ -1,21 +1,20 @@
-import errorMessages, { PrismaService } from '@appository/backend/data-access'
-import { UserService } from '@appository/backend/users'
+import errorMessages from '@appository/backend/data-access'
 import fs from 'fs'
 import TurndownService from 'turndown'
 import { Attachment } from '../../attachments'
 import { DocumentOptions } from '../PDFDocuments'
 import { BaseDocument } from './base-document'
+
+
 type CustomUserCreatedMarkdownDocument = Document & MarkdownDocument
 
-class MarkdownDocument extends BaseDocument {
+class MarkdownDocument extends BaseDocument  implements MarkdownDocument {
   attachments: any
   constructor(options: DocumentOptions) {
     super(options)
   }
 
-  private readonly prismaService: PrismaService
-  private readonly userService: UserService
-
+ 
   // Markdown document properties and methods...
   id: number
   documentId: number
@@ -74,20 +73,19 @@ class MarkdownDocument extends BaseDocument {
     return this.content
   }
 
-  async save(filePath: string): Promise<void> {
-    // Logic to save document content to file
-    return new Promise<void>((resolve, reject) => {
-      fs.writeFile(filePath, this.content, (error) => {
+  async save(filePath: string, content: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(filePath, content, (error) => {
         if (error) {
-          console.error(`Error writing to file: ${error.message}`);
-          reject(error);
+          reject(error)
         } else {
-          this.filePath = filePath;
-          console.log(`Document saved successfully at ${filePath}`);
-          resolve();
+          this.filePath = filePath
+           console.log(`Document saved successfully at ${filePath}`)
+
+          resolve()
         }
-      });
-    });
+      })
+    })
   }
   
 

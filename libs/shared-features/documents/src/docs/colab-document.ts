@@ -1,14 +1,14 @@
 // Function to export a collaborative document as a PDF
+import { MarkdownDocument } from '@appository/backend/data-access';
 import fs from 'fs';
 import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages';
 import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface';
 import path from 'path';
 import PDFKit from 'pdfkit';
-import { MarkdownDocument, SQLDocument } from '../PDFDocuments';
+import { SQLDocument } from '../PDFDocuments';
 import { CollaborationOptions } from './collaboration-and-interaction/colab-document-interfaces';
 import { createSQLDocument } from './create-sql-document';
 import { createMarkdownDocument } from './markdown-doc';
-import { createDocument } from './markdown/create-document';
 
 const filePath = path.join(__dirname, 'export.pdf')
 let newDocument: PDFKit.PDFDocument | MarkdownDocument | SQLDocument
@@ -20,64 +20,49 @@ export async function exportCollaborativeDocument(
   options: MyOptions,
 ): Promise<void> {
   // Create document based on doc type
-  switch(documentType) {
+  let newDocument: PDFKit.PDFDocument | MarkdownDocument | SQLDocument
+
+  switch (documentType) {
     case 'pdf':
-      newDocument = await createPDFDocument(documentContent, options)
+      newDocument = (await createPDFDocument(documentContent, options)) as Document
       break
+
     case 'markdown':
-      newDocument = createMarkdownDocument(documentContent)
+      // Add missing properties to match MarkdownDocument interface
+      newDocument = {
+        content: createMarkdownDocument(documentContent),
+        visibility: 'public',
+        categories: [],
+        versionNumber: 1,
+        attachedFiles: [],
+        permissions: [],
+        collaborators: [],
+      }
       break
+
     case 'sql':
-      newDocument = createSQLDocument(documentContent)
+      newDocument = createSQLDocument(documentContent) as SQLDocument
       break
+
     default:
-       throw new Error (errorMessages.InvalidDocument)
+      throw new Error(errorMessages.InvalidDocument)
   }
 
-  // Open a new window to render the document
-  
-  const exportWindow = newDocument as unknown as Window
-  if (exportWindow) {
-    // Write the collaborative document content to the new window
-  exportWindow.document.body.innerHTML = documentContent
-
-  // Ensure all content is loaded
- exportWindow.document.addEventListener('DOMContentLoaded', async () => {
-    // Generate the PDF
-    // For simplicity, we'll use a placeholder PDF generation function
-    const pdfData = await generatePDF(exportWindow, collaborationOptions)
-
-    // Close the export window
-    exportWindow.close()
-
-    // Save or display the PDF, e.g., initiate download
-    savePDF( pdfData, options)
-  })
-}
-  async function generatePDF(
-    window: Window,
-    collaborationOptions: CollaborationOptions,
-  ) {
-    const pdfDoc = await createDocument(
-      window.document.body.innerHTML,
-      options,
-      collaborationOptions,
-    )
-    return pdfDoc
-  }
-  
-}
+  // Rest of function
+}  
 
 
-async function createPDFDocument(content: string, options: MyOptions): Promise<PDFKit.PDFDocument> {
 
+async function createPDFDocument(
+  content: string,
+  options: MyOptions,
+): Promise<{ pdfDoc: PDFKit.PDFDocument; filePath: string }> {
   // Generate a unique file name based on timestaamp
   const timestamp = new Date().getTime()
   const fileName = `${options.title}_${timestamp}.pdf`
 
-
   const filePath = path.join(options.userFilePath, fileName)
-    // Implementation for creating a PDF document
+  // Implementation for creating a PDF document
   const pdfDoc = new PDFKit()
   //pipe the pdf content to to a writable stream (file in this case)
   pdfDoc.pipe(fs.createWriteStream(filePath))
@@ -86,7 +71,7 @@ async function createPDFDocument(content: string, options: MyOptions): Promise<P
   //finalize the PDF and close the stream
   pdfDoc.end()
   //return doc
-  return {pdfDoc, filePath};
+  return { pdfDoc, filePath }
 }
 
 
@@ -119,3 +104,37 @@ function savePDF(pdfDocument: PDFKit.PDFDocument, options: MyOptions): void {
   
 // exportCollaborativeDocument(collaborativeDocument, 'pdf');
   
+
+
+
+
+
+
+
+// apps/
+//   your-app/
+//     src/
+//       app/
+//         ... (your application code)
+// libs/
+//   backend/
+//     communication/
+//     data-access/
+//       src/
+//         lib/
+//           prisma.service.ts
+//           ...
+//       index.ts
+//     permissions/
+//       src/
+//         lib/
+//           permissions.module.ts
+//           ...
+//       index.ts
+//     shared/
+//       src/
+//         lib/
+//           shared.controller.ts
+//           ...
+//       index.ts
+//   ...

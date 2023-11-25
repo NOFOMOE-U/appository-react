@@ -59,7 +59,6 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
       can(['update', 'delete'], 'Post', { authorId: user }),
     ]
 
-
     const accessLevelString = Object.values(accessLevel).join(', ')
     const roles: UserRole[] = accessLevelString.split(',') as UserRole[]
     

@@ -17,6 +17,7 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
+      "@appository/admin-panel": ["libs/admin-panel/src/index.ts"],
       "@appository/backend/api-system": ["libs/backend/api-system/src/index.ts"],
       "@appository/backend/auth": ["libs/backend/auth/src/index.ts"],
       "@appository/backend/common": ["libs/backend/common/src/index.ts"],
@@ -34,9 +35,11 @@
       "@appository/books/ui": ["libs/books/ui/src/index.ts"],
       "@appository/core": ["libs/core/src/index.ts"],
       "@appository/load-remote-module": ["libs/load-remote-module/src/index.ts"],
+      "@appository/permissions-hub": ["libs/permissions-hub/src/index.ts"],
       "@appository/shared-features/api-tool": ["libs/shared-features/api-tool/src/index.ts"],
       "@appository/shared-features/documents": ["libs/shared-features/documents/src/index.ts"],
       "@appository/shared-features/reports": ["libs/shared-features/reports/src/index.ts"],
+      "@appository/shared-services-hub": ["libs/shared-services-hub/src/index.ts"],
       "@appository/shared/module": ["libs/shared/module/src/index.ts"],
       "@appository/shared/ui": ["libs/shared/ui/src/index.ts"]
     }

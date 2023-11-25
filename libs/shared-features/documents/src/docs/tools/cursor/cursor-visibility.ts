@@ -1,11 +1,13 @@
+import { cursors } from "./cursor-labeling";
+
 // Pseudo code for Cursor Visibility Control
 let cursorsVisible = true;
 
-function toggleCursorVisibility() {
+export function toggleCursorVisibility() {
   cursorsVisible = !cursorsVisible;
 }
 
-function drawCursors(pdfDoc) {
+export function drawCursors(pdfDoc) {
   if (cursorsVisible) {
     // Draw all visible cursors
     for (const cursor of cursors) {
@@ -13,3 +15,21 @@ function drawCursors(pdfDoc) {
     }
   }
 }
+
+
+
+
+
+
+
+const validateAuthData = async (data: AuthDto) => {
+  try {
+    await authSchema.validate(data, { abortEarly: false });
+    // Data is valid
+    return true;
+  } catch (error) {
+    // Validation failed
+    return false;
+  }
+};
+

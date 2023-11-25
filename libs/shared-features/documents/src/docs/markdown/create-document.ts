@@ -11,6 +11,37 @@ import {
 import { CustomPDFDocument } from '../custom-pdf-document'
 import { handleCollaborationOptions } from '../handle-error.utils'
 
+
+
+async function createDocumentConent(pdfDoc: CustomPDFDocument, content: string): Promise<void>{
+  pdfDoc.font(collaborationOptions.font || 'Helvetica')
+  pdfDoc.text(content)
+}
+
+
+function applyCollaborationTools(pdfDoc: CustomPDFDocument, collaboratiionOptions: CollaborationOptions) {
+  handleCollaborationOptions(pdfDoc, collaboratiionOptions);
+
+  addOutlines(pdfDoc, collaboratiionOptions);
+
+
+  addOutlines(pdfDoc, collaborationOptions.outlines as unknown as CollaborationOptions);
+  addParagraphs(pdfDoc, collaborationOptions.paragraphs as unknown as CollaborationOptions);
+  addFlowCharts(pdfDoc, collaborationOptions.flowCharts as unknown as CollaborationOptions);
+  addPlanningCharts(pdfDoc, collaborationOptions.planningCharts as unknown as CollaborationOptions);
+  addDatabaseDiagrams(pdfDoc, collaborationOptions.databaseDiagrams as unknown as CollaborationOptions);
+  addStickyNotes(pdfDoc, collaborationOptions.stickyNotes as unknown as CollaborationOptions);
+  addHeader(pdfDoc, collaborationOptions.header as unknown as CollaborationOptions);
+  addDraggableSections(pdfDoc, collaborationOptions.draggableSections as unknown as CollaborationOptions);
+}
+
+function setDefaultDocumentType(pdfDoc: CustomPDFDocument, collaboratiionOptions: CollaborationOptions){
+  if (collaborationOptions?.documentType) {
+    pdfDoc.info.Title = collaborationOptions.documentType
+  }
+}
+
+
 export async function createDocument(
   content: string,
   options: MyOptions,
@@ -59,7 +90,7 @@ const collaborationOptions: CollaborationOptions = {
   flowCharts: 1,
   planningCharts: 1,
   databaseDiagrams: 1,
-  documentType: 'collaborative',
+  documentType: 'collaborative document',
   landingPagePreferences: {
     title: 'My Dynamic Landing Page',
     description: 'Welcome to our awesome app!',
@@ -78,6 +109,17 @@ const collaborationOptions: CollaborationOptions = {
     { content: 'Section 3: Conclusion' },
   ],
 }
+
+const collaborationHelper = new CollaborationHelper(collaborationOptions);
+
+// Assuming you have an HTML element you want to modify
+const yourElement = document.getElementById(elementId);
+
+// Apply font to the element
+collaborationHelper.applyFont(yourElement);
+
+// Apply draggable sections to the element
+collaborationHelper.applyDraggableSections(yourElement);
 
 createDocument('Document Content' as unknown as string, options, collaborationOptions)
 

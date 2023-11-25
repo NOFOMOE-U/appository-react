@@ -7,9 +7,16 @@ export interface CollaborationOptions {
   flowCharts?: number
   planningCharts?: number
   databaseDiagrams?: number
+  useclassDiagrams?: number
+  useCaseDiagrams?: number
+  sequenceDiagrams?: number
+  classDiagrams?: number
+  stateDiagrams?: number
   stickyNotes?: StickyNote[]
   font?: string
   header?: string
+  color?: string
+  size?: number
   draggableSections?: DraggableSection[]
   landingPagePreferences?: LandingPagePreferences
   documentType: string

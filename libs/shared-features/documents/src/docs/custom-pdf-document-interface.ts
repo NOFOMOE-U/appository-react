@@ -1,4 +1,4 @@
-import { PDFKit } from 'pdfkit';
+import PDFKit from 'pdfkit';
 import { CollaborationOptions, StickyNote } from "./collaboration-and-interaction/colab-document-interfaces";
 
 interface CustomPDFDocument extends PDFKit.PDFDocument {

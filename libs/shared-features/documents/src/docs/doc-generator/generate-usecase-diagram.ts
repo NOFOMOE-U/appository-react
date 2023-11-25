@@ -1,6 +1,5 @@
-import DocumentHelper from "../../PDFDocuments"
+import DocumentHelper from '../../PDFDocuments'
 
-  
 document.addEventListener('DOMContentLoaded', function () {
   const DocumentHelper = {
     useCaseDiagrams: [],
@@ -21,6 +20,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const diagramItem = document.createElement('div')
         diagramItem.classList.add('use-case-diagram-item')
         diagramItem.textContent = diagram
+
+        // Add a delete button for each diagram
+        const deleteButton = document.createElement('button')
+        deleteButton.textContent = 'Delete'
+        deleteButton.addEventListener('click', () => confirmAndDelete(diagram))
+
+        diagramItem.appendChild(deleteButton);
+
         container.appendChild(diagramItem)
       })
     },
@@ -39,53 +46,46 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 })
 
-
-
 function updateUseCaseDiagrams() {
-    // Placeholder logic for updating use case diagrams
-    const useCaseDiagramsContainer = document.getElementById("use-case-diagrams-container") as HTMLDivElement;
-  
-    // Clear existing diagrams
-    useCaseDiagramsContainer.innerHTML = "";
-  
-    // Simulate fetching updated use case diagrams (replace with your actual data)
-    const updatedDiagrams = ["Updated Diagram 1", "Updated Diagram 2", "Updated Diagram 3"];
-  
-    updatedDiagrams.forEach(diagram => {
-      const diagramItem = document.createElement("div");
-      diagramItem.classList.add("use-case-diagram-item");
-      diagramItem.textContent = diagram;
-      useCaseDiagramsContainer.appendChild(diagramItem);
-    });
-  
-    console.log("Updating use case diagrams...");
+  // Placeholder logic for updating use case diagrams
+  const useCaseDiagramsContainer = document.getElementById('use-case-diagrams-container') as HTMLDivElement
+
+  // Clear existing diagrams
+  useCaseDiagramsContainer.innerHTML = ''
+
+  // Simulate fetching updated use case diagrams (replace with your actual data)
+  const updatedDiagrams = ['Updated Diagram 1', 'Updated Diagram 2', 'Updated Diagram 3']
+
+  updatedDiagrams.forEach((diagram) => {
+    const diagramItem = document.createElement('div')
+    diagramItem.classList.add('use-case-diagram-item')
+    diagramItem.textContent = diagram
+    useCaseDiagramsContainer.appendChild(diagramItem)
+  })
+
+  console.log('Updating use case diagrams...')
+}
+
+function confirmAndDelete(diagramName: string) {
+  // Display a confirmation dialog
+  const isConfirmed = confirm(`Are you sure you want to delete the diagram "${diagramName}"?`)
+
+  // If confirmed, proceed with deletion
+  if (isConfirmed) {
+    deleteDiagram(diagramName)
   }
-  
+}
 
-  function confirmAndDelete(diagramName: string) {
-    // Display a confirmation dialog
-    const isConfirmed = confirm(`Are you sure you want to delete the diagram "${diagramName}"?`);
-
-    // If confirmed, proceed with deletion
-    if (isConfirmed) {
-      deleteDiagram(diagramName);
-    }
+function deleteDiagram(diagramName: string) {
+  // Placeholder logic for deleting a diagram
+  const index = DocumentHelper.useCaseDiagrams.indexOf(diagramName)
+  if (index !== -1) {
+    DocumentHelper.useCaseDiagrams.splice(index, 1)
+    DocumentHelper.renderUseCaseDiagrams()
+    console.log(`Diagram "${diagramName}" deleted.`)
   }
-  
-  function deleteDiagram(diagramName: string) {
-    // Placeholder logic for deleting a diagram
-    const index = DocumentHelper.useCaseDiagrams.indexOf(diagramName);
-    if (index !== -1) {
-      DocumentHelper.useCaseDiagrams.splice(index, 1);
-      DocumentHelper.renderUseCaseDiagrams();
-      console.log(`Diagram "${diagramName}" deleted.`);
-    }
-  }
+}
 
-
-
-
-  
 //todo front end
 
 //   <!DOCTYPE html>
@@ -110,14 +110,14 @@ function updateUseCaseDiagrams() {
 //     margin: 0;
 //     font-family: 'Arial', sans-serif;
 //   }
-  
+
 //   .container {
 //     display: flex;
 //     justify-content: center;
 //     align-items: center;
 //     height: 100vh;
 //   }
-  
+
 //   .use-case-diagram-item {
 //     background-color: #27ae60;
 //     color: #fff;
@@ -125,12 +125,10 @@ function updateUseCaseDiagrams() {
 //     border-radius: 8px;
 //     margin-bottom: 10px;
 //   }
-  
+
 //   .use-case-diagram-item:hover {
 //     background-color: #219d54;
 //   }
-  
-
 
 // Example usage
 // DocumentHelper.addUseCaseDiagrams([
