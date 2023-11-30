@@ -1,29 +1,28 @@
+// import { CustomRequest, CustomRequestInit, YourRequestObject } from '@appository/backend/request-options'
+// import { UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/users'
+import { CustomRequest, CustomRequestInit, YourRequestObject } from '@appository/backend/request-options'
+import { UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/users'
 import { Injectable } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import type { Request } from 'express-serve-static-core'
 import { CustomURLSearchParams, MyContext } from './my-context'
-
-
-import { CustomRequest, CustomRequestInit, YourRequestObject } from '@appository/backend/request-options'
-import { UserWithAccessToken, UserWithoutSensitiveData, getUserById } from '@appository/backend/users'
 
 @Injectable()
 export class ContextService {
   constructor(private readonly context: MyContext, private readonly req: CustomRequest<MyContext<{}>>) {}
 
   async createContext(prisma: PrismaClient, req: CustomRequest<MyContext<{}>>): Promise<MyContext> {
-    const customRequest = Object.assign(req, {
-      currentUser: {},
-    }) as CustomRequest<MyContext<{}>>
+    const currentUser = this.req.currentUser && 'accesToken' in this.req.currentUser
+      ? (this.req.currentUser as unknown as UserWithAccessToken)
+      : (this.req.currentUser as UserWithoutSensitiveData)
+    
 
       const context: MyContext<{}> = {
         prisma,
         request: {} as YourRequestObject<CustomRequestInit>,
         url: '',
         user: {} as UserWithAccessToken,
-        currentUser: this.req.currentUser && 'accessToken' in this.req.currentUser
-        ? (this.req.currentUser as unknown as UserWithAccessToken)
-        : (this.req.currentUser as UserWithoutSensitiveData),
+        currentUser,
         userId: this.req.userId,
         userService: this.req.userService,
         get: this.req.get,
@@ -101,10 +100,11 @@ export class ContextService {
     }
     return undefined
   }
+  
 
   async getUserById(userId: string): Promise<UserWithoutSensitiveData | null> {
     //user the imported getUserById function
-    const user = this.req.currentUser ? await getUserById(userId) : null
+    const user = this.req.currentUser ? await this.getUserById(userId) : null
     return user
   }
 }

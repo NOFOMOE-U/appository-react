@@ -7,11 +7,8 @@ generator client {
   // finds the right binary file for it based on the 
   // list of supported operating systems 
   binaryTargets = ["native"]
-
   // previewFeatures = ["multiSchema"]
 }
-
-
 
 generator nexusPrisma {
   provider = "nexus-prisma"
@@ -21,11 +18,8 @@ datasource db {
   provider = "postgres"
   url      = env("DATABASE_URL")
   // schemas  = ["base", "communication"]
-  
 }
-
-
-
+ 
 model User {
   id                   String           @id @default(uuid())
   name                 String
@@ -56,12 +50,14 @@ model User {
   confirmPasswordMatch String?
 }
   
-
 model Configuration {
   id       Int     @id @default(autoincrement())
   headless Boolean
-  
 }
+
+
+
+
 
 //todo set up
 // Add a new "pin" mode model
@@ -76,35 +72,6 @@ model HeadlessJob {
   users      User[]   @relation("background_jobs")
 }
 
-// model User {
-//   id                   String           @id @default(uuid())
-//   name                 String
-//   email                String           @unique
-//   username             String           @unique
-//   passwordHash         String           @db.VarChar(255)
-//   accessLevel          String
-//   roles                UserRole[]       @default([USER])
-//   posts                Post[]
-//   groups               Group[]
-//   groupId              Int?
-//   teamMemberships      TeamMembership[]
-//   assignedTasks        Task[]           @relation("assignee")
-//   assignedTasksBy      Task[]           @relation("assigner")
-//   assignedToTask       Task[]           @relation("assigned_to")
-//   createdBy            Task?            @relation("created_by")
-//   createdAt            DateTime         @default(now())
-//   updatedAt            DateTime         @default(now())
-//   resetPasswordToken   String?          @default(value: "")
-//   settings             UserSettings?    @relation("settings")
-//   userProfile          UserProfile?     @relation("user_profile")
-//   userProfileId        Int?
-//   password             Password?        @relation("password")
-//   personas             Persona[]        @relation("user_personas")
-//   backgroundJobs       HeadlessJob[]    @relation("background_jobs")
-//   payments             Payment[]        @relation("user_payments")
-//   confirmPassword      String?
-//   confirmPasswordMatch String?
-// }
 
 model Group {
   id          String   @id @default(uuid())

@@ -1,5 +1,5 @@
+import { errorMessages } from '@appository/shared-features/reports'
 import fs from 'fs'
-import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
 import { getUserByName } from '../../../../backend/data-access/src/utils/backend-auth.utils'
 import { Attachment } from '../../attachments'
 import { CommonDocumentProperties, DocumentOptions } from '../PDFDocuments'
@@ -39,9 +39,10 @@ export class BaseDocument implements Document {
       console.error(`Error saving document: ${error.message}`)
       throw error
     }
+    return this.saveToFile(filePath, documentContent)
   }
 
-  protected saveToFile(filePath: string, content: string): Promise<void> {
+  saveToFile(filePath: string, content: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const callback: fs.NoParamCallback = (error) => {
         if (error) {
@@ -85,6 +86,7 @@ export class BaseDocument implements Document {
   info: PDFKit.DocumentInfo
   addOutlines(outlines: Outline[]): void {
     // Add outlines to the document
+    const out
     const info: PDFKit.DocumentInfo = {
       outlines,
     }
@@ -93,8 +95,9 @@ export class BaseDocument implements Document {
 
 
   addParagraphs(paragraphs: string[]): void {
-    this.info = JSON.stringify(paragraphs)
+    this.info.paragraphs = paragraphs
   }
+
 
   addFlowCharts(flowCharts: string[]): void {
     this.info = JSON.stringify(flowCharts)

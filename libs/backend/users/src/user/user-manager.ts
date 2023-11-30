@@ -1,16 +1,18 @@
+import { User, UserRole } from '@appository/backend/data-access'
 import {
   Prisma,
   PrismaClient,
-  UserRole
 } from '@prisma/client'
 import { NextFunction, Response } from 'express-serve-static-core'
 import { AccessLevel } from 'libs/backend/data-access/src/interfaces/auth/access-level'
 import { CustomPrismaClient } from 'libs/backend/data-access/src/lib/prisma/prisma'
-import errorMessages from 'libs/backend/data-access/src/middleware/error-messages'
-import { isAuthenticatedUser } from '../../middleware/permissions/rules/is-authenticated-user'
-import { AuthenticatedSession, authenticateUser } from '../../middleware/user/user.middleware'
-import generateToken from '../../utils/generate-token.utils'
+import { AuthenticatedSession, authenticateUser } from 'libs/backend/data-access/src/middleware/user/user.middleware'
+import generateToken from 'libs/backend/data-access/src/utils/generate-token.utils'
+import errorMessages from 'libs/shared-features/reports/src/error-messages'
+import { isAuthenticatedUser } from '../../../data-access/src/middleware/permissions/rules/is-authenticated-user'
 import { UserWithoutSensitiveData } from './user'
+
+
 
 const prisma = new PrismaClient()
 
@@ -42,7 +44,6 @@ export class UserManagerService {
     // You can use the Prisma client to create a new user in the database
     const newUser = (await this.prisma.user.create({
       data: userCreateInput,
-      
     })) as unknown as UserWithoutSensitiveData
     return newUser
   }

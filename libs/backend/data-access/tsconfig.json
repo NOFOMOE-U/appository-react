@@ -33,6 +33,6 @@
   ],
   "include": ["src/**/*.ts", 
   "../request-options/src/custom-request/custom-request.ts", 
-  "src/graphql/nexus.schema.ts", "../common/src/hashtag/hash-tag.service.ts", "../request-options/src/custom-request/custom-request-with-context.spec.ts", "../request-options/src/custom-request/custom-request-init.ts", "../request-options/src/custom-request/custom-request-with-context.ts", "../request-options/src/custom-request/custom-request-with-session.ts", "../request-options/src/custom-request/my-custom-request.ts", "../request-options/src/custom-request/custom-request.spec.ts", "../request-options/src/mock/mock-options.ts"],
+  "src/graphql/nexus.schema.ts", "../common/src/hashtag/hash-tag.service.ts", "../request-options/src/custom-request/custom-request-with-context.spec.ts", "../request-options/src/custom-request/custom-request-init.ts", "../request-options/src/custom-request/custom-request-with-context.ts", "../request-options/src/custom-request/custom-request-with-session.ts", "../request-options/src/custom-request/my-custom-request.ts", "../request-options/src/custom-request/custom-request.spec.ts", "../request-options/src/mock/mock-options.ts", "../../shared-features/reports/src/error-messages.ts"],
   "exclude": ["src/node_modules", "./src/lazytyperegistry.ts", "tmp"]
 }

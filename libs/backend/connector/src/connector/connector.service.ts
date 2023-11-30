@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common'
-// import { ContextModule } from '@appository/backend/context-system';
+import { ContextModule } from '@appository/backend/context-system';
+import { BackendDataAccessModule, PrismaModule } from '@appository/backend/data-access';
+import { Injectable } from '@nestjs/common';
 // import { BackendDataAccessModule, ContextModule } from '@appository/backend/data-access';
 // import {
 // //     AquaModule,
@@ -12,17 +13,18 @@ export class ConnectorService {
     
     constructor(
         private readonly contextModule: ContextModule,
-
-        // private readonly backendDataAccessModule: BackendDataAccessModule,
+        private readonly backendDataAccessModule: BackendDataAccessModule,
+        private readonly prismaModule: PrismaModule
         // private readonly aquaModule: AquaService
     ) { }
 
     establishConnection(): void {
-    // Example: Set a property in ContextModule
+        // Example: Set a property in ContextModule
+        
     this.contextModule.setConnectionStatus(true);
 
     // Example: Call a method in BackendendDataAccess
-    this.backendDataAccessModule.providers.find(predicate => predicate)
+        this.backendDataAccessModule.providers.find((predicate: any) => predicate)
 
     }
 }

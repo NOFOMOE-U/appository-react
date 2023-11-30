@@ -1,8 +1,9 @@
 import { User as UserType } from '@appository/backend/data-access';
+import { UserRoleEnum } from '@appository/backend/users';
+import { errorMessages } from '@appository/shared-features/reports';
 import { PrismaClient } from '@prisma/client';
 import { MiddlewareFn } from "type-graphql";
-import { UserRoleEnum } from "../../modules/user/types";
-import errorMessages from "./error-messages";
+
 const prisma = new PrismaClient();
 
 // middleware function to check if user is authorized to create a resource
@@ -16,7 +17,7 @@ export const createPermissions: MiddlewareFn<any> = async ({ root, args, context
   
     // Fetch the user from the database
     const user: UserType | null = await prisma.user.findUnique({where:{id:userId}})
-    if (!user || !user.roles.every(role => allowedRoles.includes(role.toString()))) {
+    if (!user || !user.roles.every((role: any) => allowedRoles.includes(role.toString()))) {
       throw new Error(errorMessages.notAuthorized)
     }
     await next()

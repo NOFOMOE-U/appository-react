@@ -1,9 +1,11 @@
 export * from './lib/backend-users.module'
+export * from './types/types.module'
+export * from './types/types.service'
+// export * fro../../../shared-services-hub/src/user-profile/user-profile.serviceice'
 export * from './user/create-user'
 export * from './user/types'
 export * from './user/user'
 export * from './user/user-behavior-controller'
-export * from './user/user-manager'
 export * from './user/user-manager'
 export * from './user/user-queries/authenticate-user'
 export * from './user/user-queries/delete-user'
@@ -17,12 +19,6 @@ export * from './user/user.module'
 export * from './user/user.service'
 
 
-
-
-export * from '../../users/src/types/types.module'
-export * from '../../users/src/types/types.service'
-export * from './modules/user/user'
-export * from './modules/user/user.input'
-export * from './modules/user/user.module'
-export * from './modules/user/user.service'
+export * from './user-profile/user-profile.module'
+export * from './user-profile/user-profile.service'
 

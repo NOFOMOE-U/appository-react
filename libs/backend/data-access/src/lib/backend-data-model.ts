@@ -7,12 +7,11 @@ import { ConfigModule } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { join } from 'path'
 import { CommonContextModule } from '../common-context/common-context.module'
-import prisma from './prisma/prisma'
 import { PrismaModule } from './prisma/prisma.module'
 //todo aqua
 // import { AquaModule } from 'libs/backend/communication/src/aqua/aqua.module'
-import { createContext } from '@appository/backend/context-system'
 import { UserModule } from '@appository/backend/users'
+import { createContext } from 'libs/backend/context-system/src/context/create-context'
 @Module({
   
   controllers: [PrismaController],

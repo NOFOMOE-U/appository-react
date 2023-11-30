@@ -1,7 +1,6 @@
 import { CommunicationModule } from '@appository/backend/communication'
 import {
   LoggingModule,
-  PermissionsModule,
   PrismaModule,
 } from '@appository/backend/data-access'
 import { UserModule } from '@appository/backend/users'
@@ -13,7 +12,7 @@ import { join } from 'path'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 // import {SocketModule} from '@nestjs/platform-socket.io'
-
+import { PermissionsModule } from '@appository/backend/data-access'
 const permissionsEnabled= true
 
 @Module({

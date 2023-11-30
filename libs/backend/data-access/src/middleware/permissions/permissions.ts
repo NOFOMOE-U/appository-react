@@ -1,9 +1,9 @@
 // designed to be used on the server side (backend)
+import { errorMessages } from '@appository/shared-features/reports';
 import { PrismaClient } from '@prisma/client';
 import { isEmail } from 'class-validator';
 import { useState } from 'react';
 import * as yup from 'yup';
-import errorMessages from './error-messages';
 
 const prisma = new PrismaClient();
 

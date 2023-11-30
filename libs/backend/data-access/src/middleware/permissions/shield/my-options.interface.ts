@@ -1,7 +1,7 @@
+import { DocumentHelper } from '@appository/shared-features/documents'
 import { PrismaClient } from '@prisma/client'
 import { IOptions } from 'graphql-shield/typings/types'
 import { MyContext } from 'libs/backend/context-system/src/context/my-context'
-import DocumentHelper from 'libs/shared-features/documents/src/PDFDocuments'
 
 
 export interface MyOptions extends IOptions {
@@ -19,7 +19,7 @@ export interface MyOptions extends IOptions {
   mappings: []
   userFilePath: string
   document: Document
-  documentHelper: typeof DocumentHelper
+  documentHelper: DocumentHelper
   relativeEnvPaths: string[]
   relativePath: string
   dirname: string

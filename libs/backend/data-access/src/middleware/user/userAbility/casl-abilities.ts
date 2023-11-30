@@ -70,7 +70,7 @@ export const createForUser= async (user: User): Promise<AppAbility> => {
     : [];
 
 
-    // commented out code for each level
+    // commented out code for each level due to using map above
 
     // const additionalRules = accessLevel
     //   // how to set up rohasRolees for users to have specific permission

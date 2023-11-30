@@ -1,5 +1,4 @@
 // Assuming these functions are part of some object, let's call it DocumentHelper
-import { MarkdownDocument } from '@appository/backend/data-access'
 import fs from 'fs'
 import PDFKit from 'pdfkit'
 import { Attachment } from '../attachments'
@@ -9,7 +8,8 @@ import { CollaborationOptions, StickyNote } from './docs/collaboration-and-inter
 import { addDatabaseDiagrams } from './docs/collaboration-and-interaction/colab-document-options'
 import { CustomPDFDocument } from './docs/custom-pdf-document'
 import { DocumentHelper } from './docs/document-helper'
-export interface DocumentOptions {
+import { MarkdownDocument } from './docs/markdown-doc'
+export interface DocumentOptions extends MyOptions {
   id: number
   title: string
   content: string
@@ -47,8 +47,8 @@ export interface CommonDocumentProperties extends CustomPDFDocument {
   customMetadata: Record<string, any> // Custom metadata associated with the document
   attachments: Attachment[] // List of file attachments associated with the document
   info: PDFKit.DocumentInfo
-  save(filePath: string, documentContent: string): Promise<void>
-
+  save(): this
+  write: (...text: string[]) => void
   //Common propertis and methods for a document ypes
 }
 
@@ -63,21 +63,31 @@ const DocumentHelper: DocumentHelper = {
   },
 
   useCaseDiagrams: [],
-  // addOutlines(collaborationOptions: CollaborationOptions): BaseDocument | CustomUserCreatedDocument
+  // addOutlines(collaborationOptions: CollaborationOptions): BaseDocument | CustomUserCreatedPDFDocument
   addOutlines(
-    collaborationOptions: CollaborationOptions,
-    options?: DocumentOptions,
-  ): CustomUserCreatedDocument | BaseDocument {
-    // For example, you can customize the outlines and return a CustomUserCreatedDocument or BaseDocument
+    pdfDoc: any,
+    collaborationOptions: CollaborationOptions
+  ):
+    CustomUserCreatedMarkdownDocument
+    | CustomUserCreatedPDFDocument
+    | BaseDocument {
+    // For example, you can customize the outlines and return a CustomUserCreatedPDFDocument or BaseDocument
     this.outlines.push(`Outlines added based on collaboration options: ${JSON.stringify(collaborationOptions)}`)
-    const userCreatedDoc = new CustomUserCreatedDocument({})
+    const userCreatedDoc = new CustomUserCreatedPDFDocument()
     return userCreatedDoc
   },
 
-  createDocument(type: string, options: DocumentOptions): Document {
+  createDocument(
+    id: string,
+    content: string,
+    htmlContent: string,
+    filePath: string,
+    type: string,
+    options: DocumentOptions
+  ): Document  {
     switch (type) {
       case 'pdf':
-        return DocumentHelper.createPDFDocument(options) as CustomUserCreatedDocument
+        return DocumentHelper.createPDFDocument(options) as CustomUserCreatedPDFDocument
       case 'markdown':
         return DocumentHelper.createMarkdownDocument(options) as CustomUserCreatedMarkdownDocument
       default:
@@ -332,7 +342,6 @@ const DocumentHelper: DocumentHelper = {
   mindMaps: [],
 }
 
-export default DocumentHelper
 
 export interface SQLDocument {
   // SQL document properties and methods...
@@ -366,7 +375,7 @@ PDFKit.prototype.getAuthor = function () {
   return console.log(`PDF was created by ${this.getAuthor}`)
 }
 
-type CustomUserCreatedDocument = Document & PDFDocument
+export type CustomUserCreatedPDFDocument = Document & PDFDocument
 
 class PDFDocument extends BaseDocument {
   version: number;
@@ -410,7 +419,7 @@ class PDFDocument extends BaseDocument {
     return this.saveToFile(filePath, documentContent)
   }
 
-  private saveToFile(filePath: string, content: string): Promise<void> {
+  saveToFile(filePath: string, content: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const callback: fs.NoParamCallback = (error) => {
         if (error) {

@@ -1,30 +1,26 @@
 import options, { MyOptions } from '@appository/backend/request-options'
 import PDFKit from 'pdfkit'
-import { CollaborationOptions, DraggableSection, StickyNote } from '../collaboration-and-interaction/colab-document-interfaces'
+import { CollaborationHelper, CollaborationOptions, DraggableSection, StickyNote } from '../collaboration-and-interaction/colab-document-interfaces'
 import {
   addDatabaseDiagrams,
   addFlowCharts,
   addOutlines,
   addParagraphs,
-  addPlanningCharts,
+  addPlanningCharts
 } from '../collaboration-and-interaction/colab-document-options'
 import { CustomPDFDocument } from '../custom-pdf-document'
 import { handleCollaborationOptions } from '../handle-error.utils'
 
 
 
-async function createDocumentConent(pdfDoc: CustomPDFDocument, content: string): Promise<void>{
+async function createDocumentContent(pdfDoc: CustomPDFDocument, content: string): Promise<void>{
   pdfDoc.font(collaborationOptions.font || 'Helvetica')
   pdfDoc.text(content)
 }
 
-
 function applyCollaborationTools(pdfDoc: CustomPDFDocument, collaboratiionOptions: CollaborationOptions) {
   handleCollaborationOptions(pdfDoc, collaboratiionOptions);
-
   addOutlines(pdfDoc, collaboratiionOptions);
-
-
   addOutlines(pdfDoc, collaborationOptions.outlines as unknown as CollaborationOptions);
   addParagraphs(pdfDoc, collaborationOptions.paragraphs as unknown as CollaborationOptions);
   addFlowCharts(pdfDoc, collaborationOptions.flowCharts as unknown as CollaborationOptions);
@@ -33,13 +29,9 @@ function applyCollaborationTools(pdfDoc: CustomPDFDocument, collaboratiionOption
   addStickyNotes(pdfDoc, collaborationOptions.stickyNotes as unknown as CollaborationOptions);
   addHeader(pdfDoc, collaborationOptions.header as unknown as CollaborationOptions);
   addDraggableSections(pdfDoc, collaborationOptions.draggableSections as unknown as CollaborationOptions);
+
 }
 
-function setDefaultDocumentType(pdfDoc: CustomPDFDocument, collaboratiionOptions: CollaborationOptions){
-  if (collaborationOptions?.documentType) {
-    pdfDoc.info.Title = collaborationOptions.documentType
-  }
-}
 
 
 export async function createDocument(
@@ -49,39 +41,37 @@ export async function createDocument(
 ): Promise<CustomPDFDocument> {
   const pdfDoc: CustomPDFDocument = new PDFKit() as CustomPDFDocument
 
-  // Add content to the PDF, hande other configurations
-  pdfDoc.info.Title = options.qualifiedName // Set the document title
-  pdfDoc.info.Author = 'your app name' // set the document author
-  // Set default document type to a blank document
-  let defaultDocumentType: string
-  if (collaborationOptions?.documentType) {
-    defaultDocumentType = collaborationOptions.documentType
-  }
+  createDocumentContent(pdfDoc, content)
+  setDocumentInformation(pdfDoc, options, collaborationOptions)
+
   if (collaborationOptions) {
+    await applyCollaborationTools(pdfDoc, collaborationOptions)
+    focusOnContentEditable()
     // Apply overall document styling
     pdfDoc.font(collaborationOptions.font || 'Helvetica')
     pdfDoc.text(content)
-
     // Handle collaboration options
     handleCollaborationOptions(pdfDoc, collaborationOptions)
-    
-    // Add collaboration tools
-    addOutlines(pdfDoc, collaborationOptions.outlines as unknown as CollaborationOptions)
-    addParagraphs(pdfDoc, collaborationOptions.paragraphs as unknown as CollaborationOptions)
-    addFlowCharts(pdfDoc, collaborationOptions.flowCharts as unknown as CollaborationOptions)
-    addPlanningCharts(pdfDoc, collaborationOptions.planningCharts as unknown as CollaborationOptions)
-    addDatabaseDiagrams(pdfDoc, collaborationOptions.databaseDiagrams as unknown as CollaborationOptions)
-    addStickyNotes(pdfDoc, collaborationOptions.stickyNotes as unknown as CollaborationOptions)
-    addHeader(pdfDoc, collaborationOptions.header as unknown as CollaborationOptions)
-    addDraggableSections(pdfDoc, collaborationOptions.draggableSections as unknown as CollaborationOptions)
-
-    // Focus on the contenteditable div or any other element where the user should start typing
-    const contentEditable = document.querySelector('.contenteditable') as HTMLElement | null // Replace with your actual selector
-    if (contentEditable) {
-      contentEditable.focus()
-    }
   }
   return pdfDoc
+}
+
+
+function setDocumentInformation(pdfDoc: CustomPDFDocument, options: MyOptions, collaborationOptions?: CollaborationOptions): void {
+  pdfDoc.info.Title = options.qualifiedName; // Set the document title
+  pdfDoc.info.Author = 'your app name'; // Set the document author
+  if (collaborationOptions?.documentType) {
+    pdfDoc.info.Subject = collaborationOptions.documentType; // Set document type
+  }
+}
+
+
+// Focus on the contenteditable div or any other element where the user should start typing
+function focusOnContentEditable(): void {
+  const contentEditable = document.querySelector('.contenteditable') as HTMLElement | null; // Replace with your actual selector
+  if (contentEditable) {
+    contentEditable.focus();
+  }
 }
 
 const collaborationOptions: CollaborationOptions = {
@@ -113,7 +103,7 @@ const collaborationOptions: CollaborationOptions = {
 const collaborationHelper = new CollaborationHelper(collaborationOptions);
 
 // Assuming you have an HTML element you want to modify
-const yourElement = document.getElementById(elementId);
+const yourElement = document.getElementById(options.elementId);
 
 // Apply font to the element
 collaborationHelper.applyFont(yourElement);
@@ -144,6 +134,8 @@ export function addStickyNotes(
     }
   }
 }
+
+
 
 // Function to add a header to the PDF
 export function addHeader(
@@ -243,3 +235,17 @@ export function addDraggableSections(
 //     height: 100%;
 //     flex-shrink: 0;
 //   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

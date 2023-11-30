@@ -1,7 +1,7 @@
 import { getUserById } from '@appository/backend/users'
 import { UserRole } from '@prisma/client'
 import { rule } from 'graphql-shield'
-import errorMessages from '../error-messages'
+import errorMessages from '../../../../../../shared-features/reports/src/error-messages'
 
 export const isAuthenticatedUser = rule()(async (_, __, { request, prisma }) => {
   const userId = await getUserById(request)

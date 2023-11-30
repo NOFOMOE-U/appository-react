@@ -18,6 +18,7 @@
     "baseUrl": ".",
     "paths": {
       "@appository/admin-panel": ["libs/admin-panel/src/index.ts"],
+      "@appository/app-configuration-system": ["libs/app-configuration-system/src/index.ts"],
       "@appository/backend/api-system": ["libs/backend/api-system/src/index.ts"],
       "@appository/backend/auth": ["libs/backend/auth/src/index.ts"],
       "@appository/backend/common": ["libs/backend/common/src/index.ts"],
@@ -25,6 +26,7 @@
       "@appository/backend/connector": ["libs/backend/connector/src/index.ts"],
       "@appository/backend/context-system": ["libs/backend/context-system/src/index.ts"],
       "@appository/backend/data-access": ["libs/backend/data-access/src/index.ts"],
+      "@appository/backend/middleware": ["libs/backend/middleware/src/index.ts"],
       "@appository/backend/nexus-lazy-types": ["libs/backend/nexus-lazy-types/src/index.ts"],
       "@appository/backend/request-options": ["libs/backend/request-options/src/index.ts"],
       "@appository/backend/shared": ["libs/backend/shared/src/index.ts"],

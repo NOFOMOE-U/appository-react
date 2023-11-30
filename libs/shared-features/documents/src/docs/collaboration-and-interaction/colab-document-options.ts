@@ -1,8 +1,8 @@
-import { PermissionsService } from "../../middleware/permissions/permissions.service";
+import { PermissionsService } from "@appository/backend/data-access";
 import { CustomPDFDocument } from "../custom-pdf-document";
-import { CollaborationOptions, StickyNote } from "./co-document-interfaces";
-
-
+import { CursorPosition } from "../tools/cursor/real-time-cursor-tracking";
+import { CollaborationOptions, DraggableSection, StickyNote } from "./colab-document-interfaces";
+import { CommentData } from './commnents/commenting-system';
 
 //todo: integrate drawing tools library
  //todo: import { DrawingTools } from 'drawing-tools-lib'
@@ -21,7 +21,7 @@ export function addOutlines(
 }
 
 // Function to add paragraphs to the PDF
-export function addParagraphs(pdfDoc: CustomPDFDocument, collaborationOptions: CollaborationOptions): void {
+export function addParagraphs(pdfDoc: CustomPDFDocument, collaborationOptions: CollaborationOptions): Document {
   // Implement logic to add paragraphs
   // Example:
   pdfDoc.text('Paragraph 1');
@@ -47,8 +47,19 @@ export function addPlanningCharts(pdfDoc: CustomPDFDocument, collaborationOption
   // Add more planning charts as needed
 }
 
+
+
 // Function to add database diagrams to the PDF
 export function addDatabaseDiagrams(pdfDoc: CustomPDFDocument, collaborationOptions: CollaborationOptions): void {
+  // Implement logic to add database diagrams
+  // Example:
+  pdfDoc.text('Database Diagram 1');
+  pdfDoc.text('Database Diagram 2');
+  // Add more database diagrams as needed
+}
+
+// Function to add database diagrams to the PDF
+export function renderDatabaseDiagrams(pdfDoc: CustomPDFDocument, collaborationOptions: CollaborationOptions): void {
   // Implement logic to add database diagrams
   // Example:
   pdfDoc.text('Database Diagram 1');
@@ -78,18 +89,6 @@ export function addStickyNotes(pdfDoc: CustomPDFDocument, collaborationOptions: 
       // You can handle color and font customization here
     }
   }
-}
-
-// Function to add collaborative highlighting to the PDF
-export function addCollaborativeHighlight(
-  pdfDoc: CustomPDFDocument,
-  collaborationOptions: CollaborationOptions,
-  highlightData: HighlightData,
-): void {
-  // Implement logic to add collaborative highlighting
-  // Example:
-  pdfDoc.fillColor(highlightData.color || 'yellow')
-  pdfDoc.rect(highlightData.x || 0, highlightData.y || 0, highlightData.width || 0, highlightData.height || 0).fill()
 }
 
 // Function to add inline comments to the PDF
@@ -183,20 +182,6 @@ export function handleUserPermissionLevels(
 }
 
 
-// Function to add time-stamped annotations to the PDF
-export function addTimeStampedAnnotation(
-  pdfDoc: CustomPDFDocument,
-  collaborationOptions: CollaborationOptions,
-  annotationData: AnnotationData,
-): void {
-  // Implement logic to add time-stamped annotations
-  // Example:
-  const timestamp = new Date().toLocaleString()
-  pdfDoc.text(`[${timestamp}] Annotation: ${annotationData.content}`, annotationData.x || 0, annotationData.y || 0)
-}
-
-
-
 // Function to embed media elements (e.g., images, videos) into the PDF
 export function embedMediaElements(
   pdfDoc: CustomPDFDocument,
@@ -287,5 +272,5 @@ export function applyAdvancedTextFormatting(
 ): void {
   // Implement logic for advanced text formatting (e.g., bold, italics, underline)
   // Example:
-  pdfDoc.fontSize(14).text('Formatted Text', { bold: true, underline: true })
+  pdfDoc.fontSize(14).text('Formatted Text', 0, 0, { bold: true, underline: true })
 }

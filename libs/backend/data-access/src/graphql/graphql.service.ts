@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import { GraphQLSchema, printSchema } from 'graphql';
-import { makeSchema } from 'nexus'; // <-- Update import statement
+import { makeSchema } from 'nexus';
 import { join } from 'path';
 import { BackendDataAccessService } from '../backend-data-access/backend-data-access.service';
 

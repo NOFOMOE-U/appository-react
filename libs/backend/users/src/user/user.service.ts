@@ -3,35 +3,27 @@
 
 // responsible for handling business logic and validation,
 import {
-
   emailUniquenessRule, validateUser
 } from '@appository/backend/data-access'
 
 import { CustomRequestWithContext } from '@appository/backend/request-options'
 
+import { MyContext } from '@appository/backend/context-system'
+import { AccessLevel, PrismaService, deleteUser, userRegistrationSchema, validatePasswordAsync, validateUserSchema } from '@appository/backend/data-access'
+import { CustomRequestInit, YourRequestObject } from '@appository/backend/request-options'
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { validate } from 'class-validator'
-import { createUser } from './create-user' 
-import { deleteUser } from '@appository/backend/data-access'
-import { MyContext } from '@appository/backend/context-system'
 import { hashPassword } from 'libs/backend/data-access/src/interfaces/auth/user-with-password-hash'
-import prisma from 'libs/backend/data-access/src/lib/prisma/prisma'
-import { PrismaService } from '@appository/backend/data-access'
-import { AccessLevel } from '@appository/backend/data-access'
-import { CustomRequestInit } from '@appository/backend/request-options'
-import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
-import { emailSchema } from '../../../data-access/src/middleware/validation-yup-schemas/validate-email' 
-import userRegistrationSchema from '../../middleware/validation-yup-schemas/validate-registration'
-import { validateUserSchema } from '../../middleware/validation-yup-schemas/validate-user'
-import { validatePasswordAsync } from '@appository/backend/data-access'
+import { prisma } from 'libs/backend/data-access/src/lib/prisma/prisma'
+import errorMessages from 'libs/shared-features/reports/src/error-messages'
+import { emailSchema } from '../../../data-access/src/middleware/validation-yup-schemas/validate-email'
+import { BaseService } from '../../../data-access/src/services/base-service'
+import { createUser } from './create-user'
 import { UserWithAccessToken, UserWithoutSensitiveData } from './user'
 import { getAllUsers } from './user-queries/get-all-users'
 import { UserInput } from './user.input'
-import { YourRequestObject } from '@appository/backend/request-options';
-import { User } from '@appository/backend/data-access';
-import { BaseService } from '../../../data-access/src/services/base-service';
-
+// import { User } from 
 
 
 @Injectable()
@@ -61,7 +53,7 @@ export class UserService extends BaseService {
       username: 'youKnoMe',
       userProfileId: 0,
       groupId: null,
-      accessLevel: 'FREE',
+      accessLevel: 'free',
       createdAt: new Date(Date.now()),
       updatedAt: new Date(),
       resetPasswordToken: null,
@@ -76,11 +68,10 @@ export class UserService extends BaseService {
       roles: ['USER'],
       userProfileId: 1,
       groupId: null,
-      accessLevel: 'STANDARD',
+      accessLevel: 'standard',
       createdAt: new Date(Date.now()),
       updatedAt: new Date(),
       resetPasswordToken: null,
-      passwordHash: undefined, 
       confirmPassword: null,
       confirmPasswordMatch: null
     },
@@ -92,11 +83,10 @@ export class UserService extends BaseService {
       username: 'toBit',
       userProfileId: 2,
       groupId: null,
-      accessLevel: 'PREMIUM',
+      accessLevel: 'premium',
       createdAt: new Date(Date.now()),
       updatedAt: new Date(),
       resetPasswordToken: null,
-      passwordHash: undefined,
       confirmPassword: null,
       confirmPasswordMatch: null
     },
@@ -137,7 +127,7 @@ export class UserService extends BaseService {
     }
 
     //If the vaidation is successfully registered, proceed to create user
-    return createUser(prisma, context, user)
+    return createUser(prisma, user, context)
   }
 
   async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User | null> {

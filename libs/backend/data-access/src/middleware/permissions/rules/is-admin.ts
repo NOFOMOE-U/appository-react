@@ -1,8 +1,7 @@
+import { getUserById } from '@appository/backend/users';
+import { errorMessages } from '@appository/shared-features/reports';
 import { UserRole } from '@prisma/client';
 import { rule } from 'graphql-shield';
-import { getUserById } from '../../../modules/user/user-queries/get-user-by-id';
-import errorMessages from '../error-messages';
-
 
 export const isAdmin = rule()(async (_, __, { request, prisma }) => {
   const userId = await getUserById(request);

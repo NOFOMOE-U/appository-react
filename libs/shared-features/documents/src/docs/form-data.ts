@@ -1,14 +1,21 @@
-import { AppConfiguration, CustomURLSearchParams, MyContext } from '@appository/backend/context-system'
-import { convertUserToUserWithAccessToken } from '@appository/backend/data-access'
-import { UserWithAccessToken } from '@appository/backend/users'
-
-import { AccessLevel, PrismaService } from '@appository/backend/data-access'
-import { BodyContent, CustomRequest, CustomRequestInit, CustomRequestWithContext, CustomSessionType, MyCustomRequest, YourRequestObject, myContext } from '@appository/backend/request-options'
-import { UserService, UserWithoutSensitiveData } from '@appository/backend/users'
+import { CustomURLSearchParams, MyContext } from '@appository/backend/context-system'
+import { AccessLevel, PrismaService, convertUserToUserWithAccessToken } from '@appository/backend/data-access'
+import {
+  BodyContent,
+  CustomRequest,
+  CustomRequestInit,
+  CustomRequestWithContext,
+  CustomSessionType,
+  MyCustomRequest,
+  YourRequestObject,
+  myContext
+} from '@appository/backend/request-options'
+import { UserService, UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/users'
+import { AppConfiguration } from 'libs/app-configuration-system/src/app-configuration.service'
 import { CustomPrismaClient } from 'libs/backend/data-access/src/lib/prisma/prisma'
 import { getUserId } from 'libs/backend/data-access/src/utils/backend-auth.utils'
 
-
+// import { CustomURLSearchParams } from 
 type UserLoginSessionType = CustomRequestWithContext<CustomRequestInit>
   & UserWithAccessToken
 
@@ -150,6 +157,12 @@ updateRequest.body = updateRequest.requestBody
 
 // //no further conversiion needed, you can directly assing requestBody to body
 // updateRequest.body = updateRequest.requestBody
+
+
+
+
+
+
 
 //#todo
 // File Uploads: Allow users to upload files and documents related to their projects. You can use FormData to construct requests for file uploads. Users can attach project documents, images, or any other files relevant to the product management tasks.

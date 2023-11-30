@@ -1,8 +1,9 @@
 // routes.ts
 
-import { Request, Response } from 'express';
-import { generatePDF } from '../../docs/doc-generator/generate-pdf';
-import { MyOptions } from '../../middleware/permissions/shield/my-options.interface';
+import { generatePDF } from '@appository/shared-features/documents';
+import { Request, Response } from 'express-serve-static-core';
+import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface';
+ 
 
 
 // Create a function to generate MyOptions

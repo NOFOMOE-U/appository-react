@@ -2,13 +2,15 @@ import { Controller, InternalServerErrorException, UnauthorizedException } from 
 import { ApiService } from '../api-config/api-service';
 // isAuthorized
 // } from 'your-authentication-module'; // Import your authentication module
-import { MyContext } from '@appository/backend/context-system';
 import { UserService, UserWithAccessToken } from '@appository/backend/users';
 import { Response } from 'express-serve-static-core';
+import { MyContext } from 'libs/backend/context-system/src/context/my-context';
 import { isAuthenticated } from 'libs/backend/data-access/src/interfaces/auth/access-level';
-import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages';
 import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface';
+
+import { errorMessages } from '@appository/shared-features/reports';
 import { APIRequestOptions, ApiRequestFunction } from '../make-api-request';
+
 @Controller('api') // Define the base route for API endpoints
 export class ApiController {
   constructor(

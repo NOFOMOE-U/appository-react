@@ -1,8 +1,8 @@
+import { YourRequestObject } from '@appository/backend/api-system';
+import { MyContext } from '@appository/backend/context-system';
+import { app } from '@appository/backend/data-access';
+import { generateMarkdown } from '@appository/shared-features/documents';
 import path from 'path';
-import { MyContext } from "../../../context/my-context";
-import { generateMarkdown } from '../../../docs/doc-generator/generate-markdown';
-import { app } from '../../../server';
-import { YourRequestObject } from "../../requests/custom-request-with-context";
 
 // Similarly, for generating a Markdown file
 app.post('/generate-markdown', async (req: YourRequestObject<MyContext>, res: Response) => {

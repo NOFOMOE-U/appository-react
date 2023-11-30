@@ -1,14 +1,12 @@
-import { User } from '@prisma/client';
-import { verifyPassword } from '../../../interfaces/auth/user-with-password-hash';
-import prisma from '../../../lib/prisma/prisma';
+import { prisma } from 'libs/backend/data-access/src/lib/prisma/prisma';
+import { verifyPassword } from '../../../../data-access/src/interfaces/auth/user-with-password-hash';
+import { UserWithoutSensitiveData } from '../user';
 import { userSelect } from '../user-select';
-
-type UserWithoutPassword = Omit<User, 'passwordHash'>;
 
 export const authenticate = async (
     email: string,
     password: string
-  ): Promise<UserWithoutPassword | null> => {
+  ): Promise<UserWithoutSensitiveData | null> => {
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -30,5 +28,5 @@ export const authenticate = async (
   
     const { passwordHash, resetPasswordToken, ...userWithoutPassword } = user;
   
-    return userWithoutPassword as UserWithoutPassword;
+    return userWithoutPassword;
   };

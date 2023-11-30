@@ -1,6 +1,6 @@
 import { Task, TaskStatus } from '@prisma/client'
 import yup from 'yup'
-import errorMessages from '../permissions/error-messages'
+import errorMessages from '../../../../../shared-features/reports/src/error-messages'
 
 export const validateTask = async (taskData: Task): Promise<void> => {
   const schema = yup.object().shape({

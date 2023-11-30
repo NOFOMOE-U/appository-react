@@ -1,6 +1,6 @@
+import { UserService } from '@appository/backend/users'
 import { Injectable } from '@nestjs/common'
 import { Task as TaskType, User, UserRole } from '@prisma/client'
-import { UserService } from '../../modules/user/user.service'
 import { permissionsMatrix } from './permissions-matrix'
 @Injectable()
 export class PermissionsService {
@@ -27,6 +27,7 @@ export class PermissionsService {
     }
     return false
   }
+
   //Check if the user has administrative privileges
   isAdmin(user: User): boolean {
     return user && user.roles.some((role) => ['ADMIN', 'MANAGER', 'SUPER_ADMIN'].includes(role))

@@ -1,10 +1,50 @@
 import { UserRole } from "@appository/backend/data-access";
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class ConfigurationService {
+  getConfig(): AppConfiguration {
+    // Transfer the content of your app-configuration.ts here
+    return {
+      enableVideo: true,
+      enableAudio: true,
+      defaultUserRole: UserRole.Viewer,
+      userRoles: [UserRole.Viewer, UserRole.Editor, UserRole.Owner],
+      allowRegistration: true,
+      requireEmailVerification: false,
+      restrictAccessByLocation: true,
+      // ... other configuration properties
+      enableRealTimeCollaboration: false,
+      allowPublicRooms: true,
+      allowPrivateRooms: false,
+      enableModeration: false,
+      moderatorRoles: [UserRole.Owner],
+      allowFileUploads: true,
+      maxFileSize: 0,
+      enableNotifications: false,
+      allowedLocations: ['US', 'CA', 'MX'],
+    };
+  }
+
+  isVideoEnabled(): boolean {
+    return this.getConfig().enableVideo;
+  }
+
+  isAudioEnabled(): boolean {
+    return this.getConfig().enableAudio;
+  }
+
+  isRealTimeCollaborationEnabled(): boolean { 
+    return this.getConfig().enableRealTimeCollaboration;
+  }
+
+  // ... additional methods for other configuration checks
+}
 
 export type AppConfiguration = {
-    enableVideo: boolean;
-    enableAudio: boolean;
-
-
+  // ... your existing AppConfiguration type
+  enableVideo: boolean
+  enableAudio: boolean
   // User Permissions
   defaultUserRole: UserRole; // Default role for new users.
   userRoles: UserRole[]; // User roles with respective permissions.
@@ -30,11 +70,13 @@ export type AppConfiguration = {
 //   todo update prisma to recognize Type
   // notificationPreferences: NotificationPreferences[]; // Notification preferences.
 
+  enableRealTimeCollaboration: boolean; // Enable real-time collaboration features.
   // Access Control
   restrictAccessByLocation: boolean; // Restrict access based on user location.
   allowedLocations: string[]; // List of allowed locations.
 
-}
+};
+
 
 
 // how to use

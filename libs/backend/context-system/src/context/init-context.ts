@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 import { Headers } from 'node-fetch'
+import { AppConfiguration } from '../../../../app-configuration-system/src/app-configuration.service'
 import { BodyContent, CustomRequestInit } from '../make-api/requests/custom-request-init'
 import { CustomRequestWithContext, YourRequestObject } from '../make-api/requests/custom-request-with-context'
 import { UserWithAccessToken } from '../modules/user/user'
 import { UserService } from '../modules/user/user.service'
-import { AppConfiguration } from './app-configuration'
 import { CustomContextType } from './custom-context-type'
 import { CustomURLSearchParams, MyContext } from './my-context'
 
@@ -59,7 +59,7 @@ export const createInitialContext = (req: CustomRequestWithContext<MyContext>): 
         return headers.forEach(callback)
       },
       get(name: string): string {
-        const value: string = ''
+        const value = ''
         return value
       },
       sort: () => [],

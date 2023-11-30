@@ -1,15 +1,15 @@
-import { generateMarkdown, generatePDF } from '@appository/backend/data-access'
 import {
   CustomRequestWithContext,
   RequestOptions,
   getDefaultAxiosOptions
 } from '@appository/backend/request-options'
+import { generateMarkdown, generatePDF } from '@appository/shared-features/documents'
 import { ParamsDictionary, Request } from 'express-serve-static-core'
-import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
+import errorMessages from 'libs/shared-features/reports/src/error-messages'
 import path from 'path'
 import { ParsedQs } from 'qs'
 
-import { MyContext } from '@appository/backend/context-system'
+import { MyContext } from 'libs/backend/context-system/src/context/my-context'
 import { MyOptions } from 'libs/backend/data-access/src/middleware/permissions/shield/my-options.interface'
 import { CustomPrismaClient } from '../../../data-access/src/lib/prisma/prisma'
 

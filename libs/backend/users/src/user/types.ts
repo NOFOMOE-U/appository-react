@@ -1,6 +1,7 @@
 import { Context } from '@appository/backend/context-system'
-import { User, hashPassword } from '@appository/backend/data-access'
-import { Prisma } from '@prisma/client'
+import { User } from '@appository/backend/data-access'
+import { Prisma, } from '@prisma/client'
+import { hashPassword } from 'libs/backend/data-access/src/interfaces/auth/user-with-password-hash'
 import { enumType, extendType, nullable, objectType } from 'nexus'
 
 export const UserRoleEnum = enumType({

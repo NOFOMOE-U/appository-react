@@ -1,12 +1,14 @@
 import PDFKit from 'pdfkit';
-import { CollaborationOptions, StickyNote } from "./collaboration-and-interaction/colab-document-interfaces";
-
+import {
+  CollaborationOptions,
+  StickyNote
+} from "./collaboration-and-interaction/colab-document-interfaces";
 
 export interface CustomPDFDocument extends PDFKit.PDFDocument {
   // [x: string]: any;
-  scrollTo(x: string): any;
+  scrollTo(options: ScrollToOptions): void;
   cursor(x: number, y: number, arg2: number): unknown;
-
+  save(): this
   // text(text: string): any
   filePath: string
   addOutlines(outlines: any[]): void

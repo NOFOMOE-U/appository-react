@@ -99,4 +99,6 @@ const errorMessages = {
   invalidDocument: 'Problem creating the document, please try again'
 } as { [key: string]: string }
  
-export default errorMessages
+
+
+export { errorMessages };

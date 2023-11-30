@@ -1,19 +1,15 @@
-//may need to connect anything connected to core into a different module to ensure 
-//no circular dependency. keep that in mind.
-import {
-  UserService,
-  UserWithAccessToken,
-  UserWithoutSensitiveData,
-  YourRequestObject
-} from '@appository/backend/data-access';
 
-import { CustomSessionType } from '@appository/backend/data-access';
+// import { UserService, UserWithoutSensitiveData } from '@appository/backend/users';
+// import { CustomRequestInit, CustomSessionType } from '@appository/backend/request-options';
 import { PrismaClient } from '@prisma/client';
 import { IncomingMessage } from 'http';
-import { BodyContent, CustomRequestInit } from 'libs/backend/data-access/src/make-api/requests/custom-request-init';
+// import { BodyContent } from '@appository/backend/request-options';
 import { URLSearchParams } from 'url';
-import { AppConfiguration } from './app-configuration';
+import { AppConfiguration } from '../../../../app-configuration-system/src/app-configuration.service';
 import { CustomContextType } from './custom-context-type';
+ 
+// import { UserWithAccessToken } from '@appository/backend/users';
+
 
 export interface CustomURLSearchParams extends URLSearchParams {
   append: (key: string, value: string) => void;

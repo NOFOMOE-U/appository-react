@@ -1,6 +1,6 @@
 import { and, chain, not, or, rule } from 'graphql-shield'
 import { IRuleFieldMap, IRuleTypeMap } from 'graphql-shield/typings/types'
-import errorMessages from '../error-messages'
+import errorMessages from '../../../../../../shared-features/reports/src/error-messages'
 import { isAdmin } from '../rules/is-admin'
 import { isAuthenticatedUser } from '../rules/is-authenticated-user'
 import { isEditor } from '../rules/is-editor'

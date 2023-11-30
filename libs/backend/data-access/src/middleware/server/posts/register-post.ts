@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
+import errorMessages from '../../../../../../shared-features/reports/src/error-messages';
 import { YourRequestObject } from '../../../make-api/requests/custom-request-with-context';
 import { app } from '../../../server';
-import errorMessages from '../../permissions/error-messages';
 import userRegistrationSchema from '../../validation-yup-schemas/validate-registration';
 
 app.post('/register', (req: YourRequestObject<{}>, res: Response, next: NextFunction) => {

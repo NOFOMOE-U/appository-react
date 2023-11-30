@@ -1,11 +1,13 @@
-import { AppConfiguration, CustomURLSearchParams, MyContext, createContext } from '@appository/backend/context-system'
-import { CustomRequest, PrismaService } from '@appository/backend/data-access'
+import { Context, CustomURLSearchParams, MyContext, createContext } from '@appository/backend/context-system'
+import { PrismaService } from '@appository/backend/data-access'
 import { UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/users'
 import { PrismaClient } from '@prisma/client'
 import { NextFunction, ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { IncomingHttpHeaders } from 'http'
+import { AppConfiguration } from 'libs/app-configuration-system/src/app-configuration.service'
 import { ParsedQs } from 'qs'
 import { AccessLevel } from '../../../data-access/src/interfaces/auth/access-level'
+import { CustomRequest } from './custom-request'
 import { BodyContent, CustomRequestInit } from './custom-request-init'
 import { CustomSessionType } from './my-custom-request'
 
@@ -15,7 +17,7 @@ export class YourRequestObject<T> {
   readonly requestBody: BodyContent | null | undefined
   private readonly request: CustomRequest
   private readonly accessLevel: AccessLevel
-  // private readonly context: Context
+  private readonly context: Context
   // private readonly session: CustomSessionType
 
   // accessLevel?: AccessLevel
@@ -37,10 +39,10 @@ export class YourRequestObject<T> {
     this.customProp = 'custom-prop'
     this.prismaService = prismaService
     this.documentContent = 'document-content'
-    // this.context = createContext(prisma, this.req) as Context
     this.method = 'GET'
     this.route = '/route'
     this.req ={} as URLSearchParams
+    this.context = {} as Context
     this.request =  {} as CustomRequest 
     this.body = {} as BodyInit
     this.requestBody = {} as BodyContent
@@ -93,6 +95,7 @@ export interface CustomRequestWithContext<T> extends Omit<CustomSessionType, 'co
   cache: RequestCache
   headers: CustomContextHeaders
   req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+  res: Response
 }
 
 // Middleware function to attach our custom context to the request object

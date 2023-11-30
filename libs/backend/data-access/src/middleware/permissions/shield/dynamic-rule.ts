@@ -1,5 +1,5 @@
+import { errorMessages } from "@appository/shared-features/reports";
 import { chain, rule } from "graphql-shield";
-import errorMessages from "../error-messages";
 import { isAdmin } from "../rules/is-admin";
 import { isAuthenticatedUser } from "../rules/is-authenticated-user";
 

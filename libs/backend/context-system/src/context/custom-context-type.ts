@@ -7,7 +7,7 @@ import {
   BodyContent,
   CustomRequestInit,
 } from 'libs/backend/data-access/src/make-api/requests/custom-request-init';
-import { AppConfiguration } from './app-configuration';
+import { AppConfiguration } from '../../../../app-configuration-system/src/app-configuration.service';
 import { CustomURLSearchParams, MyContext } from './my-context';
 
 export interface CustomContextType<T = MyContext<{}>> {

@@ -1,5 +1,4 @@
-import { createColorPicker, createTextElement } from "../docs/tools/document-editing-tools";
-
+import { createColorPicker, createTextElement } from "../../../../shared-features/documents/src/docs/tools/document-editing-tools";
 // Assume this is a simplified user preference object
 export interface LandingPagePreferences {
     title: string;

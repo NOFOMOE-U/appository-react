@@ -1,15 +1,16 @@
-import { CustomPrismaClient } from '../../lib/prisma/prisma';
-import { PrismaService } from '../../lib/prisma/prisma.service';
-import { User } from '@appository/backend/data-access';
-
+import { PrismaService } from '@appository/backend/data-access';
+import { CustomPrismaClient } from 'libs/backend/data-access/src/lib/prisma/prisma';
 
 let prisma: CustomPrismaClient;
-export interface UserWithoutSensitiveData extends Omit<User, 'passwordHash' | 'resetPasswordToken'> {
+export interface UserWithoutSensitiveData {
   password?: string
   passwordHash?: never
   resetPasswordToken?: null | string
   id: string
+  email?: string
+  
 }
+
 
 
 export type UserWithAccessToken = UserWithoutSensitiveData & {

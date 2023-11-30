@@ -7,7 +7,7 @@ export function toggleCursorVisibility() {
   cursorsVisible = !cursorsVisible;
 }
 
-export function drawCursors(pdfDoc) {
+export function drawCursors(pdfDoc: PositonCursor) {
   if (cursorsVisible) {
     // Draw all visible cursors
     for (const cursor of cursors) {

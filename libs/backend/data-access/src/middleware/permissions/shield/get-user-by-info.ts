@@ -1,6 +1,6 @@
+import { MyContext } from '@appository/backend/context-system';
 import { verify } from 'jsonwebtoken';
 import { MiddlewareFn } from 'type-graphql';
-import { MyContext } from '../../../context/my-context';
 
 
 export const getUserInfo: MiddlewareFn<MyContext> = async ({ context }, next) => {

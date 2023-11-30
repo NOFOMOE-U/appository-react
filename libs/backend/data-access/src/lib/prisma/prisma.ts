@@ -6,6 +6,6 @@ export interface CustomPrismaClient extends PrismaClient {
     schema?: string
 }
 
-const prisma: CustomPrismaClient = new PrismaClient()
+export const prisma: CustomPrismaClient = new PrismaClient()
 
-export default prisma
+

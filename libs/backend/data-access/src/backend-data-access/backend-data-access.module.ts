@@ -1,4 +1,3 @@
-import { BackendConnectorModule } from '@appository/backend/connector'
 import { Module } from '@nestjs/common'
 //todo aqua
 // import { AquaModule } from '../../../communication/src/aqua/aqua.module'
@@ -12,8 +11,8 @@ import { BackendDataAccessService } from './backend-data-access.service'
   imports: [GraphQLModule,
 
   ],
-providers: [PrismaService, BackendDataAccessService, BackendDataModelModule, BackendConnectorModule ],
-  exports: [PrismaService, BackendDataAccessService, BackendDataModelModule, BackendConnectorModule ]
+providers: [PrismaService, BackendDataAccessService, BackendDataModelModule  ],
+  exports: [PrismaService, BackendDataAccessService, BackendDataModelModule ]
 })
 export class BackendDataAccessModule {
   providers!: any[];  // use non-null assertion operator

@@ -1,15 +1,17 @@
+import { AccessLevel } from '@appository/backend/data-access';
+import { UserService, getUserById } from '@appository/backend/users';
+import { errorMessages } from '@appository/shared-features/reports';
 import { rule } from 'graphql-shield';
 import { PrismaService } from '../../../lib/prisma/prisma.service';
-import { getUserById } from '../../../modules/user/user-queries/get-user-by-id';
-import { UserService } from '../../../modules/user/user.service';
-import errorMessages from '../error-messages';
 import { PermissionsService } from '../permissions.service';
 
+
+const accessLevel= {} as  AccessLevel
 const prismaService = new PrismaService()
-const userService = new UserService(prismaService);
+const userService = new UserService(prismaService, accessLevel);
 const permissionService = new PermissionsService(userService)
 // Define the rule function
-const isAuthorized = rule()(async (_, __, { request, prisma }) => {
+export const isAuthorized = rule()(async (_, __, { request, prisma }) => {
   // Replace this logic with your authorization logic
   const userId = await getUserById(request);
   if (typeof userId !== 'string') {

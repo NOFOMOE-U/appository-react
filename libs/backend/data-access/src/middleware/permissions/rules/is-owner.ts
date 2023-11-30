@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { rule } from 'graphql-shield';
+import errorMessages from '../../../../../../shared-features/reports/src/error-messages';
 import { UserWithoutSensitiveData } from '../../../modules/user/user';
-import errorMessages from '../error-messages';
 
 const prisma = new PrismaClient();
 

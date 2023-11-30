@@ -1,7 +1,14 @@
-// import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
-import { UserWithAccessToken } from '@appository/backend/users'
+import { UserWithAccessToken } from '@appository/backend/users';
+import { verifyEnterpriseUser, verifyPremiumAccess, verifyStandardAccess } from '../../level-access-permissions';
 
-export function createUserWithAccessToken(name: string, email: string, accessLevel: AccessLevel): UserWithAccessToken {
+export type AccessLevel = 
+'free' | 'standard' | 'premium' | 'enterprise'
+
+export function createUserWithAccessToken(
+  name: string,
+  email: string,
+  accessLevel: AccessLevel
+): UserWithAccessToken {
   return {
     name,
     email,
@@ -12,27 +19,26 @@ export function createUserWithAccessToken(name: string, email: string, accessLev
   } as UserWithAccessToken
 }
 
-//todo set up prisma type and add to schema
-export type AccessLevel = 
-'free' | 'standard' | 'premium' | 'enterprise'
-
-
 export function isAuthenticated(accessLevel: string): boolean {
   switch (accessLevel) {
-    case 'free':
-      // Implement logic for free access
-      return true // For demonstration purposes, consider free access as always authenticated
-    case 'standard':
-      // Implement logic for premium access
-      return true // Replace with actual authentication logic
-    case 'premium':
-      // Implement logic for premium access
-      return true // Replace with actual authentication logic
-    case 'enterprise':
-      // Implement logic for enterprise access
-      return true // Replace with actual authentication logic
-    default:
-      return false // Invalid access tier
+      case 'free':
+        // For demonstration purposes, consider free access as always authenticated
+        return true;
+  
+      case 'standard':
+        // Example: Check if the user has a valid token for standard access
+        return verifyStandardAccess();
+  
+      case 'premium':
+        // Example: Check if the user has a valid token for premium access
+        return verifyPremiumAccess();
+  
+      case 'enterprise':
+        // Example: Check if the user has a valid token for enterprise access
+        return verifyEnterpriseUser();
+  
+      default:
+        return false; // Invalid access tier
   }
 }
 
@@ -54,8 +60,6 @@ export function mapAccessLevelToUserWithAccessToken(accessLevel: string): UserWi
         updatedAt: new Date(),
         passwordHash: undefined,
         resetPasswordToken: undefined,
-        confirmPassword: null,
-        confirmPasswordMatch: null,
       } as UserWithAccessToken
 
     case 'standard':
@@ -93,9 +97,7 @@ export function mapAccessLevelToUserWithAccessToken(accessLevel: string): UserWi
         specialFeatureAccess: true,
         supportPriority: 'high',
         extendedStorage: true,
-        passwordHash: undefined,
-        resetPasswordToken: undefined,
-      } as UserWithAccessToken
+   } as UserWithAccessToken
 
     case 'enterprise':
       // Mapping for an ENTERPRISE user

@@ -28,7 +28,7 @@ export interface StickyNote {
   font?: string
   position?: { x: number; y: number }
 }
-class CollaborationHelper {
+export class CollaborationHelper {
   constructor(private collaborationOptions: CollaborationOptions) {}
 
   applyFont(element: HTMLElement) {

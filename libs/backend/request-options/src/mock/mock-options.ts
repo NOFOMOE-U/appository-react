@@ -1,16 +1,16 @@
 import {
-  AppConfiguration,
   CustomContextType,
   CustomURLSearchParams,
   MyContext,
 } from '@appository/backend/context-system'
 import { createUserWithAccessToken } from '@appository/backend/data-access'
 import { UserService, UserWithoutSensitiveData } from '@appository/backend/users'
+import { DocumentHelper } from '@appository/shared-features/documents'
+import { errorMessages } from '@appository/shared-features/reports'
 import { ShieldRule } from 'graphql-shield/typings/types'
-import errorMessages from 'libs/backend/data-access/src/middleware/permissions/error-messages'
-import DocumentHelper from 'libs/shared-features/documents/src/PDFDocuments'
+import { AppConfiguration } from 'libs/app-configuration-system/src/app-configuration.service'
+import { prisma } from 'libs/backend/data-access/src/lib/prisma/prisma'
 import { hashPassword } from '../../../data-access/src/interfaces/auth/user-with-password-hash'
-import prisma from '../../../data-access/src/lib/prisma/prisma'
 import { MyOptions } from '../../../data-access/src/middleware/permissions/shield/my-options.interface'
 import { getUserId } from '../../../data-access/src/utils/backend-auth.utils'
 import { BodyContent } from '../custom-requests/custom-request-init'
@@ -24,7 +24,7 @@ const mockDataEntries: Record<string, string> = {
 }
 
 export const options: MyOptions = {
-  documentHelper: DocumentHelper,
+  documentHelper: {} as DocumentHelper,
   debug: true,
   namespace: '',
   qualifiedName: '',
@@ -316,7 +316,7 @@ export const options: MyOptions = {
     return Promise.resolve(false)
   },
   importNode: function <T extends Node>(node: T, deep?: boolean | undefined): T {
-    return node.cloneNode(deep) as T
+  return node.cloneNode(deep) as T
   },
 
   open(url?: string | URL, name?: string): Document {
@@ -341,8 +341,8 @@ export const options: MyOptions = {
     return ''
   },
   releaseEvents: function (): void {
-    throw new Error('Function not implemented.')
-  },
+
+    },
   requestStorageAccess: function (): Promise<void> {
     return Promise.resolve()
   },

@@ -8,7 +8,7 @@ import { BaseDocument } from './base-document'
 
 type CustomUserCreatedMarkdownDocument = Document & MarkdownDocument
 
-class MarkdownDocument extends BaseDocument  implements MarkdownDocument {
+export class MarkdownDocument extends BaseDocument  implements MarkdownDocument {
   attachments: any
   constructor(options: DocumentOptions) {
     super(options)
@@ -27,6 +27,7 @@ class MarkdownDocument extends BaseDocument  implements MarkdownDocument {
   // Example method to convert Markdown to HTML
   async convertToHTML(markdown: string): Promise<string> {
     const content = (this.htmlContent = convertMarkdownToHTML(markdown))
+    console.log(`Converting Markdown to HTML: ${markdown}`)
     return content
   }
 
@@ -119,7 +120,7 @@ export function createMarkdownDocument(content: string): MarkdownDocument {
   return { content, htmlContent } as MarkdownDocument
 }
 
-function convertMarkdownToHTML(markdown: string): string {
+export function convertMarkdownToHTML(markdown: string): string {
   // Implementation to convert markdown to HTML
   // For simplicity, the implementation just returns the input markdown as HTML
   return markdown

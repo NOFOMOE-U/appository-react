@@ -1,6 +1,6 @@
 import { objectType } from "nexus"
+import { UserWithoutSensitiveData } from "../../../backend/users/src/user/user"
 import { Context } from "../../context/context"
-import { UserWithoutSensitiveData } from "../user/user"
 
 export const UserProfileType = objectType({
     name: 'UserProfile',

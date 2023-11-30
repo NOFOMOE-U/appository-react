@@ -1,9 +1,9 @@
 // user-profile/user-profile.service.ts
 
+import { PrismaService } from '@appository/backend/data-access';
 import { Injectable } from '@nestjs/common';
-import { Prisma, UserProfile } from '@prisma/client';
-import { PrismaService } from '../../lib/prisma/prisma.service';
-
+import { Prisma } from '@prisma/client';
+// import { UserProfileModule } from './user-profile.module';
 @Injectable()
 export class UserProfileService  {
     constructor(

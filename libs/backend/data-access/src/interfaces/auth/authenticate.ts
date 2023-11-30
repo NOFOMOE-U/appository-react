@@ -1,35 +1,52 @@
-import { ExtendedCustomRequest, UserService } from '@appository/backend/data-access'
-import { PrismaClient, User, UserRole } from '@prisma/client'
+import { User } from '@appository/backend/users'
+import { PrismaClient, UserRole } from '@prisma/client'
 import { compare, hash } from 'bcryptjs'
+import { AppConfiguration } from 'libs/app-configuration-system/src/app-configuration'
+import { CustomContextType } from 'libs/backend/context-system/src/context/custom-context-type'
 import { URLSearchParams } from 'url'
-import { AppConfiguration } from '../../context/app-configuration'
-import { CustomContextType } from '../../context/custom-context-type'
-import { CustomURLSearchParams, MyContext } from '../../context/my-context'
-import { CustomSessionType } from '../../make-api/my-custom-request'
-import { BodyContent, CustomRequestInit } from '../../make-api/requests/custom-request-init'
-import { CustomRequestWithContext, YourRequestObject } from '../../make-api/requests/custom-request-with-context'
-import { UserWithAccessToken, UserWithoutSensitiveData } from '../../modules/user/user'
+
+import { BodyContent, CustomRequestInit, CustomRequestWithContext, CustomSessionType, ExtendedCustomRequest, YourRequestObject } from '@appository/backend/request-options'
+import { UserService, UserWithAccessToken, UserWithoutSensitiveData } from '@appository/backend/users'
+import { CustomURLSearchParams, MyContext } from 'libs/backend/context-system/src/context/my-context'
 import generateToken from '../../utils/generate-token.utils'
+import { AccessLevel } from './access-level'
 import { generateRandomHash } from './generate-random-hash'
 import { removeSensitiveData } from './remove-sensitive-data'
-import { UserWithPasswordHash } from './user-with-password-hash'
 
 export type SessionRequestContext = CustomRequestWithContext<MyContext<CustomSessionType>>['req'] &
   ExtendedCustomRequest<MyContext<CustomSessionType>>
 // Before calling any of these functions, ensure that context contains prisma
 const contextWithPrisma = createContextWithPrisma()
 
-export function convertUserToUserWithAccessToken(user: User): UserWithAccessToken {
+export function convertUserToUserWithAccessToken(user: UserWithoutSensitiveData): UserWithAccessToken {
+  const accessToken = generateToken({
+    id: user.id,
+    email: user.email,
+    accessLevel: user.accessLevel,
+    roles: user.roles,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    name: '',
+    username: '',
+    passwordHash: '',
+    groupId: null,
+    resetPasswordToken: null,
+    userProfileId: null,
+    confirmPassword: null,
+    confirmPasswordMatch: null,
+  })
+
   return {
-    ...user,
-    resetPasswordToken: undefined,
-    accessToken: generateToken(user),
-    userProfileId: user.id as unknown as number,
-    passwordHash: undefined,
-    accessLevel: user.accessLevel ,
-    username: user.username, // Add username property
+    user,
+    accessToken,
   }
 }
+
+
+
+
+
+
 
 export const initalizeUser = (): User => ({
   id: '1',
@@ -41,6 +58,7 @@ export const initalizeUser = (): User => ({
   updatedAt: new Date(),
   userProfileId: 98098087,
   accessLevel: 'FREE',
+  groupId: 1,
   passwordHash: generateRandomHash(), // Replace with an actual hashed password
   resetPasswordToken: `undefined`, // Replace with an actual reset token or use undefined
   confirmPassword: `undefined`, // Replace with an actual reset token or use undefined
@@ -223,7 +241,7 @@ async function createContextWithPrisma(): Promise<PrismaClient> {
 export const createUser = async (
   prisma: PrismaClient,
   context: MyContext,
-  userWithPasswordHash: UserWithPasswordHash,
+  userWithPasswordHash: UserWithAccessToken,
   roles: UserRole[] = ['USER'],
 ): Promise<UserWithoutSensitiveData> => {
   const allowedRoles = Object.values(UserRole)
